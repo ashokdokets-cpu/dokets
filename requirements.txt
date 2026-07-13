@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+pymongo
+motor
+redis
+python-dotenv
+pydantic
+pydantic-settings
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+aiofiles
+httpx
+bcrypt
+razorpay
+twilio
+email-validator

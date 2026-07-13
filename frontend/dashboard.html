@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokets VouchAI - Trust in Every Deal</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg: #F0F2F5;
+            --card: #FFFFFF;
+            --text: #1F2937;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+        [data-theme="dark"] {
+            --bg: #0F172A;
+            --card: #1E293B;
+            --text: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --border: #334155;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.4);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        .header {
+            background: linear-gradient(135deg, #4F46E5, #7C3AED);
+            color: white;
+            padding: 0 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(79,70,229,0.3);
+        }
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        .logo { display: flex; align-items: center; gap: 0.6rem; font-size: 1.3rem; font-weight: 700; color: white; text-decoration: none; }
+        .logo-icon { width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .user-menu { display: flex; align-items: center; gap: 0.8rem; }
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 240px 1fr 320px; gap: 1.5rem; }
+        .sidebar { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); height: fit-content; position: sticky; top: 76px; overflow: hidden; }
+        .sidebar-header { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; padding: 1rem; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 1rem; cursor: pointer; transition: all 0.2s; font-weight: 500; color: var(--text-secondary); border-left: 3px solid transparent; font-size: 0.9rem; }
+        .nav-item:hover, .nav-item.active { background: #EEF2FF; color: var(--primary); border-left-color: var(--primary); }
+        [data-theme="dark"] .nav-item:hover, [data-theme="dark"] .nav-item.active { background: #1E3A5F; }
+        .nav-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+        .content { display: flex; flex-direction: column; gap: 1.2rem; }
+        .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); }
+        .card-body { padding: 1.2rem; }
+        .card-title { font-size: 1rem; font-weight: 600; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .stat-card {
+            background: var(--card); border-radius: var(--radius); padding: 1.2rem;
+            box-shadow: var(--shadow); position: relative; overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .stat-card.purple::before { background: var(--primary); }
+        .stat-card.green::before { background: var(--success); }
+        .stat-card.orange::before { background: var(--warning); }
+        .stat-card.blue::before { background: #3B82F6; }
+        .stat-value { font-size: 1.6rem; font-weight: 700; }
+        .stat-label { color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.2rem; }
+        .btn {
+            padding: 0.5rem 1rem; border-radius: 8px; border: none; cursor: pointer;
+            font-weight: 500; font-size: 0.85rem; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 0.3rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.75rem; }
+        .btn-block { width: 100%; justify-content: center; }
+        .status-badge {
+            padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem;
+            font-weight: 600; text-transform: uppercase;
+        }
+        .status-draft { background: #FEF3C7; color: #92400E; }
+        .status-active { background: #D1FAE5; color: #065F46; }
+        .status-completed { background: #DBEAFE; color: #1E40AF; }
+        .tag { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; margin-right: 0.2rem; }
+        .tag-ai { background: #EDE9FE; color: #6D28D9; }
+        .tag-escrow { background: #D1FAE5; color: #065F46; }
+        .contract-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.8rem 1.2rem; border-bottom: 1px solid var(--border);
+            transition: all 0.2s; cursor: pointer;
+        }
+        .contract-item:hover { background: rgba(79,70,229,0.03); }
+        .right-panel { display: flex; flex-direction: column; gap: 1.2rem; }
+        .vouch-card { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-align: center; }
+        .vouch-circle {
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0.8rem auto; font-size: 2rem; font-weight: 700;
+        }
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--card); border-radius: var(--radius);
+            width: 90%; max-width: 550px; max-height: 85vh;
+            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; background: var(--card); z-index: 1;
+        }
+        .modal-body { padding: 1.2rem; }
+        .form-group { margin-bottom: 0.8rem; }
+        .form-group label { display: block; margin-bottom: 0.2rem; font-weight: 500; font-size: 0.85rem; color: var(--text); }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 0.6rem; border: 2px solid var(--border);
+            border-radius: 8px; font-size: 0.9rem; transition: all 0.2s;
+            background: var(--card); color: var(--text); font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+        }
+        .toast-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.4rem; }
+        .toast {
+            background: #1F2937; color: white; padding: 0.7rem 1rem;
+            border-radius: 8px; font-size: 0.85rem; animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .empty-state { text-align: center; padding: 2rem; color: var(--text-secondary); }
+        .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .theme-toggle {
+            width: 40px; height: 40px; border-radius: 50%; border: none;
+            cursor: pointer; font-size: 1.2rem; background: rgba(255,255,255,0.2); color: white;
+        }
+        .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .quick-action {
+            padding: 0.8rem; border-radius: var(--radius); cursor: pointer;
+            text-align: center; transition: all 0.2s; font-weight: 500; font-size: 0.85rem;
+            background: var(--card); border: 1px solid var(--border); color: var(--text);
+        }
+        .quick-action:hover { border-color: var(--primary); color: var(--primary); }
+        .activity-item {
+            padding: 0.6rem 0; border-bottom: 1px solid var(--border);
+            font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .activity-dot.create { background: var(--primary); }
+        .activity-dot.approve { background: var(--success); }
+        .activity-dot.payment { background: var(--warning); }
+        @media (max-width: 1024px) {
+            .main-container { grid-template-columns: 1fr; }
+            .right-panel, .sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo" onclick="showTab('dashboard')">
+                <div class="logo-icon">🛡️</div> Dokets VouchAI
+            </a>
+            <div class="user-menu">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌓</button>
+                <span style="font-weight:500;font-size:0.9rem;" id="userName">User</span>
+                <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">Navigation</div>
+            <div class="nav-item active" onclick="showTab('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
+            <div class="nav-item" onclick="showTab('contracts')"><span class="nav-icon">📝</span> Contracts</div>
+            <div class="nav-item" onclick="openModal('createModal')"><span class="nav-icon">✨</span> New Contract</div>
+            <div class="nav-item" onclick="openModal('aiModal')"><span class="nav-icon">🤖</span> AI Contract</div>
+            <div class="nav-item" onclick="showTab('vouch')"><span class="nav-icon">⭐</span> Vouch Score</div>
+            <div class="nav-item" onclick="openModal('paymentModal')"><span class="nav-icon">💳</span> Payments</div>
+            <div class="nav-item" onclick="openModal('whatsappModal')"><span class="nav-icon">💬</span> WhatsApp</div>
+        </aside>
+
+        <main class="content" id="mainContent">
+            <div id="tab-dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card purple"><div class="stat-label">Total Contracts</div><div class="stat-value" id="statTotal">0</div></div>
+                    <div class="stat-card green"><div class="stat-label">Active</div><div class="stat-value" id="statActive">0</div></div>
+                    <div class="stat-card orange"><div class="stat-label">In Escrow</div><div class="stat-value" id="statEscrow">₹0</div></div>
+                    <div class="stat-card blue"><div class="stat-label">Vouch Score</div><div class="stat-value" id="statVouch">--</div></div>
+                </div>
+                <div class="card"><div class="card-header"><span class="card-title">📋 Recent Contracts</span><button class="btn btn-primary btn-sm" onclick="openModal('createModal')">+ New</button></div><div id="recentContracts"><div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div></div></div>
+                <div class="card"><div class="card-header"><span class="card-title">🕐 Recent Activity</span></div><div id="activityFeed" class="card-body"><p class="text-secondary" style="font-size:0.85rem;">No recent activity</p></div></div>
+            </div>
+            <div id="tab-contracts" style="display:none;"><div class="card"><div class="card-header"><span class="card-title">All Contracts</span></div><div id="allContracts"></div></div></div>
+            <div id="tab-vouch" style="display:none;"><div class="card" style="text-align:center;"><div class="card-body"><h2>Your Vouch Score</h2><div class="vouch-circle" id="vouchLarge" style="border-color:var(--primary);color:var(--primary);">--</div><p style="font-size:1.1rem;font-weight:600;" id="vouchLevel">--</p></div></div></div>
+        </main>
+
+        <aside class="right-panel">
+            <div class="card vouch-card"><div class="card-body"><p style="opacity:0.8;font-size:0.8rem;">YOUR VOUCH SCORE</p><div class="vouch-circle" id="vouchSide">--</div><p style="font-weight:600;" id="vouchSideLevel">--</p></div></div>
+            <div class="card"><div class="card-header"><span class="card-title">⚡ Quick Actions</span></div><div class="card-body"><div class="quick-actions"><div class="quick-action" onclick="openModal('createModal')">📝 New Contract</div><div class="quick-action" onclick="openModal('aiModal')">🤖 AI Contract</div><div class="quick-action" onclick="openModal('paymentModal')">💳 Payment</div><div class="quick-action" onclick="openModal('whatsappModal')">💬 WhatsApp</div></div></div></div>
+        </aside>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="createModal"><div class="modal"><div class="modal-header"><h3>📝 New Contract</h3><button class="btn btn-sm" onclick="closeModal('createModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="createContract(event)"><div class="form-group"><label>Title</label><input type="text" id="ctitle" placeholder="e.g., Paint Living Room" required></div><div class="form-group"><label>Description</label><textarea id="cdesc" rows="2" placeholder="Describe the work..." required></textarea></div><div class="form-group"><label>Provider Phone</label><input type="tel" id="cphone" placeholder="+919876543210" required></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;"><div class="form-group"><label>Amount</label><input type="number" id="camount" placeholder="5000" required></div><div class="form-group"><label>Currency</label><select id="ccurrency"><option value="INR">INR (₹)</option><option value="USD">USD ($)</option></select></div></div><button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;">🛡️ Create with Escrow</button></form></div></div></div>
+
+    <div class="modal-overlay" id="aiModal"><div class="modal"><div class="modal-header"><h3>🤖 AI Smart Contract</h3><button class="btn btn-sm" onclick="closeModal('aiModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="createAIContract(event)"><div class="form-group"><label>Describe the work naturally</label><textarea id="aitext" rows="3" placeholder="e.g., Need plumber to fix kitchen sink by tomorrow for 1500 rupees" required></textarea></div><div class="form-group"><label>Provider Phone</label><input type="tel" id="aiphone" placeholder="+919876543210" required></div><button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;background:linear-gradient(135deg,#7C3AED,#4F46E5);">🤖 Generate AI Contract</button></form></div></div></div>
+
+    <div class="modal-overlay" id="paymentModal"><div class="modal"><div class="modal-header"><h3>💳 Create Payment</h3><button class="btn btn-sm" onclick="closeModal('paymentModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="createPayment(event)"><div class="form-group"><label>Amount (INR)</label><input type="number" id="payamount" placeholder="5000" required></div><button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;">💳 Generate Payment Link</button></form><div id="paymentResult" style="margin-top:0.8rem;"></div></div></div></div>
+
+    <div class="modal-overlay" id="whatsappModal"><div class="modal"><div class="modal-header"><h3>💬 Send WhatsApp</h3><button class="btn btn-sm" onclick="closeModal('whatsappModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="sendWhatsApp(event)"><div class="form-group"><label>Phone Number</label><input type="tel" id="waphone" placeholder="+919876543210" required></div><div class="form-group"><label>Message</label><textarea id="wamessage" rows="2" placeholder="Type your message..." required></textarea></div><button type="submit" class="btn btn-success btn-block" style="padding:0.7rem;">💬 Send WhatsApp</button></form></div></div></div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        const API = 'http://127.0.0.1:8000/api/v1';
+        let token = localStorage.getItem('dokets_token') || '';
+        let currentUser = null;
+
+        // Theme
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        function toggleTheme() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+
+        async function init() {
+            if (!token) { showLogin(); return; }
+            await loadAll();
+        }
+
+        function showLogin() {
+            document.getElementById('mainContent').innerHTML = `
+                <div class="card" style="max-width:400px;margin:3rem auto;">
+                    <div class="card-header"><span class="card-title">Welcome to Dokets</span></div>
+                    <div class="card-body">
+                        <form onsubmit="handleLogin(event)">
+                            <div class="form-group"><label>Email</label><input type="email" id="loginEmail" value="a@a.com" required></div>
+                            <div class="form-group"><label>Password</label><input type="password" id="loginPassword" value="pass12345" required></div>
+                            <button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;">Login</button>
+                        </form>
+                        <p style="text-align:center;margin-top:0.8rem;font-size:0.8rem;color:var(--text-secondary);">Demo: a@a.com / pass12345</p>
+                    </div>
+                </div>`;
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            let res = await fetch(`${API}/users/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+            let data = await res.json();
+            if (!data.access_token) {
+                await fetch(`${API}/users/register`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,phone_number:'+919999999999',full_name:'User',password})});
+                res = await fetch(`${API}/users/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+                data = await res.json();
+            }
+            if (data.access_token) {
+                token = data.access_token;
+                localStorage.setItem('dokets_token', token);
+                currentUser = data.user;
+                toast('Welcome, ' + data.user.full_name + '!', 'success');
+                await loadAll();
+            }
+        }
+
+        async function api(endpoint, method='GET', body=null) {
+            if (!token) { toast('Please login', 'error'); return {success:false}; }
+            const opts = {method, headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}};
+            if (body) opts.body = JSON.stringify(body);
+            try {
+                const res = await fetch(`${API}${endpoint}`, opts);
+                if (res.status === 401) {
+                    const lr = await fetch(`${API}/users/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'a@a.com',password:'pass12345'})});
+                    const ld = await lr.json();
+                    if (ld.access_token) { token = ld.access_token; localStorage.setItem('dokets_token', token); opts.headers['Authorization'] = `Bearer ${token}`; const rr = await fetch(`${API}${endpoint}`, opts); return rr.json(); }
+                }
+                return res.json();
+            } catch(err) { return {success:false, detail:err.message}; }
+        }
+
+        async function loadAll() {
+            try {
+                const profile = await api('/users/me');
+                currentUser = profile;
+                document.getElementById('userName').textContent = profile.full_name || 'User';
+                const contractsData = await api('/contracts/');
+                const contracts = contractsData.contracts || [];
+                document.getElementById('statTotal').textContent = contracts.length;
+                document.getElementById('statActive').textContent = contracts.filter(c => c.status === 'active').length;
+                let escrowTotal = 0;
+                contracts.forEach(c => { if (c.escrows) c.escrows.forEach(e => { if (e.status === 'funded') escrowTotal += e.amount; }); });
+                document.getElementById('statEscrow').textContent = '₹' + escrowTotal.toLocaleString();
+                const vouch = await api(`/contracts/user/${profile.id}/vouch-score`);
+                ['statVouch','vouchLarge','vouchSide'].forEach(id => document.getElementById(id).textContent = vouch.vouch_score);
+                ['vouchLevel','vouchSideLevel'].forEach(id => document.getElementById(id).textContent = vouch.level + ' Level');
+                displayContracts(contracts);
+                displayActivity(contracts);
+            } catch(e) { console.error(e); }
+        }
+
+        function displayContracts(contracts) {
+            if (!contracts.length) {
+                document.getElementById('recentContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div>';
+                return;
+            }
+            const html = contracts.map(c => `
+                <div class="contract-item">
+                    <div><strong>${c.title}</strong>${c.ai_generated?' <span class="tag tag-ai">AI</span>':''}<span class="tag tag-escrow">Escrow</span><div style="font-size:0.8rem;color:var(--text-secondary);">${c.currency} ${c.total_amount.toLocaleString()}</div></div>
+                    <div style="text-align:right;"><span class="status-badge status-${c.status}">${c.status}</span><div style="font-size:0.75rem;color:var(--text-secondary);">${c.id}</div>${c.status==='draft'?`<button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">Approve</button>`:''}${c.status==='active'?`<button class="btn btn-primary btn-sm" onclick="completeContract('${c.id}')">Complete</button>`:''}</div>
+                </div>`).join('');
+            document.getElementById('recentContracts').innerHTML = html;
+            document.getElementById('allContracts').innerHTML = html;
+        }
+
+        function displayActivity(contracts) {
+            const activities = [];
+            contracts.forEach(c => {
+                activities.push({type:'create', text:`Contract "${c.title}" created`, time:c.created_at});
+                if (c.status === 'active') activities.push({type:'approve', text:`Contract "${c.title}" approved`, time:c.updated_at});
+            });
+            if (!activities.length) { document.getElementById('activityFeed').innerHTML = '<p style="font-size:0.85rem;color:var(--text-secondary);">No recent activity</p>'; return; }
+            document.getElementById('activityFeed').innerHTML = activities.slice(0,10).map(a => `
+                <div class="activity-item"><div class="activity-dot ${a.type}"></div><span>${a.text}</span></div>`).join('');
+        }
+
+        async function createContract(e) {
+            e.preventDefault();
+            const data = {title:document.getElementById('ctitle').value,description:document.getElementById('cdesc').value,provider_phone:document.getElementById('cphone').value,total_amount:parseFloat(document.getElementById('camount').value),currency:document.getElementById('ccurrency').value,milestones:[{id:'MS-'+Date.now(),title:'Complete Work',description:document.getElementById('cdesc').value,amount:parseFloat(document.getElementById('camount').value),deadline:new Date(Date.now()+7*86400000).toISOString().split('T')[0]}]};
+            const result = await api('/contracts/','POST',data);
+            if (result.success) { toast('Contract created! '+result.data.contract_id,'success'); closeModal('createModal'); await loadAll(); }
+        }
+
+        async function createAIContract(e) {
+            e.preventDefault();
+            const result = await api('/ai/smart-contract','POST',{text:document.getElementById('aitext').value,provider_phone:document.getElementById('aiphone').value});
+            if (result.success) { toast('AI Contract: '+result.data.contract_id,'success'); closeModal('aiModal'); await loadAll(); }
+        }
+
+        async function approveContract(id) { await api(`/contracts/${id}/approve`,'PUT'); toast('Approved!','success'); await loadAll(); }
+        async function completeContract(id) {
+            const c = await api(`/contracts/${id}`);
+            if (c.milestones?.length) { await api(`/contracts/${id}/complete-milestone/${c.milestones[0].id}`,'PUT'); toast('Completed! Payment released.','success'); await loadAll(); }
+        }
+
+        async function createPayment(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('payamount').value);
+            const result = await api('/payments/create-order','POST',{amount,currency:'INR',contract_id:'CT-TEST',milestone_id:'MS-TEST'});
+            document.getElementById('paymentResult').innerHTML = result.success?`<div style="background:#D1FAE5;padding:0.8rem;border-radius:8px;"><strong>Order Created!</strong><br>ID: ${result.data.order_id}<br>Amount: ₹${amount}</div>`:`<div style="background:#FEE2E2;padding:0.8rem;border-radius:8px;color:#991B1B;">Failed</div>`;
+            if (result.success) toast('Payment order created!','success');
+        }
+
+        async function sendWhatsApp(e) {
+            e.preventDefault();
+            await api('/whatsapp/send','POST',{phone:document.getElementById('waphone').value,message:document.getElementById('wamessage').value});
+            toast('WhatsApp sent! (Simulation)','success'); closeModal('whatsappModal');
+        }
+
+        function showTab(tab) {
+            ['dashboard','contracts','vouch'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'block':'none');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            event?.target?.closest('.nav-item')?.classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function toast(msg, type='') { const c = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3000); }
+        function logout() { localStorage.removeItem('dokets_token'); token = ''; location.reload(); }
+
+        init();
+    </script>
+</body>
+</html>
