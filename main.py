@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from core.database.mongodb import mongodb
-from api.routes import users, contracts, ai, payments, admin
+from api.routes import users, contracts, ai, payments, admin, kyc, chat, webhooks, disputes, analytics
 
 logging.basicConfig(
     level=logging.INFO,
@@ -52,6 +52,11 @@ app.include_router(contracts.router)
 app.include_router(ai.router)
 app.include_router(payments.router)
 app.include_router(admin.router)
+app.include_router(kyc.router)
+app.include_router(chat.router)
+app.include_router(webhooks.router)
+app.include_router(disputes.router)
+app.include_router(analytics.router)
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
