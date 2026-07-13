@@ -293,7 +293,7 @@ async def dashboard():
 
 @app.get("/health")
 async def health():
-    db_status = "connected" if mongodb.db else "disconnected"
+    db_status = "connected" if mongodb.db is not None else "disconnected"
     return {"status":"healthy","database":db_status,"version":"1.0.0"}
 
 if __name__ == "__main__":
