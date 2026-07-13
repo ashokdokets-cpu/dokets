@@ -5,30 +5,23 @@ from api.routes.contracts import _contracts
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
-ADMIN_EMAILS = ["admin@dokets.com"]
+ADMIN_EMAILS = ["admin@dokets.com", "a@a.com"]
+
+def check_admin(current_user: dict):
+    if current_user.get("email") not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail=f"Admin access required. Your email: {current_user.get('email')}")
+    return current_user
 
 @router.get("/stats")
 async def admin_stats(current_user: dict = Depends(get_current_user)):
-    if current_user["email"] not in ADMIN_EMAILS:
-        raise HTTPException(status_code=403, detail="Admin access required")
+    check_admin(current_user)
     
     return {
         "total_users": len(_users),
         "total_contracts": len(_contracts),
-        "active_contracts": len([c for c in _contracts if c["status"] == "active"]),
+        "active_contracts": len([c for c in _contracts if c.get("status") == "active"]),
+        "completed_contracts": len([c for c in _contracts if c.get("status") == "completed"]),
         "escrow_total": sum(c.get("total_amount", 0) for c in _contracts),
-        "users": [{"email": u["email"], "vouch_score": u.get("vouch_score", 0)} for u in _users],
-        "contracts": [{"id": c["id"], "title": c["title"], "status": c["status"]} for c in _contracts]
+        "users": [{"email": u["email"], "role": u.get("user_role"), "vouch_score": u.get("vouch_score")} for u in _users],
+        "contracts": [{"id": c["id"], "title": c["title"], "status": c.get("status"), "amount": c.get("total_amount")} for c in _contracts]
     }
-
-@router.get("/users")
-async def list_users(current_user: dict = Depends(get_current_user)):
-    if current_user["email"] not in ADMIN_EMAILS:
-        raise HTTPException(status_code=403, detail="Admin access required")
-    return {"users": _users}
-
-@router.get("/contracts")
-async def list_all_contracts(current_user: dict = Depends(get_current_user)):
-    if current_user["email"] not in ADMIN_EMAILS:
-        raise HTTPException(status_code=403, detail="Admin access required")
-    return {"contracts": _contracts}
