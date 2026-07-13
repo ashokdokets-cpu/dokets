@@ -26,10 +26,15 @@ async def lifespan(app: FastAPI):
     await mongodb.close()
     logger.info("Dokets VouchAI shutting down...")
 
+import os
+is_production = os.getenv("ENVIRONMENT") == "production"
+
+
 app = FastAPI(
     title="Dokets VouchAI API",
     version="1.0.0",
-    docs_url="/docs",
+    docs_url=None if is_production else "/docs",
+    redoc_url=None,
     lifespan=lifespan
 )
 
@@ -235,7 +240,7 @@ async def root():
             </div>
             
             <div class="cta-buttons">
-                <a href="/docs" class="btn btn-primary">📚 API Documentation</a>
+                <a href="/dashboard" class="btn btn-primary">🎨 Get Started</a>
                 <a href="/dashboard" class="btn btn-outline">🎨 Open Dashboard</a>
                 <a href="/health" class="btn btn-outline">💚 System Status</a>
             </div>
