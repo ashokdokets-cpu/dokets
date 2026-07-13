@@ -210,6 +210,11 @@
             <div class="nav-item" onclick="showTab('vouch')"><span class="nav-icon">⭐</span> Vouch Score</div>
             <div class="nav-item" onclick="openModal('paymentModal')"><span class="nav-icon">💳</span> Payments</div>
             <div class="nav-item" onclick="openModal('whatsappModal')"><span class="nav-icon">💬</span> WhatsApp</div>
+            <div class="nav-item" onclick="showTab('kyc')"><span class="nav-icon">🆔</span> KYC</div>
+            <div class="nav-item" onclick="showTab('chat')"><span class="nav-icon">💬</span> Chat</div>
+            <div class="nav-item" onclick="showTab('disputes')"><span class="nav-icon">⚖️</span> Disputes</div>
+            <div class="nav-item" onclick="showTab('admin')"><span class="nav-icon">📊</span> Admin</div>
+            <div class="nav-item" onclick="showTab('analytics')"><span class="nav-icon">📈</span> Analytics</div>
         </aside>
 
         <main class="content" id="mainContent">
@@ -224,6 +229,58 @@
                 <div class="card"><div class="card-header"><span class="card-title">🕐 Recent Activity</span></div><div id="activityFeed" class="card-body"><p class="text-secondary" style="font-size:0.85rem;">No recent activity</p></div></div>
             </div>
             <div id="tab-contracts" style="display:none;"><div class="card"><div class="card-header"><span class="card-title">All Contracts</span></div><div id="allContracts"></div></div></div>
+<div id="tab-kyc" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">🆔 KYC Verification</span></div>
+    <div class="card-body">
+        <form onsubmit="submitKYC(event)">
+            <div class="form-group"><label>Full Name</label><input type="text" id="kycName" required></div>
+            <div class="form-group"><label>ID Type</label><select id="kycType"><option value="aadhaar">Aadhaar</option><option value="pan">PAN</option><option value="passport">Passport</option></select></div>
+            <div class="form-group"><label>ID Number</label><input type="text" id="kycNumber" required></div>
+            <button type="submit" class="btn btn-primary btn-block">Submit KYC</button>
+        </form>
+        <div id="kycStatus" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-chat" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">💬 Chat</span></div>
+    <div class="card-body">
+        <div id="chatMessages" style="max-height:300px;overflow-y:auto;margin-bottom:1rem;"></div>
+        <form onsubmit="sendChat(event)" style="display:flex;gap:0.5rem;">
+            <input type="text" id="chatInput" placeholder="Type message..." style="flex:1;" required>
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+    </div></div>
+</div>
+
+<div id="tab-disputes" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">⚖️ Dispute Center</span></div>
+    <div class="card-body">
+        <form onsubmit="fileDispute(event)">
+            <div class="form-group"><label>Contract ID</label><input type="text" id="disputeContractId" required></div>
+            <div class="form-group"><label>Reason</label><input type="text" id="disputeReason" required></div>
+            <div class="form-group"><label>Description</label><textarea id="disputeDesc" rows="2"></textarea></div>
+            <button type="submit" class="btn btn-danger btn-block">File Dispute</button>
+        </form>
+        <div id="disputeResult" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-admin" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">📊 Admin Panel</span></div>
+    <div class="card-body">
+        <button class="btn btn-primary btn-block" onclick="loadAdminStats()">Load Stats</button>
+        <div id="adminStats" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-analytics" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">📈 Analytics</span></div>
+    <div class="card-body">
+        <button class="btn btn-primary btn-block" onclick="loadAnalytics()">Load Analytics</button>
+        <div id="analyticsData" class="mt-2"></div>
+    </div></div>
+</div>
             <div id="tab-vouch" style="display:none;"><div class="card" style="text-align:center;"><div class="card-body"><h2>Your Vouch Score</h2><div class="vouch-circle" id="vouchLarge" style="border-color:var(--primary);color:var(--primary);">--</div><p style="font-size:1.1rem;font-weight:600;" id="vouchLevel">--</p></div></div></div>
         </main>
 
@@ -390,8 +447,50 @@
             toast('WhatsApp sent! (Simulation)','success'); closeModal('whatsappModal');
         }
 
+        async function submitKYC(e) {
+            e.preventDefault();
+            const r = await api('/kyc/submit', 'POST', {
+            full_name: document.getElementById('kycName').value,
+            id_type: document.getElementById('kycType').value,
+            id_number: document.getElementById('kycNumber').value
+    });
+    document.getElementById('kycStatus').innerHTML = r.success ? '<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ KYC Submitted!</div>' : '<div style="color:red;">Failed</div>';
+    if (r.success) toast('KYC submitted!', 'success');
+    }
+
+         async function sendChat(e) {
+             e.preventDefault();
+             const msg = document.getElementById('chatInput').value;
+             const r = await api('/chat/send', 'POST', {to_id: '1', contract_id: 'general', message: msg});
+    if (r.success) {
+        document.getElementById('chatMessages').innerHTML += `<div style="padding:0.5rem;background:#EEF2FF;border-radius:8px;margin-bottom:0.3rem;"><strong>You:</strong> ${msg}</div>`;
+        document.getElementById('chatInput').value = '';
+    }
+}
+
+async function fileDispute(e) {
+    e.preventDefault();
+    const r = await api('/disputes/file', 'POST', {
+        contract_id: document.getElementById('disputeContractId').value,
+        reason: document.getElementById('disputeReason').value,
+        description: document.getElementById('disputeDesc').value
+    });
+    document.getElementById('disputeResult').innerHTML = r.success ? `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">Dispute filed: ${r.dispute.id}</div>` : 'Failed';
+    if (r.success) toast('Dispute filed!', 'success');
+}
+
+async function loadAdminStats() {
+    const r = await api('/admin/stats');
+    document.getElementById('adminStats').innerHTML = `<pre style="background:#F3F4F6;padding:1rem;border-radius:8px;overflow-x:auto;">${JSON.stringify(r, null, 2)}</pre>`;
+}
+
+async function loadAnalytics() {
+    const r = await api('/analytics/platform');
+    document.getElementById('analyticsData').innerHTML = `<pre style="background:#F3F4F6;padding:1rem;border-radius:8px;overflow-x:auto;">${JSON.stringify(r, null, 2)}</pre>`;
+}
+
         function showTab(tab) {
-            ['dashboard','contracts','vouch'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'block':'none');
+            ['dashboard','contracts','vouch','kyc','chat','disputes','admin','analytics'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'block':'none');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             event?.target?.closest('.nav-item')?.classList.add('active');
         }
