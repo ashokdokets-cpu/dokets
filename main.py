@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from core.database.mongodb import mongodb
 from api.routes import users, contracts, ai, payments, admin
+from fastapi.staticfiles import StaticFiles
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,6 +38,8 @@ app = FastAPI(
     redoc_url=None,
     lifespan=lifespan
 )
+
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
 
 app.add_middleware(
     CORSMiddleware,
@@ -302,6 +305,11 @@ async def manifest():
         "background_color": "#0F172A",
         "theme_color": "#4F46E5"
     }
+
+@app.get("/logo.png")
+async def logo():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/logo.png")
 
 @app.get("/health")
 async def health():
