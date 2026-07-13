@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from core.database.mongodb import mongodb
 from api.routes import users, contracts, ai, payments
+from api.routes import admin
 
 logging.basicConfig(
     level=logging.INFO,
@@ -50,6 +51,7 @@ app.include_router(users.router)
 app.include_router(contracts.router)
 app.include_router(ai.router)
 app.include_router(payments.router)
+app.include_router(admin.router)
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
