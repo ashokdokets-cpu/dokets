@@ -1,0 +1,16 @@
+{
+  "name": "Dokets VouchAI",
+  "short_name": "Dokets",
+  "description": "AI-Powered Trust Platform",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0F172A",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "https://dokets.com/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

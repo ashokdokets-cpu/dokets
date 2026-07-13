@@ -39,6 +39,12 @@ async def verify_payment(data: dict, current_user: dict = Depends(get_current_us
     
     return {"success": verified, "message": "Payment verified" if verified else "Verification failed"}
 
+@router.post("/payments/paypal-create")
+async def create_paypal_order(data: dict, current_user: dict = Depends(get_current_user)):
+    from core.payments.paypal_payments import paypal_payments
+    order = paypal_payments.create_order(data.get("amount", 0))
+    return {"success": True, "data": order}
+
 # ========== WhatsApp Routes ==========
 
 @router.post("/whatsapp/send")

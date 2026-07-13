@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dokets VouchAI - Trust in Every Deal</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         :root {
             --primary: #4F46E5;
@@ -240,7 +245,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        const API = 'http://127.0.0.1:8000/api/v1';
+        const API = 'https://dokets.com/api/v1';
         let token = localStorage.getItem('dokets_token') || '';
         let currentUser = null;
 
