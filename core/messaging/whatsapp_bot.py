@@ -1,16 +1,38 @@
 import logging
+import os
 from config.settings import settings
 
 logger = logging.getLogger("dokets.whatsapp")
 
 class WhatsAppBot:
     def __init__(self):
-        self.from_number = getattr(settings, 'TWILIO_WHATSAPP_NUMBER', '+14155238886')
+        self.from_number = os.getenv("TWILIO_WHATSAPP_NUMBER", "+14155238886")
+        self.account_sid = os.getenv("TWILIO_ACCOUNT_SID", "")
+        self.auth_token = os.getenv("TWILIO_AUTH_TOKEN", "")
         self.client = None
-        logger.info("WhatsApp bot ready (simulation mode)")
+        
+        if self.account_sid and self.auth_token and self.auth_token != "demo_token":
+            try:
+                from twilio.rest import Client
+                self.client = Client(self.account_sid, self.auth_token)
+                logger.info("WhatsApp LIVE - real messages!")
+            except Exception as e:
+                logger.warning(f"WhatsApp init error: {e}")
+        else:
+            logger.info("WhatsApp simulation mode - no valid token")
 
     def send_message(self, to_number, message):
-        logger.info(f"[WHATSAPP] To: {to_number} | {message[:50]}...")
+        if self.client:
+            try:
+                msg = self.client.messages.create(
+                    body=message,
+                    from_=f"whatsapp:{self.from_number}",
+                    to=f"whatsapp:{to_number}"
+                )
+                return {"success": True, "sent": True, "sid": msg.sid}
+            except Exception as e:
+                return {"success": False, "error": str(e)}
+        
         return {"success": True, "simulated": True, "message": message}
 
     def process_incoming(self, from_number, message):
