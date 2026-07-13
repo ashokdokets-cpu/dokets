@@ -292,6 +292,17 @@ async def dashboard():
     with open("frontend/dashboard.html", "r", encoding="utf-8") as f:
         return f.read()
 
+@app.get("/manifest.json")
+async def manifest():
+    return {
+        "name": "Dokets VouchAI",
+        "short_name": "Dokets",
+        "start_url": "/dashboard",
+        "display": "standalone",
+        "background_color": "#0F172A",
+        "theme_color": "#4F46E5"
+    }
+
 @app.get("/health")
 async def health():
     db_status = "connected" if mongodb.db is not None else "disconnected"
