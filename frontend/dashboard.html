@@ -215,6 +215,11 @@
             <div class="nav-item" onclick="showTab('disputes')"><span class="nav-icon">⚖️</span> Disputes</div>
             <div class="nav-item" onclick="showTab('admin')"><span class="nav-icon">📊</span> Admin</div>
             <div class="nav-item" onclick="showTab('analytics')"><span class="nav-icon">📈</span> Analytics</div>
+            <div class="nav-item" onclick="showTab('payouts')"><span class="nav-icon">⚡</span> Payouts</div>
+            <div class="nav-item" onclick="showTab('video')"><span class="nav-icon">📹</span> Video Calls</div>
+            <div class="nav-item" onclick="showTab('background')"><span class="nav-icon">🔍</span> Background</div>
+            <div class="nav-item" onclick="showTab('agency')"><span class="nav-icon">🏷️</span> Agency</div>
+            <div class="nav-item" onclick="showTab('support')"><span class="nav-icon">📞</span> Support</div>
         </aside>
 
         <main class="content" id="mainContent">
@@ -293,6 +298,65 @@
     <div class="card-body">
         <button class="btn btn-primary btn-block" onclick="loadAnalytics()">Load Analytics</button>
         <div id="analyticsData" class="mt-2"></div>
+    </div></div>
+</div>
+<div id="tab-payouts" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">⚡ Instant Payout</span></div>
+    <div class="card-body">
+        <form onsubmit="requestPayout(event)">
+            <div class="form-group"><label>Amount</label><input type="number" id="payoutAmount" required></div>
+            <div class="form-group"><label>Method</label><select id="payoutMethod"><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option><option value="paypal">PayPal</option></select></div>
+            <div class="form-group"><label>UPI ID / Account</label><input type="text" id="payoutAccount" placeholder="user@upi"></div>
+            <button type="submit" class="btn btn-primary btn-block">⚡ Request Payout (1% fee)</button>
+        </form>
+        <div id="payoutResult" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-video" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">📹 Video Call</span></div>
+    <div class="card-body">
+        <form onsubmit="createVideoCall(event)">
+            <div class="form-group"><label>Contract ID</label><input type="text" id="videoContractId" required></div>
+            <div class="form-group"><label>Topic</label><input type="text" id="videoTopic" value="Dispute Resolution"></div>
+            <button type="submit" class="btn btn-primary btn-block">📹 Start Video Call (Jitsi Meet)</button>
+        </form>
+        <div id="videoResult" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-background" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">🔍 Background Check</span></div>
+    <div class="card-body">
+        <button class="btn btn-primary btn-block" onclick="requestBackgroundCheck()">Request Background Check</button>
+        <div id="backgroundResult" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-agency" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">🏷️ White Label Agency</span></div>
+    <div class="card-body">
+        <form onsubmit="createAgency(event)">
+            <div class="form-group"><label>Agency Name</label><input type="text" id="agencyName" required></div>
+            <div class="form-group"><label>Domain</label><input type="text" id="agencyDomain" placeholder="agency.dokets.com"></div>
+            <button type="submit" class="btn btn-primary btn-block">🏷️ Create Agency</button>
+        </form>
+        <div id="agencyResult" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-support" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">📞 Support</span></div>
+    <div class="card-body">
+        <button class="btn btn-primary btn-block mb-2" onclick="loadFAQs()">📋 View FAQs</button>
+        <div id="faqList" class="mb-3"></div>
+        <hr>
+        <form onsubmit="createTicket(event)">
+            <div class="form-group"><label>Subject</label><input type="text" id="ticketSubject" required></div>
+            <div class="form-group"><label>Message</label><textarea id="ticketMessage" rows="2" required></textarea></div>
+            <button type="submit" class="btn btn-danger btn-block">📞 Submit Ticket</button>
+        </form>
+        <div id="ticketResult" class="mt-2"></div>
     </div></div>
 </div>
             <div id="tab-vouch" style="display:none;"><div class="card" style="text-align:center;"><div class="card-body"><h2>Your Vouch Score</h2><div class="vouch-circle" id="vouchLarge" style="border-color:var(--primary);color:var(--primary);">--</div><p style="font-size:1.1rem;font-weight:600;" id="vouchLevel">--</p></div></div></div>
@@ -503,8 +567,69 @@ async function loadAnalytics() {
     document.getElementById('analyticsData').innerHTML = `<pre style="background:#F3F4F6;padding:1rem;border-radius:8px;overflow-x:auto;">${JSON.stringify(r, null, 2)}</pre>`;
 }
 
+async function requestPayout(e) {
+    e.preventDefault();
+    const r = await api('/payouts/request', 'POST', {
+        amount: parseFloat(document.getElementById('payoutAmount').value),
+        method: document.getElementById('payoutMethod').value,
+        upi_id: document.getElementById('payoutAccount').value
+    });
+    document.getElementById('payoutResult').innerHTML = r.success ? 
+        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Payout: ${r.payout.id}<br>Amount: ${r.payout.currency} ${r.payout.amount}<br>Fee: ${r.payout.fee}<br>You get: ${r.payout.net_amount}</div>` : 'Failed';
+    if (r.success) toast('Payout requested!', 'success');
+}
+
+async function createVideoCall(e) {
+    e.preventDefault();
+    const r = await api('/video/create', 'POST', {
+        contract_id: document.getElementById('videoContractId').value,
+        topic: document.getElementById('videoTopic').value
+    });
+    if (r.success) {
+        document.getElementById('videoResult').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
+                ✅ Meeting Created!<br>
+                <a href="${r.join_url}" target="_blank" style="color:#4F46E5;font-weight:bold;">📹 Join Video Call</a>
+            </div>`;
+    }
+}
+
+async function requestBackgroundCheck() {
+    const r = await api('/background/request', 'POST', {provider: 'manual'});
+    document.getElementById('backgroundResult').innerHTML = r.success ?
+        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Check Requested: ${r.check.id}</div>` : 'Failed';
+}
+
+async function createAgency(e) {
+    e.preventDefault();
+    const r = await api('/agency/create', 'POST', {
+        name: document.getElementById('agencyName').value,
+        domain: document.getElementById('agencyDomain').value
+    });
+    document.getElementById('agencyResult').innerHTML = r.success ?
+        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Agency: ${r.agency.name}<br>ID: ${r.agency.id}</div>` : 'Failed';
+}
+
+async function loadFAQs() {
+    const r = await api('/support/faqs');
+    document.getElementById('faqList').innerHTML = r.map(f => 
+        `<div style="padding:0.5rem;border-bottom:1px solid #E5E7EB;"><strong>Q: ${f.q}</strong><br>A: ${f.a}</div>`
+    ).join('');
+}
+
+async function createTicket(e) {
+    e.preventDefault();
+    const r = await api('/support/tickets', 'POST', {
+        subject: document.getElementById('ticketSubject').value,
+        message: document.getElementById('ticketMessage').value
+    });
+    document.getElementById('ticketResult').innerHTML = r.success ?
+        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Ticket: ${r.ticket.id}</div>` : 'Failed';
+    if (r.success) toast('Ticket created!', 'success');
+}
+
         function showTab(tab) {
-            ['dashboard','contracts','vouch','kyc','chat','disputes','admin','analytics'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'block':'none');
+            ['dashboard','contracts','vouch','kyc','chat','disputes','admin','analytics','payouts','video','background','agency','support'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'block':'none');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             event?.target?.closest('.nav-item')?.classList.add('active');
         }
