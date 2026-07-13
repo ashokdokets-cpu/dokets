@@ -5,8 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from core.database.mongodb import mongodb
-from api.routes import users, contracts, ai, payments
-from api.routes import admin
+from api.routes import users, contracts, ai, payments, admin
 
 logging.basicConfig(
     level=logging.INFO,
