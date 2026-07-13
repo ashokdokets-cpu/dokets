@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from core.security.auth import hash_password, verify_password, create_access_token, get_current_user
+from core.messaging.email_service import email_service
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
@@ -74,3 +75,13 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
         "vouch_score": user["vouch_score"],
         "total_contracts": user["total_contracts"]
     }
+
+@router.post("/send-verification")
+async def send_verification(data: dict, current_user: dict = Depends(get_current_user)):
+    token = email_service.send_verification(data.get("email", current_user["email"]))
+    return {"success": True, "message": "Verification email sent", "token": token}
+
+@router.post("/verify-email")
+async def verify_email(data: dict):
+    verified = email_service.verify_email(data["email"], data["token"])
+    return {"success": verified, "message": "Email verified" if verified else "Invalid token"}
