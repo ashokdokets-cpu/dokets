@@ -236,7 +236,7 @@ async def root():
             
             <div class="cta-buttons">
                 <a href="/docs" class="btn btn-primary">📚 API Documentation</a>
-                <a href="https://dokets.com/dashboard" class="btn btn-outline">🎨 Open Dashboard</a>
+                <a href="/dashboard" class="btn btn-outline">🎨 Open Dashboard</a>
                 <a href="/health" class="btn btn-outline">💚 System Status</a>
             </div>
         </div>
@@ -280,6 +280,11 @@ async def root():
     </body>
     </html>
     """
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard():
+    with open("frontend/dashboard.html", "r", encoding="utf-8") as f:
+        return f.read()
 
 @app.get("/health")
 async def health():
