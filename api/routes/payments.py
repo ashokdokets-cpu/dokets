@@ -26,7 +26,55 @@ async def create_payment_order(data: dict, current_user: dict = Depends(get_curr
         current_user["user_id"], amount, currency
     )
     
-    return {"success": True, "data": order}
+       # Build payment links based on currency
+        
+    if currency == "INR":
+        payment_links = {
+            "razorpay": f"https://checkout.razorpay.com/v1/payment/authorize?order_id={order['order_id']}&amount={order['amount']}&key={order.get('razorpay_key', '')}",
+            "upi": f"upi://pay?pa=dokets@razorpay&pn=Dokets&am={amount}&cu=INR",
+            "paypal": f"https://dokets.com/pay-paypal?order={order['order_id']}&amount={amount}&currency={currency}"
+        }
+    elif currency == "USD":
+        payment_links = {
+            "paypal": f"https://www.paypal.com/checkoutnow?token={order['order_id']}&amount={amount}&currency=USD",
+            "stripe": f"https://checkout.stripe.com/pay/{order['order_id']}",
+            "razorpay": f"https://checkout.razorpay.com/v1/payment/authorize?order_id={order['order_id']}&amount={int(amount*83)}&key={order.get('razorpay_key', '')}"
+        }
+    elif currency == "EUR":
+        payment_links = {
+            "paypal": f"https://www.paypal.com/checkoutnow?token={order['order_id']}&amount={amount}&currency=EUR",
+            "stripe": f"https://checkout.stripe.com/pay/{order['order_id']}"
+        }
+    elif currency == "GBP":
+        payment_links = {
+            "paypal": f"https://www.paypal.com/checkoutnow?token={order['order_id']}&amount={amount}&currency=GBP",
+            "stripe": f"https://checkout.stripe.com/pay/{order['order_id']}"
+        }
+    elif currency in ["BRL", "IDR", "NGN", "PHP", "MXN", "AED", "SAR", "BDT", "PKR"]:
+        payment_links = {
+            "paypal": f"https://www.paypal.com/checkoutnow?token={order['order_id']}&amount={amount}&currency={currency}",
+            "razorpay": f"https://checkout.razorpay.com/v1/payment/authorize?order_id={order['order_id']}&amount={order['amount']}&key={order.get('razorpay_key', '')}"
+        }
+    else:
+        payment_links = {
+            "paypal": f"https://dokets.com/pay-paypal?order={order['order_id']}&amount={amount}&currency={currency}"
+        }
+    
+    return {
+        "success": True,
+        "data": {
+            "order": order,
+            "currency": currency,
+            "payment_links": payment_links,
+            "supported_methods": list(payment_links.keys()),
+            "instructions": f"Choose payment method. Payment held in escrow in {currency} until work verified.",
+            "escrow_info": {
+                "contract_id": contract_id,
+                "milestone_id": milestone_id,
+                "released_when": "Work verified by AI or approved by customer"
+            }
+        }
+    }
 
 @router.post("/payments/verify")
 async def verify_payment(data: dict, current_user: dict = Depends(get_current_user)):

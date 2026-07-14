@@ -512,13 +512,49 @@
             if (c.milestones?.length) { await api(`/contracts/${id}/complete-milestone/${c.milestones[0].id}`,'PUT'); toast('Completed! Payment released.','success'); await loadAll(); }
         }
 
-        async function createPayment(e) {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('payamount').value);
-            const result = await api('/payments/create-order','POST',{amount,currency:'INR',contract_id:'CT-TEST',milestone_id:'MS-TEST'});
-            document.getElementById('paymentResult').innerHTML = result.success?`<div style="background:#D1FAE5;padding:0.8rem;border-radius:8px;"><strong>Order Created!</strong><br>ID: ${result.data.order_id}<br>Amount: ₹${amount}</div>`:`<div style="background:#FEE2E2;padding:0.8rem;border-radius:8px;color:#991B1B;">Failed</div>`;
-            if (result.success) toast('Payment order created!','success');
+async function createPayment(e) {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('payamount').value);
+    const currency = document.getElementById('ccurrency')?.value || 'INR';
+    
+    const result = await api('/payments/create-order', 'POST', {
+        amount, 
+        currency, 
+        contract_id: 'CT-' + Date.now(),
+        milestone_id: 'MS-' + Date.now()
+    });
+    
+    if (result.success) {
+        const data = result.data;
+        const links = data.payment_links || {};
+        
+        let buttonsHTML = '';
+        if (links.razorpay) {
+            buttonsHTML += `<a href="${links.razorpay}" target="_blank" class="btn btn-primary btn-block" style="text-decoration:none;margin-bottom:0.5rem;">💳 Pay with Razorpay (Card/UPI/NetBanking)</a>`;
         }
+        if (links.paypal) {
+            buttonsHTML += `<a href="${links.paypal}" target="_blank" class="btn btn-block" style="background:#0070BA;color:white;text-decoration:none;margin-bottom:0.5rem;">💰 Pay with PayPal</a>`;
+        }
+        if (links.upi) {
+            buttonsHTML += `<a href="${links.upi}" target="_blank" class="btn btn-block" style="background:#10B981;color:white;text-decoration:none;margin-bottom:0.5rem;">📱 Pay via UPI</a>`;
+        }
+        if (links.stripe) {
+            buttonsHTML += `<a href="${links.stripe}" target="_blank" class="btn btn-block" style="background:#635BFF;color:white;text-decoration:none;margin-bottom:0.5rem;">💳 Pay with Stripe</a>`;
+        }
+        
+        document.getElementById('paymentResult').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
+                <strong>✅ Order Created!</strong><br>
+                <p>Amount: ${currency} ${amount}</p>
+                <p>Order ID: ${data.order.order_id}</p>
+                <div style="margin-top:1rem;">${buttonsHTML}</div>
+                <p style="margin-top:0.5rem;font-size:0.8rem;color:#6B7280;">
+                    🔒 Payment held in escrow until work verified by AI
+                </p>
+            </div>`;
+        toast('Payment links ready! Choose a method.', 'success');
+    }
+}
 
         async function sendWhatsApp(e) {
             e.preventDefault();
@@ -570,14 +606,28 @@ async function loadAnalytics() {
 
 async function requestPayout(e) {
     e.preventDefault();
+    const amount = parseFloat(document.getElementById('payoutAmount').value);
+    const method = document.getElementById('payoutMethod').value;
+    const account = document.getElementById('payoutAccount').value;
+    
     const r = await api('/payouts/request', 'POST', {
-        amount: parseFloat(document.getElementById('payoutAmount').value),
-        method: document.getElementById('payoutMethod').value,
-        upi_id: document.getElementById('payoutAccount').value
+        amount, method, upi_id: account
     });
-    document.getElementById('payoutResult').innerHTML = r.success ? 
-        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Payout: ${r.payout.id}<br>Amount: ${r.payout.currency} ${r.payout.amount}<br>Fee: ${r.payout.fee}<br>You get: ${r.payout.net_amount}</div>` : 'Failed';
-    if (r.success) toast('Payout requested!', 'success');
+    
+    if (r.success) {
+        const p = r.payout;
+        document.getElementById('payoutResult').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
+                <strong>✅ Payout Requested!</strong><br>
+                <p>Payout ID: ${p.id}</p>
+                <p>Amount: ${p.amount}</p>
+                <p>Fee (1%): ${p.fee}</p>
+                <p><strong>You receive: ${p.net_amount}</strong></p>
+                <p>Method: ${method.toUpperCase()}</p>
+                <p style="font-size:0.8rem;color:#6B7280;">⏱️ ${p.estimated_time || 'Processing...'}</p>
+            </div>`;
+        toast('Payout requested!', 'success');
+    }
 }
 
 async function createVideoCall(e) {
