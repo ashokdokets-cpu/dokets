@@ -180,6 +180,21 @@
         .activity-dot.create { background: var(--primary); }
         .activity-dot.approve { background: var(--success); }
         .activity-dot.payment { background: var(--warning); }
+
+.nav-group { margin-bottom: 0.3rem; }
+.nav-group-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.6rem 1rem; cursor: pointer; font-weight: 600;
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-secondary); background: var(--bg);
+    border-left: 3px solid transparent; transition: all 0.2s;
+}
+.nav-group-header:hover { background: #EEF2FF; color: var(--primary); }
+.group-arrow { font-size: 0.6rem; transition: transform 0.3s; }
+.nav-group.collapsed .group-arrow { transform: rotate(-90deg); }
+.nav-group.collapsed .nav-group-items { display: none; }
+.nav-group-items .nav-item { padding-left: 2rem; font-size: 0.8rem; }
+
 @media (max-width: 1024px) {
     .main-container { grid-template-columns: 1fr; }
     .right-panel { display: none; }
@@ -220,31 +235,77 @@
 
     <div class="main-container">
         <aside class="sidebar">
-            <div class="sidebar-header">Navigation</div>
-            <div class="nav-item active" onclick="showTab('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
-            <div class="nav-item" onclick="showTab('contracts')"><span class="nav-icon">📝</span> Contracts</div>
+    <div class="sidebar-header">📂 Menu</div>
+    
+    <!-- Group 1: Contracts -->
+    <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup('contracts')">
+            📋 Contracts <span class="group-arrow">▼</span>
+        </div>
+        <div class="nav-group-items" id="group-contracts">
             <div class="nav-item" onclick="openModal('createModal')"><span class="nav-icon">✨</span> New Contract</div>
             <div class="nav-item" onclick="openModal('aiModal')"><span class="nav-icon">🤖</span> AI Contract</div>
-            <div class="nav-item" onclick="showTab('vouch')"><span class="nav-icon">⭐</span> Vouch Score</div>
-            <div class="nav-item" onclick="openModal('paymentModal')"><span class="nav-icon">💳</span> Payments</div>
-            <div class="nav-item" onclick="openModal('whatsappModal')"><span class="nav-icon">💬</span> WhatsApp</div>
+            <div class="nav-item" onclick="showTab('contracts')"><span class="nav-icon">📝</span> My Contracts</div>
             <div class="nav-item" onclick="showProviderContracts()"><span class="nav-icon">📋</span> Provider View</div>
-            <div class="nav-item" onclick="showTab('kyc')"><span class="nav-icon">🆔</span> KYC</div>
-            <div class="nav-item" onclick="showTab('chat')"><span class="nav-icon">💬</span> Chat</div>
-            <div class="nav-item" onclick="showTab('disputes')"><span class="nav-icon">⚖️</span> Disputes</div>
-            <div class="nav-item" onclick="showTab('admin')"><span class="nav-icon">📊</span> Admin</div>
-            <div class="nav-item" onclick="showTab('analytics')"><span class="nav-icon">📈</span> Analytics</div>
-            <div class="nav-item" onclick="showTab('payouts')"><span class="nav-icon">⚡</span> Payouts</div>
-            <div class="nav-item" onclick="showTab('video')"><span class="nav-icon">📹</span> Video Calls</div>
-            <div class="nav-item" onclick="showTab('background')"><span class="nav-icon">🔍</span> Background</div>
-            <div class="nav-item" onclick="showTab('agency')"><span class="nav-icon">🏷️</span> Agency</div>
-            <div class="nav-item" onclick="showTab('support')"><span class="nav-icon">📞</span> Support</div>
-            <div class="nav-item" onclick="showTab('languages')"><span class="nav-icon">🌐</span> Languages</div>
-            <div class="nav-item" onclick="showTab('chatbot')"><span class="nav-icon">🤖</span> AI Chatbot</div>
             <div class="nav-item" onclick="showTab('recurring')"><span class="nav-icon">🔄</span> Recurring</div>
+        </div>
+    </div>
+    
+    <!-- Group 2: Money -->
+    <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup('money')">
+            💰 Money <span class="group-arrow">▼</span>
+        </div>
+        <div class="nav-group-items" id="group-money">
+            <div class="nav-item" onclick="openModal('paymentModal')"><span class="nav-icon">💳</span> Payments</div>
+            <div class="nav-item" onclick="showTab('payouts')"><span class="nav-icon">⚡</span> Payouts</div>
             <div class="nav-item" onclick="showTab('invoice')"><span class="nav-icon">📑</span> Invoices</div>
-        </aside>
-
+        </div>
+    </div>
+    
+    <!-- Group 3: Trust & Verify -->
+    <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup('trust')">
+            ⭐ Trust & Verify <span class="group-arrow">▼</span>
+        </div>
+        <div class="nav-group-items" id="group-trust">
+            <div class="nav-item" onclick="showTab('vouch')"><span class="nav-icon">⭐</span> Vouch Score</div>
+            <div class="nav-item" onclick="showTab('kyc')"><span class="nav-icon">🆔</span> KYC</div>
+            <div class="nav-item" onclick="showTab('background')"><span class="nav-icon">🔍</span> Background</div>
+        </div>
+    </div>
+    
+    <!-- Group 4: Communication -->
+    <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup('comm')">
+            💬 Communication <span class="group-arrow">▼</span>
+        </div>
+        <div class="nav-group-items" id="group-comm">
+            <div class="nav-item" onclick="openModal('whatsappModal')"><span class="nav-icon">💬</span> WhatsApp</div>
+            <div class="nav-item" onclick="showTab('chat')"><span class="nav-icon">💬</span> Chat</div>
+            <div class="nav-item" onclick="showTab('video')"><span class="nav-icon">📹</span> Video Calls</div>
+            <div class="nav-item" onclick="showTab('chatbot')"><span class="nav-icon">🤖</span> AI Chatbot</div>
+        </div>
+    </div>
+    
+    <!-- Group 5: Help & Manage -->
+    <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleGroup('help')">
+            📞 Help & Manage <span class="group-arrow">▼</span>
+        </div>
+        <div class="nav-group-items" id="group-help">
+            <div class="nav-item" onclick="showTab('disputes')"><span class="nav-icon">⚖️</span> Disputes</div>
+            <div class="nav-item" onclick="showTab('support')"><span class="nav-icon">📞</span> Support</div>
+            <div class="nav-item" onclick="showTab('analytics')"><span class="nav-icon">📈</span> Analytics</div>
+            <div class="nav-item" onclick="showTab('admin')"><span class="nav-icon">📊</span> Admin</div>
+            <div class="nav-item" onclick="showTab('agency')"><span class="nav-icon">🏷️</span> Agency</div>
+            <div class="nav-item" onclick="showTab('languages')"><span class="nav-icon">🌐</span> Languages</div>
+        </div>
+    </div>
+    
+    <!-- Dashboard (always visible) -->
+    <div class="nav-item active" onclick="showTab('dashboard')"><span class="nav-icon">🏠</span> Dashboard Home</div>
+</aside>
         <main class="content" id="mainContent">
             <div id="tab-dashboard">
                 <div class="stats-grid">
@@ -1373,6 +1434,10 @@ async function generateInvoice() {
 
 function toggleSidebar() {
     document.querySelector('.sidebar').classList.toggle('open');
+}
+
+function toggleGroup(group) {
+    document.getElementById('group-' + group).parentElement.classList.toggle('collapsed');
 }
 
         function showTab(tab) {
