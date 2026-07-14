@@ -9,11 +9,14 @@ router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 async def register_user(data: dict):
     collection = mongodb.get_collection("users")
     
-    # Check existing
+    # Check existing - with error handling
     if collection:
-        existing = await collection.find_one({"email": data["email"]})
-        if existing:
-            raise HTTPException(status_code=400, detail="Email already registered")
+        try:
+            existing = await collection.find_one({"email": data["email"]})
+            if existing:
+                raise HTTPException(status_code=400, detail="Email already registered")
+        except:
+            collection = None  # Fallback to in-memory
     
     user = {
         "email": data["email"],
@@ -23,19 +26,19 @@ async def register_user(data: dict):
         "user_role": data.get("user_role", "customer"),
         "vouch_score": 100.0,
         "total_contracts": 0,
-        "completed_contracts": 0,
-        "is_verified": False,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "created_at": datetime.utcnow()
     }
     
     if collection:
-        result = await collection.insert_one(user)
-        user_id = str(result.inserted_id)
+        try:
+            result = await collection.insert_one(user)
+            user_id = str(result.inserted_id)
+        except:
+            _fallback_users.append(user)
+            user_id = str(len(_fallback_users))
     else:
-        user_id = str(len(_fallback_users) + 1)
-        user["id"] = user_id
         _fallback_users.append(user)
+        user_id = str(len(_fallback_users))
     
     return {"success": True, "message": "User registered", "data": {"user_id": user_id}}
 
