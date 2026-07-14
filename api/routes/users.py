@@ -34,11 +34,13 @@ async def register_user(data: dict):
             result = await collection.insert_one(user)
             user_id = str(result.inserted_id)
         except:
+            user_id = str(len(_fallback_users) + 1)
+            user["id"] = user_id
             _fallback_users.append(user)
-            user_id = str(len(_fallback_users))
     else:
+        user_id = str(len(_fallback_users) + 1)
+        user["id"] = user_id
         _fallback_users.append(user)
-        user_id = str(len(_fallback_users))
     
     return {"success": True, "message": "User registered", "data": {"user_id": user_id}}
 
