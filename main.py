@@ -329,6 +329,62 @@ async def root():
             </div>
         </div>
 
+<div style="max-width:900px;margin:4rem auto;padding:0 2rem;">
+    <h2 style="text-align:center;font-size:2rem;margin-bottom:2rem;color:white;">🚀 How It Works in 3 Simple Steps</h2>
+    
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;">
+        <!-- Step 1 -->
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:2rem;text-align:center;">
+            <div style="font-size:3rem;margin-bottom:1rem;">1️⃣</div>
+            <h3 style="font-size:1.2rem;margin-bottom:0.5rem;color:white;">Describe the Work</h3>
+            <p style="color:#94A3B8;font-size:0.9rem;line-height:1.5;">
+                Just type what you need done.<br>
+                Our AI extracts all details automatically.
+            </p>
+            <div style="background:rgba(99,102,241,0.2);padding:0.5rem;border-radius:8px;margin-top:1rem;font-size:0.8rem;color:#A5B4FC;">
+                "Paint my living room blue by Friday for ₹5000"
+            </div>
+        </div>
+        
+        <!-- Step 2 -->
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:2rem;text-align:center;">
+            <div style="font-size:3rem;margin-bottom:1rem;">2️⃣</div>
+            <h3 style="font-size:1.2rem;margin-bottom:0.5rem;color:white;">Secure with Escrow</h3>
+            <p style="color:#94A3B8;font-size:0.9rem;line-height:1.5;">
+                Payment is held securely.<br>
+                Only released when work is verified.
+            </p>
+            <div style="background:rgba(16,185,129,0.2);padding:0.5rem;border-radius:8px;margin-top:1rem;font-size:0.8rem;color:#6EE7B7;">
+                🔒 Only 1% platform fee
+            </div>
+        </div>
+        
+        <!-- Step 3 -->
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:2rem;text-align:center;">
+            <div style="font-size:3rem;margin-bottom:1rem;">3️⃣</div>
+            <h3 style="font-size:1.2rem;margin-bottom:0.5rem;color:white;">AI Verifies & Pays</h3>
+            <p style="color:#94A3B8;font-size:0.9rem;line-height:1.5;">
+                AI checks the work is done.<br>
+                Payment released automatically!
+            </p>
+            <div style="background:rgba(245,158,11,0.2);padding:0.5rem;border-radius:8px;margin-top:1rem;font-size:0.8rem;color:#FCD34D;">
+                ⭐ Both parties earn Vouch Score
+            </div>
+        </div>
+    </div>
+    
+    <!-- CTA -->
+    <div style="text-align:center;margin-top:2rem;">
+        <a href="/dashboard" style="display:inline-block;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;padding:1rem 2.5rem;border-radius:12px;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(99,102,241,0.4);">
+            🚀 Get Started Free
+        </a>
+        <p style="color:#94A3B8;margin-top:0.5rem;font-size:0.85rem;">No credit card required · 1% fee only when you transact</p>
+    </div>
+</div>
+
+<div class="footer">
+    <p>© 2026 Dokets VouchAI · Trust in Every Deal · dokets.com</p>
+
         <div class="footer">
             <p>© 2026 Dokets VouchAI · Trust in Every Deal · dokets.com</p>
 <p style="margin-top:0.5rem;font-size:0.8rem;">
