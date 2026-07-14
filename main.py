@@ -367,6 +367,88 @@ async def view_contract(contract_id: str):
     </html>
     """
 
+@app.get("/payment-tracker/{contract_id}", response_class=HTMLResponse)
+async def payment_tracker(contract_id: str):
+    from api.routes.contracts import _contracts
+    
+    contract = None
+    for c in _contracts:
+        if c["id"] == contract_id:
+            contract = c
+            break
+    
+    if not contract:
+        return "<h2>Contract not found</h2>"
+    
+    total = contract.get("total_amount", 0)
+    currency = contract.get("currency", "INR")
+    milestones = contract.get("milestones", [])
+    
+    paid = sum(ms.get("amount", 0) for ms in milestones if ms.get("status") == "completed")
+    pending = total - paid
+    
+    milestones_html = ""
+    for ms in milestones:
+        status_color = "#10B981" if ms.get("status") == "completed" else "#F59E0B" if ms.get("status") == "funded" else "#94A3B8"
+        status_icon = "✅" if ms.get("status") == "completed" else "🔒" if ms.get("status") == "funded" else "⏳"
+        milestones_html += f"""
+        <div style="background:white;padding:1rem;border-radius:8px;margin-bottom:0.5rem;border-left:4px solid {status_color};">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <strong>{status_icon} {ms.get('title', 'Milestone')}</strong>
+                    <p style="color:#6B7280;font-size:0.9rem;">{ms.get('description', '')}</p>
+                </div>
+                <div style="text-align:right;">
+                    <strong>{currency} {ms.get('amount', 0)}</strong>
+                    <p style="font-size:0.8rem;color:{status_color};">{ms.get('status', 'pending').upper()}</p>
+                </div>
+            </div>
+        </div>"""
+    
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Payment Tracker - {contract['title']}</title>
+        <style>
+            * {{ margin:0; padding:0; box-sizing:border-box; }}
+            body {{ font-family:'Segoe UI',sans-serif; background:#F0F2F5; padding:2rem; }}
+            .container {{ max-width:700px; margin:0 auto; }}
+            .card {{ background:white; border-radius:12px; padding:2rem; box-shadow:0 4px 6px rgba(0,0,0,0.1); }}
+            .header {{ background:linear-gradient(135deg,#4F46E5,#7C3AED); color:white; padding:1.5rem; border-radius:12px; text-align:center; margin-bottom:1rem; }}
+            .progress-bar {{ background:#E5E7EB; border-radius:10px; height:20px; margin:1rem 0; overflow:hidden; }}
+            .progress-fill {{ background:linear-gradient(90deg,#10B981,#34D399); height:100%; border-radius:10px; transition:width 0.3s; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>💰 Payment Tracker</h1>
+                <p>{contract['title']}</p>
+            </div>
+            <div class="card">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;text-align:center;margin-bottom:1rem;">
+                    <div><div style="font-size:1.5rem;font-weight:700;">{currency} {total}</div><div style="color:#6B7280;">Total</div></div>
+                    <div><div style="font-size:1.5rem;font-weight:700;color:#10B981;">{currency} {paid}</div><div style="color:#6B7280;">Released</div></div>
+                    <div><div style="font-size:1.5rem;font-weight:700;color:#F59E0B;">{currency} {pending}</div><div style="color:#6B7280;">In Escrow</div></div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:{ (paid/total*100) if total > 0 else 0 }%;"></div>
+                </div>
+                <p style="text-align:center;color:#6B7280;">{ (paid/total*100) if total > 0 else 0:.0f}% Complete</p>
+                
+                <h3 style="margin-top:1.5rem;">Milestones</h3>
+                {milestones_html}
+                
+                <p style="margin-top:1rem;text-align:center;color:#6B7280;font-size:0.85rem;">
+                    🔒 All payments secured by Dokets VouchAI Escrow
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
 
 @app.get("/manifest.json")
 async def manifest():

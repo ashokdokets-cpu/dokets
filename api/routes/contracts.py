@@ -107,6 +107,39 @@ async def approve_contract(contract_id: str, current_user: dict = Depends(get_cu
             }
     raise HTTPException(status_code=404, detail="Contract not found")
 
+@router.post("/{contract_id}/milestone/{milestone_id}/submit-proof")
+async def submit_proof(contract_id: str, milestone_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    """Submit proof of work completion with images"""
+    for c in _contracts:
+        if c["id"] == contract_id:
+            for ms in c.get("milestones", []):
+                if ms["id"] == milestone_id:
+                    ms["proof"] = {
+                        "images": data.get("images", []),
+                        "description": data.get("description", ""),
+                        "submitted_by": current_user["user_id"],
+                        "submitted_at": str(datetime.utcnow()),
+                        "status": "pending_review"
+                    }
+                    ms["status"] = "awaiting_verification"
+                    
+                    # Notify customer
+                    from core.messaging.whatsapp_bot import whatsapp_bot
+                    customer = next((u for u in _users if u["id"] == c["customer_id"]), None)
+                    if customer:
+                        whatsapp_bot.send_message(
+                            customer.get("phone_number", ""),
+                            f"🔍 *Work Proof Submitted!*\n\n"
+                            f"Contract: {c['title']}\n"
+                            f"Milestone: {ms['title']}\n"
+                            f"Amount: {c['currency']} {ms['amount']}\n\n"
+                            f"Please review and approve at:\n"
+                            f"https://dokets.com/contract-view/{contract_id}"
+                        )
+                    
+                    return {"success": True, "message": "Proof submitted for review"}
+    raise HTTPException(status_code=404, detail="Not found")
+
 @router.put("/{contract_id}/complete-milestone/{milestone_id}")
 async def complete_milestone(contract_id: str, milestone_id: str, current_user: dict = Depends(get_current_user)):
     for c in _contracts:
