@@ -68,7 +68,7 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
     # Save to MongoDB
     contracts_col = await get_contracts_collection()
     if contracts_col is not None:
-        await contracts_col.insert_one(contract)
+        result = await contracts_col.insert_one(contract)
     _contracts.append(contract)
 
     # After contract is created, create a provider view link
@@ -91,9 +91,9 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
     return {
         "success": True,
         "message": "Contract created with escrow",
-        "data": {
+            "data": {
             "contract_id": contract_id,
-            "contract": contract
+            "contract": {k: str(v) if 'ObjectId' in str(type(v)) else v for k, v in contract.items()}
         }
     }
 
