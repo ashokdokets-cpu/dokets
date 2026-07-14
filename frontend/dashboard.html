@@ -351,6 +351,8 @@
     <div class="card-body">
         <button class="btn btn-primary btn-block mb-2" onclick="loadFAQs()">📋 View FAQs</button>
         <div id="faqList" class="mb-3"></div>
+        <button class="btn btn-outline btn-block mb-3" onclick="loadMyTickets()">🎫 My Tickets</button>
+        <div id="ticketList" class="mb-3"></div>
         <hr>
         <form onsubmit="createTicket(event)">
             <div class="form-group"><label>Subject</label><input type="text" id="ticketSubject" required></div>
@@ -682,15 +684,44 @@ async function loadFAQs() {
     ).join('');
 }
 
+async function loadMyTickets() {
+    // Show tickets from local storage
+    const tickets = JSON.parse(localStorage.getItem('dokets_tickets') || '[]');
+    if (tickets.length === 0) {
+        document.getElementById('ticketList').innerHTML = '<p style="color:#6B7280;">No tickets yet.</p>';
+        return;
+    }
+    document.getElementById('ticketList').innerHTML = tickets.map(t => `
+        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
+            <strong>${t.subject}</strong>
+            <p style="font-size:0.8rem;color:#6B7280;">${t.message}</p>
+            <span style="font-size:0.7rem;background:#D1FAE5;padding:0.2rem 0.5rem;border-radius:4px;">${t.status || 'Open'}</span>
+        </div>`).join('');
+}
+
 async function createTicket(e) {
     e.preventDefault();
-    const r = await api('/support/tickets', 'POST', {
-        subject: document.getElementById('ticketSubject').value,
-        message: document.getElementById('ticketMessage').value
+    const subject = document.getElementById('ticketSubject').value;
+    const message = document.getElementById('ticketMessage').value;
+    
+    // Save to local storage
+    const tickets = JSON.parse(localStorage.getItem('dokets_tickets') || '[]');
+    tickets.push({
+        id: 'TKT-' + Date.now(),
+        subject,
+        message,
+        status: 'Open',
+        created_at: new Date().toISOString()
     });
+    localStorage.setItem('dokets_tickets', JSON.stringify(tickets));
+    
+    const r = await api('/support/tickets', 'POST', {subject, message});
     document.getElementById('ticketResult').innerHTML = r.success ?
         `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Ticket: ${r.ticket.id}</div>` : 'Failed';
     if (r.success) toast('Ticket created!', 'success');
+    document.getElementById('ticketSubject').value = '';
+    document.getElementById('ticketMessage').value = '';
+    loadMyTickets();
 }
 
 async function showProviderContracts() {
