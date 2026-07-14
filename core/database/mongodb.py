@@ -35,8 +35,8 @@ class MongoDB:
             self.client.close()
 
     def get_collection(self, name):
-        if self.connected and self.db is not None:
-            return self.db[name]
+        # Return None for now - use in-memory fallback
+        # MongoDB integration needs async motor, not pymongo
         return None
 
 mongodb = MongoDB()
