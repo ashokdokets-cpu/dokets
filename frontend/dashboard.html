@@ -483,12 +483,17 @@
 <div id="tab-chatbot" style="display:none;">
     <div class="card"><div class="card-header"><span class="card-title">🤖 AI Chatbot</span></div>
     <div class="card-body">
-        <div id="chatbotMessages" style="max-height:300px;overflow-y:auto;margin-bottom:1rem;background:#F9FAFB;padding:1rem;border-radius:8px;">
-            <p style="color:#4F46E5;"><strong>Bot:</strong> Hello! Ask me anything about Dokets.</p>
+        <div style="background:#EEF2FF;padding:0.8rem;border-radius:8px;margin-bottom:1rem;">
+            <p style="font-size:0.85rem;margin:0;">💡 Try asking: <i>"How does escrow work?"</i> or <i>"What are the fees?"</i> or <i>"How do I create a contract?"</i></p>
+        </div>
+        <div id="chatbotMessages" style="max-height:350px;overflow-y:auto;margin-bottom:1rem;background:#F9FAFB;padding:1rem;border-radius:8px;">
+            <div style="margin-bottom:0.8rem;">
+                <span style="background:#4F46E5;color:white;padding:0.3rem 0.6rem;border-radius:12px 12px 12px 0;display:inline-block;max-width:80%;font-size:0.9rem;">👋 Hello! I'm Dokets AI assistant. Ask me anything!</span>
+            </div>
         </div>
         <form onsubmit="askChatbot(event)" style="display:flex;gap:0.5rem;">
-            <input type="text" id="chatbotInput" placeholder="Ask a question..." style="flex:1;" required>
-            <button type="submit" class="btn btn-primary">🤖 Ask</button>
+            <input type="text" id="chatbotInput" placeholder="Ask about escrow, fees, contracts..." style="flex:1;" required>
+            <button type="submit" class="btn btn-primary">🤖 Ask AI</button>
         </form>
     </div></div>
 </div>
@@ -1302,12 +1307,38 @@ async function applyTranslations(lang) {
 async function askChatbot(e) {
     e.preventDefault();
     const q = document.getElementById('chatbotInput').value;
-    document.getElementById('chatbotMessages').innerHTML += `<p style="color:#1F2937;"><strong>You:</strong> ${q}</p>`;
+    if (!q.trim()) return;
+    
+    // Show user message
+    document.getElementById('chatbotMessages').innerHTML += `
+        <div style="margin-bottom:0.8rem;text-align:right;">
+            <span style="background:#1F2937;color:white;padding:0.3rem 0.6rem;border-radius:12px 12px 0 12px;display:inline-block;max-width:80%;font-size:0.9rem;">${q}</span>
+        </div>`;
     document.getElementById('chatbotInput').value = '';
     
-    const r = await api('/chatbot/ask', 'POST', {question: q});
-    document.getElementById('chatbotMessages').innerHTML += `<p style="color:#4F46E5;"><strong>Bot:</strong> ${r.response || r.message}</p>`;
+    // Show typing indicator
+    document.getElementById('chatbotMessages').innerHTML += `
+        <div id="typingIndicator" style="margin-bottom:0.8rem;">
+            <span style="background:#E5E7EB;color:#6B7280;padding:0.3rem 0.6rem;border-radius:12px 12px 12px 0;display:inline-block;font-size:0.85rem;">🤔 Thinking...</span>
+        </div>`;
+    
     const chatDiv = document.getElementById('chatbotMessages');
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+    
+    // Get AI response
+    const r = await api('/chatbot/ask', 'POST', {question: q});
+    
+    // Remove typing indicator
+    document.getElementById('typingIndicator')?.remove();
+    
+    // Show AI response
+    const response = r.response || "I'm not sure about that. Try asking about contracts, escrow, or fees!";
+    document.getElementById('chatbotMessages').innerHTML += `
+        <div style="margin-bottom:0.8rem;">
+            <span style="background:#4F46E5;color:white;padding:0.3rem 0.6rem;border-radius:12px 12px 12px 0;display:inline-block;max-width:80%;font-size:0.9rem;">${response.replace(/\n/g, '<br>')}</span>
+            ${r.source === 'openai' ? '<span style="font-size:0.6rem;color:#10B981;margin-left:0.3rem;">✨ AI</span>' : ''}
+        </div>`;
+    
     chatDiv.scrollTop = chatDiv.scrollHeight;
 }
 
