@@ -210,6 +210,7 @@
             <div class="nav-item" onclick="showTab('vouch')"><span class="nav-icon">⭐</span> Vouch Score</div>
             <div class="nav-item" onclick="openModal('paymentModal')"><span class="nav-icon">💳</span> Payments</div>
             <div class="nav-item" onclick="openModal('whatsappModal')"><span class="nav-icon">💬</span> WhatsApp</div>
+            <div class="nav-item" onclick="showProviderContracts()"><span class="nav-icon">📋</span> Provider View</div>
             <div class="nav-item" onclick="showTab('kyc')"><span class="nav-icon">🆔</span> KYC</div>
             <div class="nav-item" onclick="showTab('chat')"><span class="nav-icon">💬</span> Chat</div>
             <div class="nav-item" onclick="showTab('disputes')"><span class="nav-icon">⚖️</span> Disputes</div>
@@ -626,6 +627,37 @@ async function createTicket(e) {
     document.getElementById('ticketResult').innerHTML = r.success ?
         `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Ticket: ${r.ticket.id}</div>` : 'Failed';
     if (r.success) toast('Ticket created!', 'success');
+}
+
+async function showProviderContracts() {
+    const phone = prompt("Enter your phone number to find contracts:", "+91");
+    if (!phone) return;
+    
+    // Search contracts by provider phone
+    const contractsData = await api('/contracts/');
+    const contracts = contractsData.contracts || [];
+    const myContracts = contracts.filter(c => c.provider_phone === phone);
+    
+    if (myContracts.length === 0) {
+        document.getElementById('mainContent').innerHTML = `
+            <div class="card"><div class="card-body">
+                <div class="empty-state"><div class="icon">📋</div><p>No contracts found for ${phone}</p></div>
+            </div></div>`;
+        return;
+    }
+    
+    const html = myContracts.map(c => `
+        <div class="contract-item">
+            <div><strong>${c.title}</strong><div style="font-size:0.8rem;">${c.currency} ${c.total_amount}</div></div>
+            <div>
+                <span class="status-badge status-${c.status}">${c.status}</span>
+                <div><a href="/contract-view/${c.id}" target="_blank" style="font-size:0.8rem;">View</a></div>
+                ${c.status==='draft'?`<button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">Approve</button>`:''}
+            </div>
+        </div>`).join('');
+    
+    document.getElementById('mainContent').innerHTML = `
+        <div class="card"><div class="card-header"><span class="card-title">📋 Contracts for ${phone}</span></div>${html}</div>`;
 }
 
         function showTab(tab) {
