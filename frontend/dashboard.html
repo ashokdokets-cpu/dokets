@@ -317,12 +317,15 @@
 <div id="tab-video" style="display:none;">
     <div class="card"><div class="card-header"><span class="card-title">📹 Video Call</span></div>
     <div class="card-body">
+        <p style="margin-bottom:1rem;color:#6B7280;">Start a free video call for dispute resolution or contract discussion.</p>
         <form onsubmit="createVideoCall(event)">
             <div class="form-group"><label>Contract ID</label><input type="text" id="videoContractId" required></div>
             <div class="form-group"><label>Topic</label><input type="text" id="videoTopic" value="Dispute Resolution"></div>
             <button type="submit" class="btn btn-primary btn-block">📹 Start Video Call (Jitsi Meet)</button>
         </form>
         <div id="videoResult" class="mt-2"></div>
+        <button class="btn btn-outline btn-block mt-3" onclick="loadMyMeetings()">📋 My Meetings</button>
+        <div id="meetingList" class="mt-2"></div>
     </div></div>
 </div>
 <div id="tab-background" style="display:none;">
@@ -657,17 +660,56 @@ async function requestPayout(e) {
 
 async function createVideoCall(e) {
     e.preventDefault();
+    const contractId = document.getElementById('videoContractId').value;
+    const topic = document.getElementById('videoTopic').value;
+    
     const r = await api('/video/create', 'POST', {
-        contract_id: document.getElementById('videoContractId').value,
-        topic: document.getElementById('videoTopic').value
+        contract_id: contractId,
+        topic: topic
     });
-    if (r.success) {
+    
+    if (r.success && r.join_url) {
+        // Save to localStorage
+        const meetings = JSON.parse(localStorage.getItem('dokets_meetings') || '[]');
+        meetings.push({
+            id: r.meeting?.id || 'VC-' + Date.now(),
+            contract_id: contractId,
+            topic: topic,
+            join_url: r.join_url,
+            status: 'active',
+            created_at: new Date().toISOString()
+        });
+        localStorage.setItem('dokets_meetings', JSON.stringify(meetings));
+        
         document.getElementById('videoResult').innerHTML = `
             <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                ✅ Meeting Created!<br>
-                <a href="${r.join_url}" target="_blank" style="color:#4F46E5;font-weight:bold;">📹 Join Video Call</a>
+                <strong>✅ Meeting Created!</strong><br>
+                <a href="${r.join_url}" target="_blank" 
+                   style="display:inline-block;margin-top:0.5rem;background:#4F46E5;color:white;padding:0.8rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">
+                   📹 Join Video Call Now
+                </a>
+                <p style="font-size:0.8rem;color:#6B7280;margin-top:0.5rem;">
+                    Share this link with the other party. No account needed.
+                </p>
             </div>`;
+        toast('Meeting created! Share the link.', 'success');
+        loadMyMeetings();
     }
+}
+
+async function loadMyMeetings() {
+    const meetings = JSON.parse(localStorage.getItem('dokets_meetings') || '[]');
+    if (meetings.length === 0) {
+        document.getElementById('meetingList').innerHTML = '<p style="color:#6B7280;">No meetings yet.</p>';
+        return;
+    }
+    document.getElementById('meetingList').innerHTML = meetings.map(m => `
+        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
+            <strong>${m.topic}</strong>
+            <p style="font-size:0.8rem;color:#6B7280;">Contract: ${m.contract_id}</p>
+            <a href="${m.join_url}" target="_blank" style="color:#4F46E5;font-weight:600;">📹 Join Call →</a>
+            <span style="float:right;background:#D1FAE5;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${m.status}</span>
+        </div>`).join('');
 }
 
 async function requestBackgroundCheck() {
