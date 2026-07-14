@@ -238,8 +238,10 @@
 <div id="tab-kyc" style="display:none;">
     <div class="card"><div class="card-header"><span class="card-title">🆔 KYC Verification</span></div>
     <div class="card-body">
+        <div id="kycBadge" style="text-align:center;margin-bottom:1rem;"></div>
+        <p style="margin-bottom:1rem;color:#6B7280;">Verify your identity to build trust. Your ID is encrypted and secure.</p>
         <form onsubmit="submitKYC(event)">
-            <div class="form-group"><label>Full Name</label><input type="text" id="kycName" required></div>
+            <div class="form-group"><label>Full Name (as on ID)</label><input type="text" id="kycName" required></div>
             <div class="form-group"><label>ID Type</label><select id="kycType">
     <option value="aadhaar">🇮🇳 Aadhaar (India)</option>
     <option value="pan">🇮🇳 PAN Card (India)</option>
@@ -255,10 +257,11 @@
     <option value="nid">🇧🇩 NID (Bangladesh)</option>
     <option value="cnic">🇵🇰 CNIC (Pakistan)</option>
 </select></div>
-            <div class="form-group"><label>ID Number</label><input type="text" id="kycNumber" required></div>
-            <button type="submit" class="btn btn-primary btn-block">Submit KYC</button>
+            <div class="form-group"><label>ID Number (only last 4 digits visible)</label><input type="text" id="kycNumber" required></div>
+            <button type="submit" class="btn btn-primary btn-block">📤 Submit for Verification</button>
         </form>
         <div id="kycStatus" class="mt-2"></div>
+        <button class="btn btn-outline btn-block mt-3" onclick="checkKYCStatus()">📋 Check Verification Status</button>
     </div></div>
 </div>
 
@@ -611,15 +614,77 @@ async function createPayment(e) {
         }
 
         async function submitKYC(e) {
-            e.preventDefault();
-            const r = await api('/kyc/submit', 'POST', {
-            full_name: document.getElementById('kycName').value,
-            id_type: document.getElementById('kycType').value,
-            id_number: document.getElementById('kycNumber').value
+    e.preventDefault();
+    const name = document.getElementById('kycName').value;
+    const idType = document.getElementById('kycType').value;
+    const idNumber = document.getElementById('kycNumber').value;
+    
+    const r = await api('/kyc/submit', 'POST', {
+        full_name: name,
+        id_type: idType,
+        id_number: idNumber
     });
-    document.getElementById('kycStatus').innerHTML = r.success ? '<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ KYC Submitted!</div>' : '<div style="color:red;">Failed</div>';
-    if (r.success) toast('KYC submitted!', 'success');
+    
+    if (r.success) {
+        // Save KYC info
+        const kyc = {
+            name, idType, idNumber: '****' + idNumber.slice(-4),
+            status: 'pending', submitted_at: new Date().toISOString()
+        };
+        localStorage.setItem('dokets_kyc', JSON.stringify(kyc));
+        
+        document.getElementById('kycStatus').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
+                <strong>✅ KYC Submitted!</strong><br>
+                <p>Status: Pending Verification</p>
+                <p style="font-size:0.8rem;color:#6B7280;">Verification typically takes 24-48 hours.</p>
+            </div>`;
+        toast('KYC submitted for verification!', 'success');
+        updateKYCBadge();
+    } else {
+        document.getElementById('kycStatus').innerHTML = '<div style="color:red;">Submission failed. Try again.</div>';
     }
+}
+
+async function checkKYCStatus() {
+    const r = await api('/kyc/status');
+    const kyc = JSON.parse(localStorage.getItem('dokets_kyc') || '{}');
+    
+    if (r.verified) {
+        document.getElementById('kycStatus').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;text-align:center;">
+                <h3>✅ Verified</h3>
+                <p>Your identity has been verified.</p>
+                <p style="font-size:0.8rem;">Verified badges shown on your profile.</p>
+            </div>`;
+    } else if (kyc.status === 'pending') {
+        document.getElementById('kycStatus').innerHTML = `
+            <div style="background:#FEF3C7;padding:1rem;border-radius:8px;text-align:center;">
+                <h3>⏳ Pending</h3>
+                <p>Your KYC is under review.</p>
+            </div>`;
+    } else {
+        document.getElementById('kycStatus').innerHTML = `
+            <div style="background:#F3F4F6;padding:1rem;border-radius:8px;text-align:center;">
+                <p>No KYC submitted yet.</p>
+            </div>`;
+    }
+    updateKYCBadge();
+}
+
+function updateKYCBadge() {
+    const kyc = JSON.parse(localStorage.getItem('dokets_kyc') || '{}');
+    const r = kyc.status === 'verified' ? 
+        '<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">🛡️ <strong>Verified User</strong><br>ID: ' + (kyc.idType || 'N/A') + '</div>' :
+        kyc.status === 'pending' ?
+        '<div style="background:#FEF3C7;padding:1rem;border-radius:8px;">⏳ <strong>Verification Pending</strong></div>' :
+        '<div style="background:#F3F4F6;padding:1rem;border-radius:8px;">⚠️ Not Verified</div>';
+    document.getElementById('kycBadge').innerHTML = r;
+}
+
+// Call on load
+updateKYCBadge();
+
 
 async function sendChat(e) {
     e.preventDefault();
