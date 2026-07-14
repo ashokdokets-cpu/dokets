@@ -333,11 +333,47 @@
 </div>
 
 <div id="tab-analytics" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">📈 Analytics</span></div>
-    <div class="card-body">
-        <button class="btn btn-primary btn-block" onclick="loadAnalytics()">Load Analytics</button>
-        <div id="analyticsData" class="mt-2"></div>
-    </div></div>
+    <div id="analyticsDashboard">
+        <div class="stats-grid" style="margin-bottom:1rem;">
+            <div class="stat-card purple"><div class="stat-label">Total Users</div><div class="stat-value" id="aUsers">-</div></div>
+            <div class="stat-card green"><div class="stat-label">Total Contracts</div><div class="stat-value" id="aContracts">-</div></div>
+            <div class="stat-card orange"><div class="stat-label">Total Escrow</div><div class="stat-value" id="aEscrow">-</div></div>
+            <div class="stat-card blue"><div class="stat-label">Platform Fees</div><div class="stat-value" id="aFees">-</div></div>
+        </div>
+        
+        <div class="card" style="margin-bottom:1rem;">
+            <div class="card-header"><span class="card-title">📊 Contract Status</span></div>
+            <div class="card-body">
+                <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;">
+                    <div style="flex:1;background:#E5E7EB;border-radius:10px;height:24px;overflow:hidden;">
+                        <div id="completionBar" style="background:linear-gradient(90deg,#10B981,#34D399);height:100%;width:0%;border-radius:10px;transition:width 0.5s;"></div>
+                    </div>
+                    <span id="completionRate" style="font-weight:600;">0%</span>
+                </div>
+                <div style="display:flex;gap:1rem;font-size:0.85rem;">
+                    <span>🟢 Active: <strong id="aActive">0</strong></span>
+                    <span>✅ Completed: <strong id="aCompleted">0</strong></span>
+                    <span>⚖️ Disputed: <strong id="aDisputed">0</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem;">
+            <div class="card-header"><span class="card-title">💱 Currency Distribution</span></div>
+            <div class="card-body" id="currencyChart">
+                <p style="color:#6B7280;">No data yet</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><span class="card-title">📅 Monthly Trends</span></div>
+            <div class="card-body" id="monthlyTrends">
+                <p style="color:#6B7280;">No data yet</p>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-block mt-3" onclick="loadAnalytics()">🔄 Refresh Analytics</button>
+    </div>
 </div>
 <div id="tab-payouts" style="display:none;">
     <div class="card"><div class="card-header"><span class="card-title">⚡ Instant Payout</span></div>
@@ -874,11 +910,54 @@ async function loadAdminStats() {
 
 async function loadAnalytics() {
     const r = await api('/analytics/platform');
-    if (r.detail) {
-        document.getElementById('analyticsData').innerHTML = `<p style="color:#F59E0B;">⚠️ ${r.detail}. Please login as admin.</p>`;
-        return;
+    if (r.detail) { toast('Login required', 'error'); return; }
+    
+    // Update stat cards
+    document.getElementById('aUsers').textContent = r.users?.total || 0;
+    document.getElementById('aContracts').textContent = r.contracts?.total || 0;
+    document.getElementById('aEscrow').textContent = '₹' + (r.revenue?.total_escrow || 0).toLocaleString();
+    document.getElementById('aFees').textContent = '₹' + (r.revenue?.platform_fees || 0).toLocaleString();
+    
+    // Contract status
+    const total = r.contracts?.total || 1;
+    const completed = r.contracts?.completed || 0;
+    const rate = r.contracts?.completion_rate || '0%';
+    document.getElementById('completionBar').style.width = rate;
+    document.getElementById('completionRate').textContent = rate;
+    document.getElementById('aActive').textContent = r.contracts?.active || 0;
+    document.getElementById('aCompleted').textContent = completed;
+    document.getElementById('aDisputed').textContent = r.contracts?.disputed || 0;
+    
+    // Currency chart
+    const currencies = r.trends?.currencies || {};
+    const topCurrencies = r.trends?.top_currencies || [];
+    if (topCurrencies.length > 0) {
+        const maxVal = topCurrencies[0]?.[1] || 1;
+        document.getElementById('currencyChart').innerHTML = topCurrencies.map(([curr, count]) => `
+            <div style="margin-bottom:0.5rem;">
+                <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+                    <span>${curr}</span><span>${count} contracts</span>
+                </div>
+                <div style="background:#E5E7EB;border-radius:5px;height:8px;overflow:hidden;">
+                    <div style="background:#4F46E5;height:100%;width:${(count/maxVal*100)}%;border-radius:5px;"></div>
+                </div>
+            </div>`).join('');
     }
-    document.getElementById('analyticsData').innerHTML = `<pre style="background:#F3F4F6;padding:1rem;border-radius:8px;overflow-x:auto;">${JSON.stringify(r, null, 2)}</pre>`;
+    
+    // Monthly trends
+    const monthly = r.trends?.monthly || [];
+    if (monthly.length > 0) {
+        const maxMonthly = Math.max(...monthly.map(m => m.contracts), 1);
+        document.getElementById('monthlyTrends').innerHTML = monthly.reverse().map(m => `
+            <div style="margin-bottom:0.5rem;">
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+                    <span>${m.month}</span><span>${m.contracts} (₹${m.value})</span>
+                </div>
+                <div style="background:#E5E7EB;border-radius:5px;height:6px;overflow:hidden;">
+                    <div style="background:#7C3AED;height:100%;width:${(m.contracts/maxMonthly*100)}%;border-radius:5px;"></div>
+                </div>
+            </div>`).join('');
+    }
 }
 
 async function requestPayout(e) {
