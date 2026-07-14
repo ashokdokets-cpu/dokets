@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from core.security.auth import get_current_user, create_access_token
 from core.payments.escrow import escrow_engine
 from core.ai.vouch_score import vouch_engine
+from api.routes.users import _users
 import uuid
 
 router = APIRouter(prefix="/api/v1/contracts", tags=["Contracts"])
@@ -11,6 +12,22 @@ _contracts = []
 
 @router.post("/")
 async def create_contract(data: dict, current_user: dict = Depends(get_current_user)):
+
+
+
+
+# Auto-detect location & currency
+    from core.ai.geo_detector import get_smart_defaults
+    
+    customer_phone = next((u.get("phone_number", "+91") for u in _users if u["id"] == current_user["user_id"]), "+91")
+    provider_phone = data.get("provider_phone", "+91")
+    
+    geo = get_smart_defaults(customer_phone, provider_phone)
+    
+    # Use auto-detected currency if not specified
+    if not data.get("currency"):
+        data["currency"] = geo["currency"]
+
     contract_id = f"CT-{uuid.uuid4().hex[:8].upper()}"
     
     milestones = data.get("milestones", [])
