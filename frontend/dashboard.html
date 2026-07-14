@@ -304,13 +304,20 @@
 <div id="tab-payouts" style="display:none;">
     <div class="card"><div class="card-header"><span class="card-title">⚡ Instant Payout</span></div>
     <div class="card-body">
+        <p style="margin-bottom:1rem;color:#6B7280;">Withdraw your earnings instantly. Only 1% fee.</p>
         <form onsubmit="requestPayout(event)">
             <div class="form-group"><label>Amount</label><input type="number" id="payoutAmount" required></div>
-            <div class="form-group"><label>Method</label><select id="payoutMethod"><option value="upi">UPI</option><option value="bank_transfer">Bank Transfer</option><option value="paypal">PayPal</option></select></div>
+            <div class="form-group"><label>Method</label><select id="payoutMethod">
+                <option value="upi">📱 UPI (Instant)</option>
+                <option value="bank_transfer">🏦 Bank Transfer (1-2 days)</option>
+                <option value="paypal">💰 PayPal (3-5 days)</option>
+            </select></div>
             <div class="form-group"><label>UPI ID / Account</label><input type="text" id="payoutAccount" placeholder="user@upi"></div>
             <button type="submit" class="btn btn-primary btn-block">⚡ Request Payout (1% fee)</button>
         </form>
         <div id="payoutResult" class="mt-2"></div>
+        <button class="btn btn-outline btn-block mt-3" onclick="loadPayoutHistory()">📋 Payout History</button>
+        <div id="payoutHistory" class="mt-2"></div>
     </div></div>
 </div>
 
@@ -644,6 +651,20 @@ async function requestPayout(e) {
     
     if (r.success) {
         const p = r.payout;
+        
+        // Save to localStorage
+        const payouts = JSON.parse(localStorage.getItem('dokets_payouts') || '[]');
+        payouts.push({
+            id: p.id,
+            amount: p.amount,
+            fee: p.fee,
+            net_amount: p.net_amount,
+            method: method,
+            status: 'processing',
+            created_at: new Date().toISOString()
+        });
+        localStorage.setItem('dokets_payouts', JSON.stringify(payouts));
+        
         document.getElementById('payoutResult').innerHTML = `
             <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
                 <strong>✅ Payout Requested!</strong><br>
@@ -655,7 +676,27 @@ async function requestPayout(e) {
                 <p style="font-size:0.8rem;color:#6B7280;">⏱️ ${p.estimated_time || 'Processing...'}</p>
             </div>`;
         toast('Payout requested!', 'success');
+        document.getElementById('payoutAmount').value = '';
+        document.getElementById('payoutAccount').value = '';
+        loadPayoutHistory();
     }
+}
+
+async function loadPayoutHistory() {
+    const payouts = JSON.parse(localStorage.getItem('dokets_payouts') || '[]');
+    if (payouts.length === 0) {
+        document.getElementById('payoutHistory').innerHTML = '<p style="color:#6B7280;">No payouts yet.</p>';
+        return;
+    }
+    document.getElementById('payoutHistory').innerHTML = payouts.reverse().map(p => `
+        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
+            <div style="display:flex;justify-content:space-between;">
+                <strong>${p.id}</strong>
+                <span style="background:#FEF3C7;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${p.status}</span>
+            </div>
+            <p style="font-size:0.8rem;">Amount: ${p.amount} | Fee: ${p.fee} | <strong>Net: ${p.net_amount}</strong></p>
+            <p style="font-size:0.7rem;color:#6B7280;">Method: ${p.method?.toUpperCase()}</p>
+        </div>`).join('');
 }
 
 async function createVideoCall(e) {
