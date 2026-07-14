@@ -221,6 +221,11 @@
             <div class="nav-item" onclick="showTab('background')"><span class="nav-icon">🔍</span> Background</div>
             <div class="nav-item" onclick="showTab('agency')"><span class="nav-icon">🏷️</span> Agency</div>
             <div class="nav-item" onclick="showTab('support')"><span class="nav-icon">📞</span> Support</div>
+            <div class="nav-item" onclick="showTab('support')"><span class="nav-icon">📞</span> Support</div>
+            <div class="nav-item" onclick="showTab('languages')"><span class="nav-icon">🌐</span> Languages</div>
+            <div class="nav-item" onclick="showTab('chatbot')"><span class="nav-icon">🤖</span> AI Chatbot</div>
+            <div class="nav-item" onclick="showTab('recurring')"><span class="nav-icon">🔄</span> Recurring</div>
+            <div class="nav-item" onclick="showTab('invoice')"><span class="nav-icon">📑</span> Invoices</div>
         </aside>
 
         <main class="content" id="mainContent">
@@ -395,6 +400,56 @@
             <button type="submit" class="btn btn-danger btn-block">📞 Submit Ticket</button>
         </form>
         <div id="ticketResult" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-languages" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">🌐 Language / भाषा / Idioma</span></div>
+    <div class="card-body">
+        <p style="margin-bottom:1rem;color:#6B7280;">Select your preferred language for the dashboard.</p>
+        <div id="languageList" style="display:grid;gap:0.5rem;"></div>
+        <button class="btn btn-primary btn-block mt-2" onclick="loadLanguages()">🌍 Load Languages</button>
+    </div></div>
+</div>
+
+<div id="tab-chatbot" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">🤖 AI Chatbot</span></div>
+    <div class="card-body">
+        <div id="chatbotMessages" style="max-height:300px;overflow-y:auto;margin-bottom:1rem;background:#F9FAFB;padding:1rem;border-radius:8px;">
+            <p style="color:#4F46E5;"><strong>Bot:</strong> Hello! Ask me anything about Dokets.</p>
+        </div>
+        <form onsubmit="askChatbot(event)" style="display:flex;gap:0.5rem;">
+            <input type="text" id="chatbotInput" placeholder="Ask a question..." style="flex:1;" required>
+            <button type="submit" class="btn btn-primary">🤖 Ask</button>
+        </form>
+    </div></div>
+</div>
+
+<div id="tab-recurring" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">🔄 Recurring Contracts</span></div>
+    <div class="card-body">
+        <p style="margin-bottom:1rem;color:#6B7280;">Set up automatic recurring contracts for regular services.</p>
+        <form onsubmit="createRecurring(event)">
+            <div class="form-group"><label>Title</label><input type="text" id="recTitle" placeholder="Monthly Cleaning Service" required></div>
+            <div class="form-group"><label>Provider Phone</label><input type="tel" id="recPhone" required></div>
+            <div class="form-group"><label>Amount</label><input type="number" id="recAmount" required></div>
+            <div class="form-group"><label>Frequency</label><select id="recFrequency">
+                <option value="weekly">Weekly</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="quarterly">Quarterly</option>
+            </select></div>
+            <button type="submit" class="btn btn-primary btn-block">🔄 Create Recurring Contract</button>
+        </form>
+        <div id="recResult" class="mt-2"></div>
+    </div></div>
+</div>
+
+<div id="tab-invoice" style="display:none;">
+    <div class="card"><div class="card-header"><span class="card-title">📑 Invoices</span></div>
+    <div class="card-body">
+        <div class="form-group"><label>Contract ID</label><input type="text" id="invoiceContractId" placeholder="CT-XXXX"></div>
+        <button class="btn btn-primary btn-block" onclick="generateInvoice()">📑 Generate Invoice</button>
+        <div id="invoiceResult" class="mt-2"></div>
     </div></div>
 </div>
             <div id="tab-vouch" style="display:none;"><div class="card" style="text-align:center;"><div class="card-body"><h2>Your Vouch Score</h2><div class="vouch-circle" id="vouchLarge" style="border-color:var(--primary);color:var(--primary);">--</div><p style="font-size:1.1rem;font-weight:600;" id="vouchLevel">--</p></div></div></div>
@@ -1082,8 +1137,73 @@ async function showProviderContracts() {
         <div class="card"><div class="card-header"><span class="card-title">📋 Contracts for ${phone}</span></div>${html}</div>`;
 }
 
+async function loadLanguages() {
+    const r = await fetch(`${API}/languages`).then(r => r.json());
+    document.getElementById('languageList').innerHTML = r.map(l => `
+        <button class="btn btn-outline btn-block" onclick="setLanguage('${l.code}')" style="text-align:left;">
+            ${l.flag} ${l.name}
+        </button>`).join('');
+}
+
+function setLanguage(lang) {
+    localStorage.setItem('dokets_lang', lang);
+    toast('Language set to ' + lang + '!', 'success');
+    // Reload with translations
+    applyTranslations(lang);
+}
+
+async function applyTranslations(lang) {
+    const r = await fetch(`${API}/translations/${lang}`).then(r => r.json());
+    // Update common elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (r[key]) el.textContent = r[key];
+    });
+}
+
+async function askChatbot(e) {
+    e.preventDefault();
+    const q = document.getElementById('chatbotInput').value;
+    document.getElementById('chatbotMessages').innerHTML += `<p style="color:#1F2937;"><strong>You:</strong> ${q}</p>`;
+    document.getElementById('chatbotInput').value = '';
+    
+    const r = await api('/chatbot/ask', 'POST', {question: q});
+    document.getElementById('chatbotMessages').innerHTML += `<p style="color:#4F46E5;"><strong>Bot:</strong> ${r.response || r.message}</p>`;
+    const chatDiv = document.getElementById('chatbotMessages');
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+async function createRecurring(e) {
+    e.preventDefault();
+    const r = await api('/recurring/create', 'POST', {
+        title: document.getElementById('recTitle').value,
+        provider_phone: document.getElementById('recPhone').value,
+        amount: parseFloat(document.getElementById('recAmount').value),
+        frequency: document.getElementById('recFrequency').value
+    });
+    document.getElementById('recResult').innerHTML = r.success ?
+        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Recurring: ${r.subscription.id}<br>Next payment auto-scheduled</div>` : 'Failed';
+}
+
+async function generateInvoice() {
+    const contractId = document.getElementById('invoiceContractId').value;
+    if (!contractId) { toast('Enter a Contract ID', 'error'); return; }
+    
+    const r = await api(`/invoice/${contractId}`);
+    if (r.invoice) {
+        document.getElementById('invoiceResult').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
+                <strong>📑 Invoice Generated!</strong><br>
+                <p>Invoice #: ${r.invoice.invoice_number}</p>
+                <p>Amount: ${r.invoice.currency} ${r.invoice.amount}</p>
+                <p>Fee (1%): ${r.invoice.platform_fee}</p>
+                <p><strong>Net: ${r.invoice.net_amount}</strong></p>
+            </div>`;
+    }
+}
+
         function showTab(tab) {
-            ['dashboard','contracts','vouch','kyc','chat','disputes','admin','analytics','payouts','video','background','agency','support'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'block':'none');
+            ['dashboard','contracts','vouch','kyc','chat','disputes','admin','analytics','payouts','video','background','agency','support','languages','chatbot','recurring','invoice'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'block':'none');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             event?.target?.closest('.nav-item')?.classList.add('active');
         }
