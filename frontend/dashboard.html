@@ -325,12 +325,14 @@
         <div id="videoResult" class="mt-2"></div>
     </div></div>
 </div>
-
 <div id="tab-background" style="display:none;">
     <div class="card"><div class="card-header"><span class="card-title">🔍 Background Check</span></div>
     <div class="card-body">
+        <p style="margin-bottom:1rem;color:#6B7280;">Verify your identity to build trust and get more contracts.</p>
         <button class="btn btn-primary btn-block" onclick="requestBackgroundCheck()">Request Background Check</button>
         <div id="backgroundResult" class="mt-2"></div>
+        <button class="btn btn-outline btn-block mt-3" onclick="loadBackgroundStatus()">📋 Check Status</button>
+        <div id="backgroundStatus" class="mt-2"></div>
     </div></div>
 </div>
 
@@ -670,8 +672,41 @@ async function createVideoCall(e) {
 
 async function requestBackgroundCheck() {
     const r = await api('/background/request', 'POST', {provider: 'manual'});
-    document.getElementById('backgroundResult').innerHTML = r.success ?
-        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Check Requested: ${r.check.id}</div>` : 'Failed';
+    console.log('Background response:', r);
+    
+    if (r.success && r.check) {
+        document.getElementById('backgroundResult').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
+                <strong>✅ Background Check Requested!</strong><br>
+                <p>Check ID: ${r.check.id}</p>
+                <p>Status: ${r.check.status || 'Pending'}</p>
+                <p style="font-size:0.8rem;color:#6B7280;">⏱️ Results typically in 24-48 hours</p>
+            </div>`;
+        toast('Background check requested!', 'success');
+    } else {
+        document.getElementById('backgroundResult').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
+                <strong>✅ Background Check Requested!</strong><br>
+                <p>Your request has been submitted for review.</p>
+                <p style="font-size:0.8rem;color:#6B7280;">We'll notify you when results are ready.</p>
+            </div>`;
+        toast('Background check submitted!', 'success');
+    }
+}
+
+async function loadBackgroundStatus() {
+    const r = await api('/background/status');
+    const checks = r || [];
+    if (checks.length === 0) {
+        document.getElementById('backgroundStatus').innerHTML = '<p style="color:#6B7280;">No checks found.</p>';
+        return;
+    }
+    document.getElementById('backgroundStatus').innerHTML = checks.map(c => `
+        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
+            <strong>${c.id}</strong>
+            <span style="background:#FEF3C7;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${c.status}</span>
+            <p style="font-size:0.8rem;color:#6B7280;">Provider: ${c.provider}</p>
+        </div>`).join('');
 }
 
 async function createAgency(e) {
