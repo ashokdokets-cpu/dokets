@@ -11,6 +11,12 @@ router = APIRouter(prefix="/api/v1/contracts", tags=["Contracts"])
 
 _contracts = []
 
+async def get_contracts_collection():
+    db = mongodb.get_db()
+    if db is not None:
+        return db.contracts
+    return None
+
 @router.post("/")
 async def create_contract(data: dict, current_user: dict = Depends(get_current_user)):
     # Auto-detect location & currency
@@ -59,10 +65,10 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
         "updated_at": str(datetime.utcnow())
     }
 
-     # Save to MongoDB
-    collection = mongodb.get_collection("contracts")
-    if collection:
-        await collection.insert_one(contract)
+    # Save to MongoDB
+    contracts_col = await get_contracts_collection()
+    if contracts_col is not None:
+        await contracts_col.insert_one(contract)
     _contracts.append(contract)
 
     # After contract is created, create a provider view link
@@ -93,10 +99,18 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
 
 @router.get("/")
 async def get_my_contracts(current_user: dict = Depends(get_current_user)):
-    my_contracts = [
-        c for c in _contracts 
-        if c["customer_id"] == current_user["user_id"] or c["provider_id"] == current_user["user_id"]
-    ]
+    contracts_col = await get_contracts_collection()
+    if contracts_col is not None:
+        mongo_contracts = await contracts_col.find({
+            "$or": [
+                {"customer_id": current_user["user_id"]},
+                {"provider_id": current_user["user_id"]}
+            ]
+        }).to_list(length=100)
+        # Merge with in-memory
+        return {"contracts": mongo_contracts + _contracts, "total": len(mongo_contracts) + len(_contracts)}
+    
+    my_contracts = [c for c in _contracts if c["customer_id"] == current_user["user_id"] or c["provider_id"] == current_user["user_id"]]
     return {"contracts": my_contracts, "total": len(my_contracts)}
 
 @router.get("/{contract_id}")
