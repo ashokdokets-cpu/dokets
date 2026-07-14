@@ -276,13 +276,24 @@
 <div id="tab-disputes" style="display:none;">
     <div class="card"><div class="card-header"><span class="card-title">⚖️ Dispute Center</span></div>
     <div class="card-body">
+        <p style="margin-bottom:1rem;color:#6B7280;">File a dispute for any active contract. Our AI mediator will help resolve it.</p>
         <form onsubmit="fileDispute(event)">
             <div class="form-group"><label>Contract ID</label><input type="text" id="disputeContractId" required></div>
-            <div class="form-group"><label>Reason</label><input type="text" id="disputeReason" required></div>
-            <div class="form-group"><label>Description</label><textarea id="disputeDesc" rows="2"></textarea></div>
-            <button type="submit" class="btn btn-danger btn-block">File Dispute</button>
+            <div class="form-group"><label>Reason</label>
+                <select id="disputeReason">
+                    <option value="work_not_done">Work Not Completed</option>
+                    <option value="poor_quality">Poor Quality</option>
+                    <option value="missed_deadline">Missed Deadline</option>
+                    <option value="payment_issue">Payment Issue</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Description</label><textarea id="disputeDesc" rows="2" placeholder="Describe the issue in detail..."></textarea></div>
+            <button type="submit" class="btn btn-danger btn-block">⚖️ File Dispute</button>
         </form>
         <div id="disputeResult" class="mt-2"></div>
+        <button class="btn btn-outline btn-block mt-3" onclick="loadMyDisputes()">📋 My Disputes</button>
+        <div id="disputeList" class="mt-2"></div>
     </div></div>
 </div>
 
@@ -620,14 +631,60 @@ async function createPayment(e) {
 
 async function fileDispute(e) {
     e.preventDefault();
+    const contractId = document.getElementById('disputeContractId').value;
+    const reason = document.getElementById('disputeReason').value;
+    const description = document.getElementById('disputeDesc').value;
+    
     const r = await api('/disputes/file', 'POST', {
-        contract_id: document.getElementById('disputeContractId').value,
-        reason: document.getElementById('disputeReason').value,
-        description: document.getElementById('disputeDesc').value
+        contract_id: contractId,
+        reason: reason,
+        description: description
     });
-    document.getElementById('disputeResult').innerHTML = r.success ? `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">Dispute filed: ${r.dispute.id}</div>` : 'Failed';
-    if (r.success) toast('Dispute filed!', 'success');
+    
+    if (r.success) {
+        // Save to localStorage
+        const disputes = JSON.parse(localStorage.getItem('dokets_disputes') || '[]');
+        disputes.push({
+            id: r.dispute?.id || 'DSP-' + Date.now(),
+            contract_id: contractId,
+            reason: reason,
+            description: description,
+            status: 'open',
+            filed_at: new Date().toISOString()
+        });
+        localStorage.setItem('dokets_disputes', JSON.stringify(disputes));
+        
+        document.getElementById('disputeResult').innerHTML = `
+            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
+                <strong>✅ Dispute Filed!</strong><br>
+                <p>Dispute ID: ${r.dispute?.id || 'N/A'}</p>
+                <p>Status: Open</p>
+                <p style="font-size:0.8rem;color:#6B7280;">Our AI mediator will review and respond within 24 hours.</p>
+            </div>`;
+        toast('Dispute filed! AI mediator notified.', 'success');
+        document.getElementById('disputeContractId').value = '';
+        document.getElementById('disputeDesc').value = '';
+        loadMyDisputes();
+    }
 }
+
+async function loadMyDisputes() {
+    const disputes = JSON.parse(localStorage.getItem('dokets_disputes') || '[]');
+    if (disputes.length === 0) {
+        document.getElementById('disputeList').innerHTML = '<p style="color:#6B7280;">No disputes filed.</p>';
+        return;
+    }
+    document.getElementById('disputeList').innerHTML = disputes.reverse().map(d => `
+        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
+            <div style="display:flex;justify-content:space-between;">
+                <strong>${d.id}</strong>
+                <span style="background:${d.status==='open'?'#FEE2E2':'#D1FAE5'};padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${d.status}</span>
+            </div>
+            <p style="font-size:0.8rem;">Contract: ${d.contract_id} | Reason: ${d.reason}</p>
+            <p style="font-size:0.7rem;color:#6B7280;">${d.description?.substring(0, 100) || ''}</p>
+        </div>`).join('');
+}
+
 
 async function loadAdminStats() {
     const r = await api('/admin/stats');
