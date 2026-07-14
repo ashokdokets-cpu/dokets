@@ -1,87 +1,108 @@
 from fastapi import APIRouter, HTTPException, Depends
+from datetime import datetime
 from core.security.auth import hash_password, verify_password, create_access_token, get_current_user
-from core.messaging.email_service import email_service
+from core.database.mongodb import mongodb
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
-# Simple storage
-_users = []
-
 @router.post("/register")
 async def register_user(data: dict):
-    for u in _users:
-        if u["email"] == data["email"]:
+    collection = mongodb.get_collection("users")
+    
+    # Check existing
+    if collection:
+        existing = await collection.find_one({"email": data["email"]})
+        if existing:
             raise HTTPException(status_code=400, detail="Email already registered")
     
     user = {
-        "id": str(len(_users) + 1),
         "email": data["email"],
-        "phone_number": data["phone_number"],
-        "full_name": data["full_name"],
+        "phone_number": data.get("phone_number", ""),
+        "full_name": data.get("full_name", "User"),
         "hashed_password": hash_password(data["password"]),
         "user_role": data.get("user_role", "customer"),
         "vouch_score": 100.0,
-        "total_contracts": 0
+        "total_contracts": 0,
+        "completed_contracts": 0,
+        "is_verified": False,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
     }
     
-    _users.append(user)
+    if collection:
+        result = await collection.insert_one(user)
+        user_id = str(result.inserted_id)
+    else:
+        user_id = str(len(_fallback_users) + 1)
+        user["id"] = user_id
+        _fallback_users.append(user)
     
-    return {"success": True, "message": "User registered", "data": {"user_id": user["id"]}}
+    return {"success": True, "message": "User registered", "data": {"user_id": user_id}}
 
 @router.post("/login")
 async def login_user(data: dict):
+    collection = mongodb.get_collection("users")
+    
     user = None
-    for u in _users:
-        if u["email"] == data["email"]:
-            user = u
-            break
+    if collection:
+        user = await collection.find_one({"email": data["email"]})
+    else:
+        for u in _fallback_users:
+            if u["email"] == data["email"]:
+                user = u
+                break
     
     if not user or not verify_password(data["password"], user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
-    token = create_access_token(data={"sub": user["id"], "email": user["email"]})
+    user_id = str(user.get("_id", user.get("id")))
+    token = create_access_token(data={"sub": user_id, "email": user["email"]})
     
     return {
         "access_token": token,
         "token_type": "bearer",
         "user": {
-            "id": user["id"],
+            "id": user_id,
             "email": user["email"],
-            "phone_number": user["phone_number"],
-            "full_name": user["full_name"],
-            "user_role": user["user_role"],
-            "vouch_score": user["vouch_score"],
-            "total_contracts": user["total_contracts"]
+            "phone_number": user.get("phone_number", ""),
+            "full_name": user.get("full_name", "User"),
+            "user_role": user.get("user_role", "customer"),
+            "vouch_score": user.get("vouch_score", 100.0),
+            "total_contracts": user.get("total_contracts", 0)
         }
     }
 
 @router.get("/me")
 async def get_my_profile(current_user: dict = Depends(get_current_user)):
+    collection = mongodb.get_collection("users")
+    user_id = current_user["user_id"]
+    
     user = None
-    for u in _users:
-        if u["id"] == current_user["user_id"]:
-            user = u
-            break
+    if collection:
+        from bson import ObjectId
+        try:
+            user = await collection.find_one({"_id": ObjectId(user_id)})
+        except:
+            pass
+    
+    if not user:
+        for u in _fallback_users:
+            if u.get("id") == user_id:
+                user = u
+                break
     
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
     return {
-        "id": user["id"],
+        "id": str(user.get("_id", user.get("id"))),
         "email": user["email"],
-        "phone_number": user["phone_number"],
-        "full_name": user["full_name"],
-        "user_role": user["user_role"],
-        "vouch_score": user["vouch_score"],
-        "total_contracts": user["total_contracts"]
+        "phone_number": user.get("phone_number", ""),
+        "full_name": user.get("full_name", "User"),
+        "user_role": user.get("user_role", "customer"),
+        "vouch_score": user.get("vouch_score", 100.0),
+        "total_contracts": user.get("total_contracts", 0)
     }
 
-@router.post("/send-verification")
-async def send_verification(data: dict, current_user: dict = Depends(get_current_user)):
-    token = email_service.send_verification(data.get("email", current_user["email"]))
-    return {"success": True, "message": "Verification email sent", "token": token}
-
-@router.post("/verify-email")
-async def verify_email(data: dict):
-    verified = email_service.verify_email(data["email"], data["token"])
-    return {"success": verified, "message": "Email verified" if verified else "Invalid token"}
+# Fallback storage
+_fallback_users = []

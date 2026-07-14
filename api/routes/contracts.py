@@ -3,8 +3,9 @@ from fastapi import APIRouter, HTTPException, Depends
 from core.security.auth import get_current_user, create_access_token
 from core.payments.escrow import escrow_engine
 from core.ai.vouch_score import vouch_engine
-from api.routes.users import _users
+# _users is now inside users.py as _fallback_users
 import uuid
+from core.database.mongodb import mongodb
 
 router = APIRouter(prefix="/api/v1/contracts", tags=["Contracts"])
 
@@ -15,7 +16,7 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
     # Auto-detect location & currency
     from core.ai.geo_detector import get_smart_defaults
     
-    customer_phone = next((u.get("phone_number", "+91") for u in _users if u["id"] == current_user["user_id"]), "+91")
+    customer_phone = "+91"  # Default, will be enhanced later
     provider_phone = data.get("provider_phone", "+91")
     
     geo = get_smart_defaults(customer_phone, provider_phone)
@@ -57,7 +58,11 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
         "created_at": str(datetime.utcnow()),
         "updated_at": str(datetime.utcnow())
     }
-    
+
+     # Save to MongoDB
+    collection = mongodb.get_collection("contracts")
+    if collection:
+        await collection.insert_one(contract)
     _contracts.append(contract)
 
     # After contract is created, create a provider view link
@@ -136,19 +141,12 @@ async def submit_proof(contract_id: str, milestone_id: str, data: dict, current_
                     }
                     ms["status"] = "awaiting_verification"
                     
-                    # Notify customer
+                    # Notify provider
                     from core.messaging.whatsapp_bot import whatsapp_bot
-                    customer = next((u for u in _users if u["id"] == c["customer_id"]), None)
-                    if customer:
-                        whatsapp_bot.send_message(
-                            customer.get("phone_number", ""),
-                            f"🔍 *Work Proof Submitted!*\n\n"
-                            f"Contract: {c['title']}\n"
-                            f"Milestone: {ms['title']}\n"
-                            f"Amount: {c['currency']} {ms['amount']}\n\n"
-                            f"Please review and approve at:\n"
-                            f"https://dokets.com/contract-view/{contract_id}"
-                        )
+                    whatsapp_bot.send_message(
+                        c["provider_phone"],
+                        f"Work Proof Submitted!\nContract: {c['title']}\nMilestone: {ms['title']}\nReview: https://dokets.com/contract-view/{contract_id}"
+                    )
                     
                     return {"success": True, "message": "Proof submitted for review"}
     raise HTTPException(status_code=404, detail="Not found")
