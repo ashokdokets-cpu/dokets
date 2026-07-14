@@ -450,6 +450,62 @@ async def payment_tracker(contract_id: str):
     </html>
     """
 
+@app.get("/verification-result/{contract_id}", response_class=HTMLResponse)
+async def verification_result(contract_id: str):
+    from api.routes.contracts import _contracts
+    
+    contract = None
+    for c in _contracts:
+        if c["id"] == contract_id:
+            contract = c
+            break
+    
+    if not contract:
+        return "<h2>Not found</h2>"
+    
+    ms_html = ""
+    for ms in contract.get("milestones", []):
+        proof = ms.get("proof", {})
+        status = ms.get("status", "pending")
+        verified = "✅ AI Verified" if status == "completed" else "⏳ Pending" if status == "awaiting_verification" else "🔒 Funded"
+        color = "#10B981" if status == "completed" else "#F59E0B" if status == "awaiting_verification" else "#94A3B8"
+        
+        ms_html += f"""
+        <div style="background:white;padding:1.5rem;border-radius:12px;margin-bottom:1rem;border-left:4px solid {color};">
+            <h3>{ms.get('title', 'Milestone')}</h3>
+            <p>{ms.get('description', '')}</p>
+            <p><strong>Amount:</strong> {contract.get('currency', 'INR')} {ms.get('amount', 0)}</p>
+            <p><strong>Status:</strong> {verified}</p>
+            <p><strong>Proof:</strong> {proof.get('description', 'No proof submitted yet')}</p>
+            <p><strong>Images:</strong> {len(proof.get('images', []))} uploaded</p>
+        </div>"""
+    
+    return f"""
+    <!DOCTYPE html>
+    <html><head>
+        <title>Verification - {contract['title']}</title>
+        <style>
+            *{{margin:0;padding:0;box-sizing:border-box}}
+            body{{font-family:'Segoe UI',sans-serif;background:#F0F2F5;padding:2rem}}
+            .container{{max-width:700px;margin:0 auto}}
+            .header{{background:linear-gradient(135deg,#4F46E5,#7C3AED);color:white;padding:2rem;border-radius:12px;text-align:center;margin-bottom:1rem}}
+            h1{{font-size:1.8rem}}
+        </style>
+    </head><body>
+        <div class="container">
+            <div class="header">
+                <h1>🤖 AI Verification Result</h1>
+                <p>{contract['title']}</p>
+                <p style="margin-top:1rem;opacity:0.9">Visible to both parties</p>
+            </div>
+            {ms_html}
+            <p style="text-align:center;color:#6B7280;margin-top:1rem;">
+                All verifications are AI-powered and visible to both customer and provider
+            </p>
+        </div>
+    </body></html>"""
+
+
 @app.get("/manifest.json")
 async def manifest():
     return {
