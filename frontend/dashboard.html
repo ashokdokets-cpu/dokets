@@ -636,6 +636,10 @@ async function loadAdminStats() {
 
 async function loadAnalytics() {
     const r = await api('/analytics/platform');
+    if (r.detail) {
+        document.getElementById('analyticsData').innerHTML = `<p style="color:#F59E0B;">⚠️ ${r.detail}. Please login as admin.</p>`;
+        return;
+    }
     document.getElementById('analyticsData').innerHTML = `<pre style="background:#F3F4F6;padding:1rem;border-radius:8px;overflow-x:auto;">${JSON.stringify(r, null, 2)}</pre>`;
 }
 

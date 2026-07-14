@@ -9,9 +9,7 @@ router = APIRouter(prefix="/api/v1/analytics", tags=["Analytics"])
 
 @router.get("/platform")
 async def platform_analytics(current_user: dict = Depends(get_current_user)):
-    if current_user.get("email") not in ["a@a.com", "admin@dokets.com"]:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=403)
+    # Admin restriction removed - open to all logged-in users
     
     now = datetime.utcnow()
     week_ago = now - timedelta(days=7)
