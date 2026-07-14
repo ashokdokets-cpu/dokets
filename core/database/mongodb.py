@@ -19,24 +19,26 @@ class MongoDB:
             self.db = self.client[settings.MONGODB_DB_NAME]
             await self.client.admin.command('ping')
             self.connected = True
-            logger.info("✅ MongoDB Atlas connected - data will persist!")
+            logger.info("✅ MongoDB Atlas connected!")
             
             # Create indexes
             await self.db.users.create_index("email", unique=True)
             await self.db.contracts.create_index("customer_id")
-            await self.db.contracts.create_index("provider_id")
-            logger.info("✅ Database indexes created")
+            logger.info("✅ Indexes ready")
+            return True
         except Exception as e:
             logger.warning(f"MongoDB: {e}")
             self.connected = False
+            return False
 
     async def close(self):
         if self.client:
             self.client.close()
 
-    def get_collection(self, name):
-        # Return None for now - use in-memory fallback
-        # MongoDB integration needs async motor, not pymongo
+    def get_db(self):
+        """Return the database if connected"""
+        if self.connected and self.db is not None:
+            return self.db
         return None
 
 mongodb = MongoDB()

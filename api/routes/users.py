@@ -5,18 +5,20 @@ from core.database.mongodb import mongodb
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
+async def get_users_collection():
+    db = mongodb.get_db()
+    if db is not None:
+        return db.users
+    return None
+
 @router.post("/register")
 async def register_user(data: dict):
-    collection = mongodb.get_collection("users")
+    users = await get_users_collection()
     
-    # Check existing - with error handling
-    if collection:
-        try:
-            existing = await collection.find_one({"email": data["email"]})
-            if existing:
-                raise HTTPException(status_code=400, detail="Email already registered")
-        except:
-            collection = None  # Fallback to in-memory
+    if users is not None:
+        existing = await users.find_one({"email": data["email"]})
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already registered")
     
     user = {
         "email": data["email"],
@@ -29,14 +31,9 @@ async def register_user(data: dict):
         "created_at": datetime.utcnow()
     }
     
-    if collection:
-        try:
-            result = await collection.insert_one(user)
-            user_id = str(result.inserted_id)
-        except:
-            user_id = str(len(_fallback_users) + 1)
-            user["id"] = user_id
-            _fallback_users.append(user)
+    if users is not None:
+        result = await users.insert_one(user)
+        user_id = str(result.inserted_id)
     else:
         user_id = str(len(_fallback_users) + 1)
         user["id"] = user_id
@@ -46,11 +43,11 @@ async def register_user(data: dict):
 
 @router.post("/login")
 async def login_user(data: dict):
-    collection = mongodb.get_collection("users")
+    users = await get_users_collection()
     
     user = None
-    if collection:
-        user = await collection.find_one({"email": data["email"]})
+    if users is not None:
+        user = await users.find_one({"email": data["email"]})
     else:
         for u in _fallback_users:
             if u["email"] == data["email"]:
@@ -80,21 +77,33 @@ async def login_user(data: dict):
 @router.get("/me")
 async def get_my_profile(current_user: dict = Depends(get_current_user)):
     user_id = current_user["user_id"]
+    users = await get_users_collection()
     
-    # Search in fallback users
-    for u in _fallback_users:
-        if u.get("id") == user_id:
-            return {
-                "id": u["id"],
-                "email": u["email"],
-                "phone_number": u.get("phone_number", ""),
-                "full_name": u.get("full_name", "User"),
-                "user_role": u.get("user_role", "customer"),
-                "vouch_score": u.get("vouch_score", 100.0),
-                "total_contracts": u.get("total_contracts", 0)
-            }
+    user = None
+    if users is not None:
+        from bson import ObjectId
+        try:
+            user = await users.find_one({"_id": ObjectId(user_id)})
+        except:
+            pass
     
-    raise HTTPException(status_code=404, detail="User not found")
+    if not user:
+        for u in _fallback_users:
+            if u.get("id") == user_id:
+                user = u
+                break
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "id": str(user.get("_id", user.get("id"))),
+        "email": user["email"],
+        "phone_number": user.get("phone_number", ""),
+        "full_name": user.get("full_name", "User"),
+        "user_role": user.get("user_role", "customer"),
+        "vouch_score": user.get("vouch_score", 100.0),
+        "total_contracts": user.get("total_contracts", 0)
+    }
 
-# Fallback storage
 _fallback_users = []
