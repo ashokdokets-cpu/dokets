@@ -90,6 +90,62 @@ TRANSLATIONS = {
         "contracts": "العقود",
         "welcome": "مرحباً بك في دوكيتس",
     },
+    "id": {
+        "dashboard": "Dasbor", "contracts": "Kontrak", "welcome": "Selamat datang di Dokets",
+        "login": "Masuk", "logout": "Keluar",
+    },
+    "bn": {
+        "dashboard": "ড্যাশবোর্ড", "contracts": "চুক্তি", "welcome": "ডকেটসে স্বাগতম",
+        "login": "লগইন",
+    },
+    "ur": {
+        "dashboard": "ڈیش بورڈ", "contracts": "معاہدے", "welcome": "ڈوکیٹس میں خوش آمدید",
+        "login": "لاگ ان",
+    },
+    "ja": {
+        "dashboard": "ダッシュボード", "contracts": "契約", "welcome": "Doketsへようこそ",
+        "login": "ログイン",
+    },
+    "ko": {
+        "dashboard": "대시보드", "contracts": "계약", "welcome": "Dokets에 오신 것을 환영합니다",
+        "login": "로그인",
+    },
+    "zh": {
+        "dashboard": "仪表板", "contracts": "合同", "welcome": "欢迎来到 Dokets",
+        "login": "登录",
+    },
+    "de": {
+        "dashboard": "Dashboard", "contracts": "Verträge", "welcome": "Willkommen bei Dokets",
+        "login": "Anmelden",
+    },
+    "it": {
+        "dashboard": "Cruscotto", "contracts": "Contratti", "welcome": "Benvenuto su Dokets",
+        "login": "Accedi",
+    },
+    "nl": {
+        "dashboard": "Dashboard", "contracts": "Contracten", "welcome": "Welkom bij Dokets",
+        "login": "Inloggen",
+    },
+    "tr": {
+        "dashboard": "Panel", "contracts": "Sözleşmeler", "welcome": "Dokets'e Hoş Geldiniz",
+        "login": "Giriş",
+    },
+    "vi": {
+        "dashboard": "Bảng điều khiển", "contracts": "Hợp đồng", "welcome": "Chào mừng đến Dokets",
+        "login": "Đăng nhập",
+    },
+    "th": {
+        "dashboard": "แดชบอร์ด", "contracts": "สัญญา", "welcome": "ยินดีต้อนรับสู่ Dokets",
+        "login": "เข้าสู่ระบบ",
+    },
+    "sw": {
+        "dashboard": "Dashibodi", "contracts": "Mikataba", "welcome": "Karibu Dokets",
+        "login": "Ingia",
+    },
+    "ta": {
+        "dashboard": "டாஷ்போர்டு", "contracts": "ஒப்பந்தங்கள்", "welcome": "Dokets-க்கு வரவேற்கிறோம்",
+        "login": "உள்நுழைய",
+    },
 }
 
 def get_text(key, lang="en"):
@@ -103,4 +159,18 @@ def get_available_languages():
         {"code": "pt", "name": "Português", "flag": "🇧🇷"},
         {"code": "fr", "name": "Français", "flag": "🇫🇷"},
         {"code": "ar", "name": "العربية", "flag": "🇦🇪"},
+        {"code": "id", "name": "Bahasa Indonesia", "flag": "🇮🇩"},
+        {"code": "bn", "name": "বাংলা (Bengali)", "flag": "🇧🇩"},
+        {"code": "ur", "name": "اردو (Urdu)", "flag": "🇵🇰"},
+        {"code": "ja", "name": "日本語 (Japanese)", "flag": "🇯🇵"},
+        {"code": "ko", "name": "한국어 (Korean)", "flag": "🇰🇷"},
+        {"code": "zh", "name": "中文 (Chinese)", "flag": "🇨🇳"},
+        {"code": "de", "name": "Deutsch", "flag": "🇩🇪"},
+        {"code": "it", "name": "Italiano", "flag": "🇮🇹"},
+        {"code": "nl", "name": "Nederlands", "flag": "🇳🇱"},
+        {"code": "tr", "name": "Türkçe", "flag": "🇹🇷"},
+        {"code": "vi", "name": "Tiếng Việt", "flag": "🇻🇳"},
+        {"code": "th", "name": "ไทย (Thai)", "flag": "🇹🇭"},
+        {"code": "sw", "name": "Kiswahili", "flag": "🇰🇪"},
+        {"code": "ta", "name": "தமிழ் (Tamil)", "flag": "🇮🇳"},
     ]
