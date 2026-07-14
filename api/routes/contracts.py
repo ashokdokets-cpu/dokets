@@ -1,6 +1,6 @@
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
-from core.security.auth import get_current_user
+from core.security.auth import get_current_user, create_access_token
 from core.payments.escrow import escrow_engine
 from core.ai.vouch_score import vouch_engine
 import uuid
