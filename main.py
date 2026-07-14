@@ -260,7 +260,11 @@ async def root():
             }
         </style>
     </head>
-    <body>
+        <body>
+        <div id="cookieConsent" style="position:fixed;bottom:0;left:0;right:0;background:#1E293B;color:white;padding:1rem;z-index:9999;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+            <p style="margin:0;font-size:0.85rem;">🍪 We use essential cookies for authentication. No tracking. <a href="/cookies" style="color:#818CF8;">Learn more</a></p>
+            <button onclick="document.getElementById('cookieConsent').remove();localStorage.setItem('cookies_accepted','1');" style="background:#6366F1;color:white;border:none;padding:0.5rem 1.5rem;border-radius:8px;cursor:pointer;font-weight:600;">Accept</button>
+        </div>
         <div class="hero">
             <div class="badge">🛡️ Powered by AI & Escrow Technology</div>
             <h1>Trust in Every Deal</h1>
@@ -327,6 +331,14 @@ async def root():
 
         <div class="footer">
             <p>© 2026 Dokets VouchAI · Trust in Every Deal · dokets.com</p>
+<p style="margin-top:0.5rem;font-size:0.8rem;">
+    <a href="/about" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">About</a> |
+    <a href="/privacy" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">Privacy</a> |
+    <a href="/terms" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">Terms</a> |
+    <a href="/cookies" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">Cookies</a> |
+    <a href="/gdpr" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">GDPR</a> |
+    <a href="/contact" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">Contact</a>
+</p>
         </div>
     </body>
     </html>
@@ -581,6 +593,156 @@ async def robots():
     return Response(content="""User-agent: *
 Allow: /
 Sitemap: https://dokets.com/sitemap.xml""", media_type="text/plain")
+
+@app.get("/privacy", response_class=HTMLResponse)
+async def privacy():
+    return """
+    <!DOCTYPE html><html><head><title>Privacy Policy - Dokets VouchAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body{font-family:Segoe UI,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6;color:#1E293B;}
+    h1{color:#6366F1;}h2{color:#4F46E5;margin-top:2rem;}a{color:#6366F1;}</style></head><body>
+    <h1>🔒 Privacy Policy</h1><p>Last updated: July 2026</p>
+    <p>Dokets VouchAI ("we," "our," or "us") is committed to protecting your privacy.</p>
+    <h2>1. Information We Collect</h2>
+    <p>• Email address and phone number for account creation<br>
+    • Contract details (title, description, amount)<br>• KYC documents for identity verification<br>
+    • Payment information (processed securely by Razorpay/PayPal)</p>
+    <h2>2. How We Use Your Data</h2>
+    <p>• To create and manage your contracts<br>• To process escrow payments<br>
+    • To verify your identity (KYC)<br>• To calculate Vouch Scores<br>• To send notifications</p>
+    <h2>3. Data Storage</h2>
+    <p>Data is stored on MongoDB Atlas cloud servers with encryption at rest and in transit. 
+    We retain your data as long as your account is active.</p>
+    <h2>4. Data Sharing</h2>
+    <p>We do NOT sell your data. We share data only:<br>
+    • With the other party in your contract<br>• With payment processors (Razorpay, PayPal)<br>
+    • When required by law</p>
+    <h2>5. Your Rights (GDPR)</h2>
+    <p>• Right to access your data<br>• Right to correct inaccurate data<br>
+    • Right to delete your data<br>• Right to data portability<br>
+    • Right to object to processing</p>
+    <h2>6. Cookies</h2>
+    <p>We use essential cookies for authentication. No tracking cookies. 
+    See our <a href="/cookies">Cookie Policy</a>.</p>
+    <h2>7. Security</h2>
+    <p>• SSL/TLS encryption for all data<br>• JWT tokens for authentication<br>
+    • Passwords hashed with bcrypt<br>• Regular security audits</p>
+    <h2>8. Contact</h2>
+    <p>📧 contact@dokets.com<br>🌐 <a href="/">dokets.com</a></p>
+    <p><a href="/">← Back to Home</a></p></body></html>"""
+
+@app.get("/terms", response_class=HTMLResponse)
+async def terms():
+    return """
+    <!DOCTYPE html><html><head><title>Terms of Service - Dokets VouchAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body{font-family:Segoe UI,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6;color:#1E293B;}
+    h1{color:#6366F1;}h2{color:#4F46E5;margin-top:2rem;}a{color:#6366F1;}</style></head><body>
+    <h1>📋 Terms of Service</h1><p>Last updated: July 2026</p>
+    <h2>1. Acceptance of Terms</h2>
+    <p>By using Dokets VouchAI, you agree to these terms. If you disagree, do not use the service.</p>
+    <h2>2. Service Description</h2>
+    <p>Dokets VouchAI provides an AI-powered escrow platform for creating and managing contracts 
+    between service providers and customers.</p>
+    <h2>3. Platform Fee</h2>
+    <p>We charge a 1% platform fee on all transactions processed through our escrow system.</p>
+    <h2>4. Escrow Terms</h2>
+    <p>Funds are held in escrow until work is verified by AI or approved by the customer. 
+    Disputes are resolved through our AI mediation system.</p>
+    <h2>5. User Responsibilities</h2>
+    <p>• Provide accurate information<br>• Complete work as agreed<br>
+    • Make payments as promised<br>• Maintain professional conduct</p>
+    <h2>6. Limitation of Liability</h2>
+    <p>Dokets VouchAI is not liable for the quality of work performed or disputes between parties. 
+    Our liability is limited to the platform fee collected.</p>
+    <h2>7. Termination</h2>
+    <p>We reserve the right to terminate accounts that violate these terms or engage in fraudulent activity.</p>
+    <h2>8. Governing Law</h2>
+    <p>These terms are governed by Indian law. Disputes subject to Hyderabad jurisdiction.</p>
+    <p><a href="/">← Back to Home</a></p></body></html>"""
+
+@app.get("/cookies", response_class=HTMLResponse)
+async def cookies():
+    return """
+    <!DOCTYPE html><html><head><title>Cookie Policy - Dokets VouchAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body{font-family:Segoe UI,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6;color:#1E293B;}
+    h1{color:#6366F1;}h2{color:#4F46E5;margin-top:2rem;}a{color:#6366F1;}
+    .cookie-box{background:#F8FAFC;padding:1rem;border-radius:8px;margin:1rem 0;border-left:4px solid #6366F1;}</style></head><body>
+    <h1>🍪 Cookie Policy</h1><p>Last updated: July 2026</p>
+    <h2>What Are Cookies?</h2>
+    <p>Cookies are small text files stored on your device when you visit websites.</p>
+    <h2>Cookies We Use</h2>
+    <div class="cookie-box"><strong>Essential Cookies</strong><br>
+    • JWT Token: For authentication (required)<br>• Theme Preference: Dark/Light mode<br>
+    • Language Preference: Your selected language</div>
+    <div class="cookie-box"><strong>NO Tracking Cookies</strong><br>
+    We do NOT use tracking cookies, advertising cookies, or third-party analytics cookies.</div>
+    <h2>Managing Cookies</h2>
+    <p>You can clear cookies from your browser settings. However, this will log you out.</p>
+    <h2>Third-Party Services</h2>
+    <p>• Razorpay: May set cookies for payment processing<br>• Twilio: For WhatsApp messaging</p>
+    <p><a href="/">← Back to Home</a></p></body></html>"""
+
+@app.get("/about", response_class=HTMLResponse)
+async def about():
+    return """
+    <!DOCTYPE html><html><head><title>About - Dokets VouchAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body{font-family:Segoe UI,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6;color:#1E293B;}
+    h1{color:#6366F1;}h2{color:#4F46E5;margin-top:2rem;}a{color:#6366F1;}
+    .feature{background:#F8FAFC;padding:1rem;border-radius:8px;margin:0.5rem 0;border-left:4px solid #6366F1;}</style></head><body>
+    <h1>🛡️ About Dokets VouchAI</h1>
+    <p>Dokets VouchAI is the world's first AI-powered micro-escrow platform, 
+    designed to bring trust to the informal economy.</p>
+    <h2>Our Mission</h2>
+    <p>To make every deal trustworthy - no lawyers, no paperwork, just AI-powered trust.</p>
+    <h2>Why Dokets?</h2>
+    <div class="feature">🤖 <strong>AI-Powered</strong> - Contracts created from natural language</div>
+    <div class="feature">🔒 <strong>Secure Escrow</strong> - Payment held until work verified</div>
+    <div class="feature">💬 <strong>WhatsApp Native</strong> - Create contracts via chat</div>
+    <div class="feature">⭐ <strong>Vouch Score</strong> - Build your reputation</div>
+    <div class="feature">🌍 <strong>Global</strong> - 13 currencies, 13 KYC types, 6 languages</div>
+    <h2>Contact</h2>
+    <p>📧 <a href="mailto:contact@dokets.com">contact@dokets.com</a><br>🌐 <a href="https://dokets.com">dokets.com</a></p>
+    <p><a href="/">← Back to Home</a></p></body></html>"""
+
+@app.get("/contact", response_class=HTMLResponse)
+async def contact():
+    return """
+    <!DOCTYPE html><html><head><title>Contact - Dokets VouchAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body{font-family:Segoe UI,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6;color:#1E293B;}
+    h1{color:#6366F1;}h2{color:#4F46E5;margin-top:2rem;}a{color:#6366F1;}
+    .contact-method{background:#F8FAFC;padding:1rem;border-radius:8px;margin:0.5rem 0;border-left:4px solid #6366F1;}</style></head><body>
+    <h1>📞 Contact Us</h1>
+    <div class="contact-method">📧 <strong>Email:</strong> <a href="mailto:contact@dokets.com">contact@dokets.com</a></div>
+    <div class="contact-method">💬 <strong>WhatsApp:</strong> +91 9100014859</div>
+    <div class="contact-method">🌐 <strong>Website:</strong> <a href="https://dokets.com">dokets.com</a></div>
+    <div class="contact-method">📊 <strong>Dashboard:</strong> <a href="/dashboard">Go to Dashboard</a></div>
+    <h2>Support Hours</h2>
+    <p>We respond to all inquiries within 24 hours.</p>
+    <p><a href="/">← Back to Home</a></p></body></html>"""
+
+@app.get("/gdpr", response_class=HTMLResponse)
+async def gdpr():
+    return """
+    <!DOCTYPE html><html><head><title>GDPR Compliance - Dokets VouchAI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body{font-family:Segoe UI,sans-serif;max-width:800px;margin:0 auto;padding:2rem;line-height:1.6;color:#1E293B;}
+    h1{color:#6366F1;}h2{color:#4F46E5;margin-top:2rem;}a{color:#6366F1;}</style></head><body>
+    <h1>🇪🇺 GDPR Compliance</h1><p>Last updated: July 2026</p>
+    <p>Dokets VouchAI is committed to GDPR compliance for our European users.</p>
+    <h2>Your GDPR Rights</h2>
+    <p>✅ Right to Access<br>✅ Right to Rectification<br>✅ Right to Erasure<br>
+    ✅ Right to Restrict Processing<br>✅ Right to Data Portability<br>✅ Right to Object</p>
+    <h2>Data Processing</h2>
+    <p>We process data based on: Contract necessity, Legal obligation, Legitimate interest, and Consent.</p>
+    <h2>Data Protection Officer</h2>
+    <p>📧 contact@dokets.com</p>
+    <h2>Request Your Data</h2>
+    <p>Email us at contact@dokets.com to exercise any of your GDPR rights.</p>
+    <p><a href="/">← Back to Home</a></p></body></html>"""
 
 
 @app.get("/health")
