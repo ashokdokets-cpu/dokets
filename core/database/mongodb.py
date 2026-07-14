@@ -35,7 +35,7 @@ class MongoDB:
             self.client.close()
 
     def get_collection(self, name):
-        if self.connected and self.db:
+        if self.connected and self.db is not None:
             return self.db[name]
         return None
 
