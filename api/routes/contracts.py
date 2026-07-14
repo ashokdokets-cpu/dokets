@@ -46,6 +46,23 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
     }
     
     _contracts.append(contract)
+
+    # After contract is created, create a provider view link
+    provider_token = create_access_token(data={"sub": "provider", "contract_id": contract_id, "email": "provider@view"})
+    contract["provider_view_url"] = f"https://dokets.com/contract-view/{contract_id}?token={provider_token}"
+    contract["share_url"] = f"https://dokets.com/contract-view/{contract_id}"
+    
+    # Send WhatsApp notification to provider
+    from core.messaging.whatsapp_bot import whatsapp_bot
+    whatsapp_bot.send_message(
+        contract["provider_phone"],
+        f"📋 *New Contract on Dokets!*\n\n"
+        f"*{contract['title']}*\n"
+        f"Amount: {contract['currency']} {contract['total_amount']}\n"
+        f"From: {current_user['email']}\n\n"
+        f"View & Approve: {contract['share_url']}\n\n"
+        f"Reply 'ACCEPT {contract['id']}' to approve!"
+    )
     
     return {
         "success": True,

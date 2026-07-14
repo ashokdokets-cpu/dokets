@@ -299,6 +299,75 @@ async def dashboard():
     with open("frontend/dashboard.html", "r", encoding="utf-8") as f:
         return f.read()
 
+@app.get("/contract-view/{contract_id}", response_class=HTMLResponse)
+async def view_contract(contract_id: str):
+    from api.routes.contracts import _contracts
+    
+    contract = None
+    for c in _contracts:
+        if c["id"] == contract_id:
+            contract = c
+            break
+    
+    if not contract:
+        return "<h2>Contract not found</h2>"
+    
+    milestones_html = ""
+    for ms in contract.get("milestones", []):
+        milestones_html += f"""
+        <div style="background:#F3F4F6;padding:1rem;border-radius:8px;margin-bottom:0.5rem;">
+            <strong>{ms.get('title', 'Milestone')}</strong>
+            <p>{ms.get('description', '')}</p>
+            <p>Amount: {contract.get('currency', 'INR')} {ms.get('amount', 0)}</p>
+            <p>Status: <span style="color:#4F46E5;">{ms.get('status', 'pending')}</span></p>
+        </div>"""
+    
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>{contract['title']} - Dokets VouchAI</title>
+        <style>
+            * {{ margin:0; padding:0; box-sizing:border-box; }}
+            body {{ font-family:'Segoe UI',sans-serif; background:#F0F2F5; padding:2rem; }}
+            .container {{ max-width:700px; margin:0 auto; }}
+            .card {{ background:white; border-radius:12px; padding:2rem; box-shadow:0 4px 6px rgba(0,0,0,0.1); }}
+            .header {{ background:linear-gradient(135deg,#4F46E5,#7C3AED); color:white; padding:1.5rem; border-radius:12px 12px 0 0; text-align:center; }}
+            h1 {{ font-size:1.8rem; }}
+            .status {{ display:inline-block; padding:0.3rem 1rem; border-radius:20px; font-weight:600; }}
+            .status-draft {{ background:#FEF3C7; color:#92400E; }}
+            .btn {{ padding:0.8rem 2rem; border-radius:8px; border:none; cursor:pointer; font-weight:600; font-size:1rem; }}
+            .btn-approve {{ background:#10B981; color:white; width:100%; }}
+            .btn-approve:hover {{ background:#059669; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>🛡️ {contract['title']}</h1>
+                <p style="margin-top:0.5rem;opacity:0.9;">Dokets VouchAI Contract</p>
+            </div>
+            <div class="card">
+                <p><strong>Contract ID:</strong> {contract['id']}</p>
+                <p><strong>Customer:</strong> {contract.get('customer_id', 'N/A')}</p>
+                <p><strong>Provider:</strong> {contract.get('provider_phone', 'N/A')}</p>
+                <p><strong>Total Amount:</strong> {contract.get('currency', 'INR')} {contract.get('total_amount', 0)}</p>
+                <p><strong>Status:</strong> <span class="status status-{contract.get('status', 'draft')}">{contract.get('status', 'draft')}</span></p>
+                <p><strong>Created:</strong> {contract.get('created_at', 'N/A')}</p>
+                
+                <h3 style="margin-top:1.5rem;">Milestones</h3>
+                {milestones_html}
+                
+                <p style="margin-top:1rem;color:#6B7280;font-size:0.9rem;">
+                    🔒 Payment secured in escrow | 🤖 AI-verified | ⭐ Vouch Score tracked
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+
 @app.get("/manifest.json")
 async def manifest():
     return {
