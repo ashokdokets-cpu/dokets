@@ -12,11 +12,7 @@ _contracts = []
 
 @router.post("/")
 async def create_contract(data: dict, current_user: dict = Depends(get_current_user)):
-
-
-
-
-# Auto-detect location & currency
+    # Auto-detect location & currency
     from core.ai.geo_detector import get_smart_defaults
     
     customer_phone = next((u.get("phone_number", "+91") for u in _users if u["id"] == current_user["user_id"]), "+91")
