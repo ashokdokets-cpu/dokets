@@ -70,3 +70,63 @@ async def get_faqs():
 async def create_ticket(data: dict, current_user: dict = Depends(get_current_user)):
     ticket = support.create_ticket(current_user["user_id"], data["subject"], data["message"])
     return {"success": True, "ticket": ticket}
+
+# ========== Recurring Contracts ==========
+@router.post("/recurring/create")
+async def create_recurring(data: dict, current_user: dict = Depends(get_current_user)):
+    from core.payments.recurring import recurring
+    sub = recurring.create_recurring(
+        current_user["user_id"],
+        data["provider_phone"],
+        data["amount"],
+        data.get("currency", "INR"),
+        data.get("frequency", "monthly"),
+        data.get("title", "Recurring Service")
+    )
+    return {"success": True, "subscription": sub}
+
+@router.get("/recurring")
+async def get_recurring(current_user: dict = Depends(get_current_user)):
+    from core.payments.recurring import recurring
+    return recurring.get_user_subscriptions(current_user["user_id"])
+
+# ========== Invoice ==========
+@router.get("/invoice/{contract_id}")
+async def get_invoice(contract_id: str):
+    from api.routes.contracts import _contracts
+    from core.payments.invoice import generate_invoice, get_invoice_html
+    
+    contract = next((c for c in _contracts if c["id"] == contract_id), None)
+    if not contract:
+        raise HTTPException(status_code=404)
+    
+    invoice = generate_invoice(contract)
+    return {"invoice": invoice, "html": get_invoice_html(invoice)}
+
+# ========== Chatbot ==========
+@router.post("/chatbot/ask")
+async def ask_chatbot(data: dict):
+    from core.ai.chatbot import chatbot
+    return chatbot.get_response(data.get("question", ""))
+
+# ========== Push Notifications ==========
+@router.post("/push/subscribe")
+async def subscribe_push(data: dict, current_user: dict = Depends(get_current_user)):
+    from core.messaging.push_notifications import push_notifications
+    return push_notifications.subscribe(current_user["user_id"], data)
+
+@router.post("/push/send")
+async def send_push(data: dict, current_user: dict = Depends(get_current_user)):
+    from core.messaging.push_notifications import push_notifications
+    return push_notifications.send(data["user_id"], data["title"], data["message"])
+
+# ========== Translations ==========
+@router.get("/translations/{lang}")
+async def get_translations(lang: str = "en"):
+    from core.ai.translations import TRANSLATIONS
+    return TRANSLATIONS.get(lang, TRANSLATIONS["en"])
+
+@router.get("/languages")
+async def get_languages():
+    from core.ai.translations import get_available_languages
+    return get_available_languages()
