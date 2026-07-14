@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from core.security.auth import get_current_user
-from api.routes.users import _users
+# Using MongoDB directly now
+_users = []  # Fallback
 from api.routes.contracts import _contracts
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])

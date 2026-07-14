@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from datetime import datetime, timedelta
 from core.security.auth import get_current_user
-from api.routes.users import _users
+_users = []  # Will be populated from MongoDB
 from api.routes.contracts import _contracts
 from api.routes.disputes import _disputes
 

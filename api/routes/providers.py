@@ -4,7 +4,7 @@ Dokets VouchAI - Provider Discovery & Reusability
 
 from fastapi import APIRouter, Depends
 from core.security.auth import get_current_user
-from api.routes.users import _users
+_users = []  # Will be populated from MongoDB
 from api.routes.contracts import _contracts
 
 router = APIRouter(prefix="/api/v1/providers", tags=["Providers"])
