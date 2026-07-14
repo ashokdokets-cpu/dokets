@@ -265,11 +265,13 @@
 <div id="tab-chat" style="display:none;">
     <div class="card"><div class="card-header"><span class="card-title">💬 Chat</span></div>
     <div class="card-body">
-        <div id="chatMessages" style="max-height:300px;overflow-y:auto;margin-bottom:1rem;"></div>
+        <div class="form-group"><label>Contract ID (for contract chat)</label><input type="text" id="chatContractId" placeholder="Leave empty for general chat"></div>
+        <div id="chatMessages" style="max-height:350px;overflow-y:auto;margin-bottom:1rem;background:#F9FAFB;padding:1rem;border-radius:8px;"></div>
         <form onsubmit="sendChat(event)" style="display:flex;gap:0.5rem;">
-            <input type="text" id="chatInput" placeholder="Type message..." style="flex:1;" required>
-            <button type="submit" class="btn btn-primary">Send</button>
+            <input type="text" id="chatInput" placeholder="Type your message..." style="flex:1;" required>
+            <button type="submit" class="btn btn-primary">📤 Send</button>
         </form>
+        <button class="btn btn-outline btn-block mt-2" onclick="loadChatHistory()">📋 Load Chat History</button>
     </div></div>
 </div>
 
@@ -619,14 +621,56 @@ async function createPayment(e) {
     if (r.success) toast('KYC submitted!', 'success');
     }
 
-         async function sendChat(e) {
-             e.preventDefault();
-             const msg = document.getElementById('chatInput').value;
-             const r = await api('/chat/send', 'POST', {to_id: '1', contract_id: 'general', message: msg});
+async function sendChat(e) {
+    e.preventDefault();
+    const msg = document.getElementById('chatInput').value;
+    const contractId = document.getElementById('chatContractId').value || 'general';
+    
+    const r = await api('/chat/send', 'POST', {
+        to_id: '1', 
+        contract_id: contractId, 
+        message: msg
+    });
+    
     if (r.success) {
-        document.getElementById('chatMessages').innerHTML += `<div style="padding:0.5rem;background:#EEF2FF;border-radius:8px;margin-bottom:0.3rem;"><strong>You:</strong> ${msg}</div>`;
+        // Save to localStorage
+        const chats = JSON.parse(localStorage.getItem('dokets_chats') || '[]');
+        chats.push({
+            contract_id: contractId,
+            message: msg,
+            from: 'You',
+            time: new Date().toISOString()
+        });
+        localStorage.setItem('dokets_chats', JSON.stringify(chats));
+        
+        document.getElementById('chatMessages').innerHTML += `
+            <div style="margin-bottom:0.5rem;">
+                <strong style="color:#4F46E5;">You:</strong> ${msg}
+                <span style="float:right;font-size:0.7rem;color:#6B7280;">${new Date().toLocaleTimeString()}</span>
+            </div>`;
         document.getElementById('chatInput').value = '';
+        
+        // Auto-scroll
+        const chatDiv = document.getElementById('chatMessages');
+        chatDiv.scrollTop = chatDiv.scrollHeight;
     }
+}
+
+async function loadChatHistory() {
+    const contractId = document.getElementById('chatContractId').value || 'general';
+    const chats = JSON.parse(localStorage.getItem('dokets_chats') || '[]');
+    const filtered = chats.filter(c => c.contract_id === contractId);
+    
+    if (filtered.length === 0) {
+        document.getElementById('chatMessages').innerHTML = '<p style="color:#6B7280;text-align:center;">No messages yet. Start chatting!</p>';
+        return;
+    }
+    
+    document.getElementById('chatMessages').innerHTML = filtered.map(c => `
+        <div style="margin-bottom:0.5rem;">
+            <strong style="color:#4F46E5;">${c.from}:</strong> ${c.message}
+            <span style="float:right;font-size:0.7rem;color:#6B7280;">${new Date(c.time).toLocaleTimeString()}</span>
+        </div>`).join('');
 }
 
 async function fileDispute(e) {
