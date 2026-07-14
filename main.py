@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from core.database.mongodb import mongodb
@@ -68,7 +69,43 @@ async def root():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dokets VouchAI - Trust in Every Deal</title>
+        <!-- 🆕 SEO Meta Tags -->
+    <title>Dokets VouchAI - AI-Powered Escrow Platform | Trust in Every Deal</title>
+    <meta name="description" content="Create AI-verified contracts in seconds. Secure escrow, 1% fee, WhatsApp ready. Trust-based contracts for freelancers, service providers, and businesses globally.">
+    <meta name="keywords" content="escrow, AI contracts, trust platform, micro-escrow, freelancer payments, service contracts, secure payments, WhatsApp contracts, India escrow, global escrow">
+    <meta name="author" content="Dokets VouchAI">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://dokets.com">
+    
+    <!-- Open Graph (Facebook, LinkedIn) -->
+    <meta property="og:title" content="Dokets VouchAI - AI-Powered Escrow Platform">
+    <meta property="og:description" content="Create AI-verified contracts in seconds. 1% fee. WhatsApp ready. Trust in every deal.">
+    <meta property="og:url" content="https://dokets.com">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Dokets VouchAI">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Dokets VouchAI - AI-Powered Escrow">
+    <meta name="twitter:description" content="AI-verified contracts. 1% fee. WhatsApp ready.">
+    
+    <!-- Structured Data (Schema.org) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Dokets VouchAI",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web, iOS, Android",
+        "description": "AI-powered escrow platform for trust-based contracts",
+        "url": "https://dokets.com",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
@@ -517,6 +554,33 @@ async def manifest():
         "background_color": "#0F172A",
         "theme_color": "#4F46E5"
     }
+
+@app.get("/sitemap.xml")
+async def sitemap():
+    return Response(content="""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://dokets.com/</loc>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://dokets.com/dashboard</loc>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://dokets.com/health</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.3</priority>
+    </url>
+</urlset>""", media_type="application/xml")
+
+@app.get("/robots.txt")
+async def robots():
+    return Response(content="""User-agent: *
+Allow: /
+Sitemap: https://dokets.com/sitemap.xml""", media_type="text/plain")
 
 
 @app.get("/health")
