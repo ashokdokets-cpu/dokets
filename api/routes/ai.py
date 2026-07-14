@@ -5,6 +5,9 @@ Dokets VouchAI - AI Routes
 from fastapi import APIRouter, HTTPException, Depends
 from core.security.auth import get_current_user
 from core.ai.ai_engine import ai_engine
+import logging
+
+logger = logging.getLogger("dokets.ai")
 
 router = APIRouter(prefix="/api/v1/ai", tags=["AI"])
 
@@ -61,12 +64,43 @@ async def create_smart_contract(data: dict, current_user: dict = Depends(get_cur
     """Create a complete contract from natural language description"""
     
     text = data.get("text", "")
+    provider_phone = data.get("provider_phone", "+91")
     
     if not text:
         raise HTTPException(status_code=400, detail="Text description is required")
+
+    # 🌍 Auto-detect currency from provider phone
+    from core.ai.geo_detector import detect_from_phone, get_country_defaults
+    country = detect_from_phone(provider_phone)
+    defaults = get_country_defaults(country)
     
     # Step 1: Extract contract details with AI
     extracted = await ai_engine.extract_contract_from_text(text)
+
+    # 🌍 Override currency with auto-detected one if AI didn't detect correctly
+    if not extracted.get("currency") or extracted.get("currency") == "USD":
+        extracted["currency"] = defaults["currency"]
+    
+    # Also detect from text keywords
+    currency_keywords = {
+        "rupees": "INR", "rs": "INR", "₹": "INR",
+        "dollars": "USD", "$": "USD",
+        "euros": "EUR", "€": "EUR",
+        "pounds": "GBP", "£": "GBP",
+        "reais": "BRL", "r$": "BRL",
+        "rupiah": "IDR", "rp": "IDR",
+        "naira": "NGN", "₦": "NGN",
+        "pesos": "PHP", "₱": "PHP",
+        "dirhams": "AED", "aed": "AED",
+        "riyals": "SAR", "sar": "SAR",
+        "taka": "BDT", "৳": "BDT",
+    }
+    
+    text_lower = text.lower()
+    for keyword, currency in currency_keywords.items():
+        if keyword in text_lower:
+            extracted["currency"] = currency
+            break
     
     # Step 2: Create the contract with escrow (reuse contract logic)
     from api.routes.contracts import _contracts
@@ -130,6 +164,8 @@ async def verify_work_with_images(data: dict, current_user: dict = Depends(get_c
     after_images = data.get("after_images", [])
     
     # AI Analysis
+    import json
+    from datetime import datetime
     from core.ai.ai_engine import ai_engine
     
     verification_result = {
