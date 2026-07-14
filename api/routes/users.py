@@ -77,35 +77,22 @@ async def login_user(data: dict):
 
 @router.get("/me")
 async def get_my_profile(current_user: dict = Depends(get_current_user)):
-    collection = mongodb.get_collection("users")
     user_id = current_user["user_id"]
     
-    user = None
-    if collection:
-        from bson import ObjectId
-        try:
-            user = await collection.find_one({"_id": ObjectId(user_id)})
-        except:
-            pass
+    # Search in fallback users
+    for u in _fallback_users:
+        if u.get("id") == user_id:
+            return {
+                "id": u["id"],
+                "email": u["email"],
+                "phone_number": u.get("phone_number", ""),
+                "full_name": u.get("full_name", "User"),
+                "user_role": u.get("user_role", "customer"),
+                "vouch_score": u.get("vouch_score", 100.0),
+                "total_contracts": u.get("total_contracts", 0)
+            }
     
-    if not user:
-        for u in _fallback_users:
-            if u.get("id") == user_id:
-                user = u
-                break
-    
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    return {
-        "id": str(user.get("_id", user.get("id"))),
-        "email": user["email"],
-        "phone_number": user.get("phone_number", ""),
-        "full_name": user.get("full_name", "User"),
-        "user_role": user.get("user_role", "customer"),
-        "vouch_score": user.get("vouch_score", 100.0),
-        "total_contracts": user.get("total_contracts", 0)
-    }
+    raise HTTPException(status_code=404, detail="User not found")
 
 # Fallback storage
 _fallback_users = []
