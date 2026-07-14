@@ -325,11 +325,26 @@
 </div>
 
 <div id="tab-admin" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">📊 Admin Panel</span></div>
-    <div class="card-body">
-        <button class="btn btn-primary btn-block" onclick="loadAdminStats()">Load Stats</button>
-        <div id="adminStats" class="mt-2"></div>
-    </div></div>
+    <div id="adminDashboard">
+        <div class="stats-grid" style="margin-bottom:1rem;">
+            <div class="stat-card purple"><div class="stat-label">Total Users</div><div class="stat-value" id="admUsers">-</div></div>
+            <div class="stat-card green"><div class="stat-label">Active Contracts</div><div class="stat-value" id="admActive">-</div></div>
+            <div class="stat-card orange"><div class="stat-label">Total Escrow</div><div class="stat-value" id="admEscrow">-</div></div>
+            <div class="stat-card blue"><div class="stat-label">Completed</div><div class="stat-value" id="admCompleted">-</div></div>
+        </div>
+        
+        <div class="card" style="margin-bottom:1rem;">
+            <div class="card-header"><span class="card-title">👥 Users</span></div>
+            <div class="card-body" id="admUserList"><p style="color:#6B7280;">Click Load Stats</p></div>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem;">
+            <div class="card-header"><span class="card-title">📋 Contracts</span></div>
+            <div class="card-body" id="admContractList"><p style="color:#6B7280;">Click Load Stats</p></div>
+        </div>
+
+        <button class="btn btn-primary btn-block mt-2" onclick="loadAdminStats()">🔄 Refresh Stats</button>
+    </div>
 </div>
 
 <div id="tab-analytics" style="display:none;">
@@ -905,7 +920,34 @@ async function loadMyDisputes() {
 
 async function loadAdminStats() {
     const r = await api('/admin/stats');
-    document.getElementById('adminStats').innerHTML = `<pre style="background:#F3F4F6;padding:1rem;border-radius:8px;overflow-x:auto;">${JSON.stringify(r, null, 2)}</pre>`;
+    if (r.detail) { toast('Admin access required', 'error'); return; }
+    
+    document.getElementById('admUsers').textContent = r.total_users || 0;
+    document.getElementById('admActive').textContent = r.active_contracts || 0;
+    document.getElementById('admEscrow').textContent = '₹' + (r.escrow_total || 0).toLocaleString();
+    document.getElementById('admCompleted').textContent = r.completed_contracts || 0;
+    
+    // User list
+    const users = r.users || [];
+    document.getElementById('admUserList').innerHTML = users.length > 0 ? users.map(u => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid #E5E7EB;">
+            <div>
+                <strong>${u.email}</strong>
+                <span style="font-size:0.75rem;background:#EEF2FF;padding:0.15rem 0.5rem;border-radius:4px;margin-left:0.5rem;">${u.role}</span>
+            </div>
+            <span style="font-weight:600;color:#4F46E5;">⭐ ${u.vouch_score}</span>
+        </div>`).join('') : '<p style="color:#6B7280;">No users</p>';
+    
+    // Contract list
+    const contracts = r.contracts || [];
+    document.getElementById('admContractList').innerHTML = contracts.length > 0 ? contracts.map(c => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid #E5E7EB;">
+            <div>
+                <strong>${c.title}</strong>
+                <span class="status-badge status-${c.status}" style="margin-left:0.5rem;">${c.status}</span>
+            </div>
+            <span style="font-weight:600;">${c.amount || '-'}</span>
+        </div>`).join('') : '<p style="color:#6B7280;">No contracts</p>';
 }
 
 async function loadAnalytics() {
