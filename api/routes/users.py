@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from datetime import datetime
 from core.security.auth import hash_password, verify_password, create_access_token, get_current_user
 from core.database.mongodb import mongodb
@@ -15,7 +15,7 @@ async def get_users_collection():
 
 @router.post("/register")
 @limiter.limit("5/minute")
-async def register_user(data: dict):
+async def register_user(request: Request, data: dict): 
 # Validate inputs
     email_valid, email = validator.validate_email(data.get("email", ""))
     if not email_valid:
@@ -63,7 +63,7 @@ async def register_user(data: dict):
 
 @router.post("/login")
 @limiter.limit("10/minute")
-async def login_user(data: dict):
+async def login_user(request: Request, data: dict): 
     users = await get_users_collection()
     
     user = None
