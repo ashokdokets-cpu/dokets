@@ -419,6 +419,11 @@ async def dashboard():
     with open("frontend/dashboard.html", "r", encoding="utf-8") as f:
         return f.read()
 
+@app.get("/logo.png")
+async def logo():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/logo.png")
+
 @app.get("/contract-view/{contract_id}", response_class=HTMLResponse)
 async def view_contract(contract_id: str):
     from api.routes.contracts import _contracts
