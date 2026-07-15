@@ -1452,35 +1452,70 @@ function setLanguage(lang) {
 }
 
 async function applyTranslations(lang) {
+    if (lang === 'en') {
+        location.reload();
+        return;
+    }
+    
     const r = await fetch(`${API}/translations/${lang}`).then(r => r.json());
     
-    // Translate sidebar headers
+    // Translate ALL static text on the dashboard
     const translations = {
+        // Sidebar headers
+        '📂 Menu': '📂 ' + (r.dashboard || 'Menu'),
         '📋 Contracts': r.contracts || 'Contracts',
         '💰 Money': r.payments || 'Money', 
         '⭐ Trust & Verify': r.vouch_score || 'Trust',
         '💬 Communication': r.whatsapp || 'Communication',
         '📞 Help & Manage': r.support || 'Help',
+        
+        // Dashboard labels
+        'Total Contracts': r.total_contracts || 'Total Contracts',
+        'Active': r.active || 'Active',
+        'In Escrow': r.in_escrow || 'In Escrow',
+        'Vouch Score': r.vouch_score || 'Vouch Score',
+        'No contracts yet!': r.no_contracts || 'No contracts yet!',
+        'No recent activity': r.no_contracts || 'No recent activity',
+        'Recent Contracts': r.contracts || 'Recent Contracts',
+        'Recent Activity': r.support || 'Recent Activity',
     };
     
-    // Apply to group headers
+    // Update sidebar group headers
     document.querySelectorAll('.nav-group-header').forEach(el => {
-        const key = el.textContent.trim();
+        const fullText = el.textContent.trim();
+        const arrow = ' ▼';
+        const key = fullText.replace(arrow, '');
         if (translations[key]) {
             el.innerHTML = translations[key] + ' <span class="group-arrow">▼</span>';
         }
     });
     
-    // Translate welcome message
-    if (r.welcome) {
-        const userName = document.getElementById('userName');
-        if (userName && userName.textContent === 'User') {
-            // Keep name, just log translation loaded
-            console.log('Language loaded:', lang);
-        }
+    // Update sidebar header
+    const sidebarHeader = document.querySelector('.sidebar-header');
+    if (sidebarHeader && r.dashboard) {
+        sidebarHeader.textContent = '📂 ' + r.dashboard;
     }
     
-    toast('Language updated!', 'success');
+    // Update stat labels
+    document.querySelectorAll('.stat-label').forEach(el => {
+        const key = el.textContent.trim();
+        if (translations[key]) el.textContent = translations[key];
+    });
+    
+    // Update empty states
+    document.querySelectorAll('.empty-state p').forEach(el => {
+        if (el.textContent.includes('No contracts')) {
+            el.textContent = r.no_contracts || 'No contracts yet!';
+        }
+    });
+    
+    // Update card titles
+    document.querySelectorAll('.card-title').forEach(el => {
+        const key = el.textContent.trim();
+        if (translations[key]) el.textContent = translations[key];
+    });
+    
+    toast('✅ ' + lang.toUpperCase() + ' activated!', 'success');
 }
 
 async function askChatbot(e) {
