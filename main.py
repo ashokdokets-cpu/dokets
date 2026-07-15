@@ -79,8 +79,7 @@ app.include_router(advanced.router)
 app.include_router(providers.router)
 
 @app.get("/", response_class=HTMLResponse)
-@limiter.limit("100/minute")
-async def root():
+async def root(request: Request):
     return """
     <!DOCTYPE html>
     <html lang="en">
