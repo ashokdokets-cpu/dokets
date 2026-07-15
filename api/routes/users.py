@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime
 from core.security.auth import hash_password, verify_password, create_access_token, get_current_user
 from core.database.mongodb import mongodb
+from main import limiter
+from core.security.validator import security as validator
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
@@ -12,7 +14,25 @@ async def get_users_collection():
     return None
 
 @router.post("/register")
+@limiter.limit("5/minute")
 async def register_user(data: dict):
+# Validate inputs
+    email_valid, email = validator.validate_email(data.get("email", ""))
+    if not email_valid:
+        raise HTTPException(status_code=400, detail="Invalid email")
+    
+    phone_valid, phone = validator.validate_phone(data.get("phone_number", ""))
+    if not phone_valid:
+        raise HTTPException(status_code=400, detail="Invalid phone number")
+
+# Sanitize name
+    full_name = validator.sanitize_string(data.get("full_name", "User"))
+    
+    # Check password strength
+    password = data.get("password", "")
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
     users = await get_users_collection()
     
     if users is not None:
@@ -42,6 +62,7 @@ async def register_user(data: dict):
     return {"success": True, "message": "User registered", "data": {"user_id": user_id}}
 
 @router.post("/login")
+@limiter.limit("10/minute")
 async def login_user(data: dict):
     users = await get_users_collection()
     
