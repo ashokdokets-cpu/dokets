@@ -146,6 +146,21 @@ TRANSLATIONS = {
         "dashboard": "டாஷ்போர்டு", "contracts": "ஒப்பந்தங்கள்", "welcome": "Dokets-க்கு வரவேற்கிறோம்",
         "login": "உள்நுழைய",
     },
+
+    "ms": {"dashboard": "Papan Pemuka", "contracts": "Kontrak", "welcome": "Selamat datang ke Dokets", "login": "Log Masuk"},
+    "fil": {"dashboard": "Dashboard", "contracts": "Mga Kontrata", "welcome": "Maligayang pagdating sa Dokets", "login": "Mag-login"},
+    "my": {"dashboard": "ဒက်ရှ်ဘုတ်", "contracts": "စာချုပ်များ", "welcome": "Dokets မှကြိုဆိုပါသည်", "login": "ဝင်ရန်"},
+    "km": {"dashboard": "ផ្ទាំងគ្រប់គ្រង", "contracts": "កិច្ចសន្យា", "welcome": "សូមស្វាគមន៍មកកាន់ Dokets", "login": "ចូល"},
+    "am": {"dashboard": "ዳሽቦርድ", "contracts": "ኮንትራቶች", "welcome": "እንኳን ወደ Dokets በደህና መጡ", "login": "ግባ"},
+    "ha": {"dashboard": "Dashboard", "contracts": "Kwamurkiya", "welcome": "Barka da zuwa Dokets", "login": "Shiga"},
+    "yo": {"dashboard": "Dasibodu", "contracts": "Àwọn Àdéhùn", "welcome": "Káàbọ sí Dokets", "login": "Wọlé"},
+    "zu": {"dashboard": "Ideshibhodi", "contracts": "Izivumelwano", "welcome": "Siyakwamukela ku-Dokets", "login": "Ngena"},
+    "pl": {"dashboard": "Panel", "contracts": "Umowy", "welcome": "Witamy w Dokets", "login": "Zaloguj"},
+    "uk": {"dashboard": "Панель", "contracts": "Контракти", "welcome": "Ласкаво просимо до Dokets", "login": "Увійти"},
+    "ro": {"dashboard": "Panou", "contracts": "Contracte", "welcome": "Bun venit la Dokets", "login": "Autentificare"},
+    "cs": {"dashboard": "Panel", "contracts": "Smlouvy", "welcome": "Vítejte v Dokets", "login": "Přihlásit"},
+    "el": {"dashboard": "Πίνακας", "contracts": "Συμβόλαια", "welcome": "Καλώς ήρθατε στο Dokets", "login": "Σύνδεση"},
+    "he": {"dashboard": "לוח מחוונים", "contracts": "חוזים", "welcome": "ברוך הבא ל-Dokets", "login": "התחבר"},
 }
 
 def get_text(key, lang="en"):
@@ -173,4 +188,19 @@ def get_available_languages():
         {"code": "th", "name": "ไทย (Thai)", "flag": "🇹🇭"},
         {"code": "sw", "name": "Kiswahili", "flag": "🇰🇪"},
         {"code": "ta", "name": "தமிழ் (Tamil)", "flag": "🇮🇳"},
-    ]
+{"code": "ms", "name": "Bahasa Melayu", "flag": "🇲🇾"},
+        {"code": "fil", "name": "Filipino", "flag": "🇵🇭"},
+        {"code": "my", "name": "မြန်မာ (Myanmar)", "flag": "🇲🇲"},
+        {"code": "km", "name": "ខ្មែរ (Khmer)", "flag": "🇰🇭"},
+        {"code": "am", "name": "አማርኛ (Amharic)", "flag": "🇪🇹"},
+        {"code": "ha", "name": "Hausa", "flag": "🇳🇬"},
+        {"code": "yo", "name": "Yorùbá", "flag": "🇳🇬"},
+        {"code": "zu", "name": "isiZulu", "flag": "🇿🇦"},
+        {"code": "pl", "name": "Polski", "flag": "🇵🇱"},
+        {"code": "uk", "name": "Українська", "flag": "🇺🇦"},
+        {"code": "ro", "name": "Română", "flag": "🇷🇴"},
+        {"code": "cs", "name": "Čeština", "flag": "🇨🇿"},
+        {"code": "el", "name": "Ελληνικά", "flag": "🇬🇷"},
+        {"code": "he", "name": "עברית", "flag": "🇮🇱"},
+
+        ]
