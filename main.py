@@ -1,12 +1,20 @@
 import logging
 from datetime import datetime
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from core.database.mongodb import mongodb
 from api.routes import users, contracts, ai, payments, admin, kyc, chat, webhooks, disputes, analytics, advanced, providers
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -48,6 +56,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    return response
+
 app.include_router(users.router)
 app.include_router(contracts.router)
 app.include_router(ai.router)
@@ -62,6 +80,7 @@ app.include_router(advanced.router)
 app.include_router(providers.router)
 
 @app.get("/", response_class=HTMLResponse)
+@limiter.limit("100/minute")
 async def root():
     return """
     <!DOCTYPE html>
@@ -384,10 +403,7 @@ async def root():
 
 <div class="footer">
     <p>© 2026 Dokets VouchAI · Trust in Every Deal · dokets.com</p>
-
-        <div class="footer">
-            <p>© 2026 Dokets VouchAI · Trust in Every Deal · dokets.com</p>
-<p style="margin-top:0.5rem;font-size:0.8rem;">
+    <p style="margin-top:0.5rem;font-size:0.8rem;">
     <a href="/about" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">About</a> |
     <a href="/privacy" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">Privacy</a> |
     <a href="/terms" style="color:#94A3B8;text-decoration:none;margin:0 0.5rem;">Terms</a> |
