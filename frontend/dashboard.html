@@ -1447,18 +1447,40 @@ async function loadLanguages() {
 
 function setLanguage(lang) {
     localStorage.setItem('dokets_lang', lang);
-    toast('Language set to ' + lang + '!', 'success');
-    // Reload with translations
+    toast('Language: ' + lang, 'success');
     applyTranslations(lang);
 }
 
 async function applyTranslations(lang) {
     const r = await fetch(`${API}/translations/${lang}`).then(r => r.json());
-    // Update common elements
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (r[key]) el.textContent = r[key];
+    
+    // Translate sidebar headers
+    const translations = {
+        '📋 Contracts': r.contracts || 'Contracts',
+        '💰 Money': r.payments || 'Money', 
+        '⭐ Trust & Verify': r.vouch_score || 'Trust',
+        '💬 Communication': r.whatsapp || 'Communication',
+        '📞 Help & Manage': r.support || 'Help',
+    };
+    
+    // Apply to group headers
+    document.querySelectorAll('.nav-group-header').forEach(el => {
+        const key = el.textContent.trim();
+        if (translations[key]) {
+            el.innerHTML = translations[key] + ' <span class="group-arrow">▼</span>';
+        }
     });
+    
+    // Translate welcome message
+    if (r.welcome) {
+        const userName = document.getElementById('userName');
+        if (userName && userName.textContent === 'User') {
+            // Keep name, just log translation loaded
+            console.log('Language loaded:', lang);
+        }
+    }
+    
+    toast('Language updated!', 'success');
 }
 
 async function askChatbot(e) {
