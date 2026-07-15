@@ -14,7 +14,7 @@ async def get_users_collection():
     return None
 
 @router.post("/register")
-@limiter.limit("5/minute")
+# @limiter.limit("5/minute")
 async def register_user(request: Request, data: dict): 
 # Validate inputs
     email_valid, email = validator.validate_email(data.get("email", ""))
@@ -62,7 +62,7 @@ async def register_user(request: Request, data: dict):
     return {"success": True, "message": "User registered", "data": {"user_id": user_id}}
 
 @router.post("/login")
-@limiter.limit("10/minute")
+# @limiter.limit("10/minute")
 async def login_user(request: Request, data: dict): 
     users = await get_users_collection()
     
