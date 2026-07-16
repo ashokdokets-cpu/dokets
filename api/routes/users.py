@@ -19,20 +19,23 @@ async def get_users_collection():
 @router.post("/register")
 @limiter.limit("5/minute")
 async def register_user(request: Request, data: dict):
-    """Register a new user. Mode selected at login, not registration."""
+"""Register a new user. Mode selected at login, not registration."""
+# Validate password strength
+    valid, msg = validator.validate_password_strength(data.get("password", ""))
+if not valid:
+        raise HTTPException(status_code=400, detail=msg)
+
+# Remove the old password check since validator already checks length
     email_valid, email = validator.validate_email(data.get("email", ""))
-    if not email_valid:
+if not email_valid:
         raise HTTPException(status_code=400, detail="Invalid email")
+
 
     phone_valid, phone = validator.validate_phone(data.get("phone_number", ""))
     if not phone_valid:
         raise HTTPException(status_code=400, detail="Invalid phone number")
 
     full_name = validator.sanitize_string(data.get("full_name", "User"))
-
-    password = data.get("password", "")
-    if len(password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
 
     users = await get_users_collection()
     if users is not None:
