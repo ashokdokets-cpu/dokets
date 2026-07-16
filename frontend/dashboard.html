@@ -124,15 +124,15 @@
         /* TABS */
         .tabs {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.25rem;
             margin-bottom: 1.5rem;
-            flex-wrap: wrap;
             border-bottom: 1px solid var(--border);
             padding-bottom: 0.5rem;
+            position: relative;
         }
         .tab {
             padding: 0.6rem 1.2rem;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
             border: 1px solid transparent;
             cursor: pointer;
             font-weight: 600;
@@ -141,13 +141,15 @@
             color: var(--muted);
             background: transparent;
             white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
         }
         .tab.active {
-            background: var(--card);
-            border-color: var(--border);
             color: var(--text);
+            border-bottom-color: var(--primary);
+            background: rgba(99,102,241,0.05);
         }
-        .tab:hover { color: var(--text); background: var(--card); }
+        .tab:hover { color: var(--text); }
         .tab .badge-count {
             background: var(--primary);
             color: #fff;
@@ -156,6 +158,38 @@
             font-size: 0.7rem;
             margin-left: 0.3rem;
         }
+        /* Dropdown */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: auto;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem;
+            z-index: 50;
+            min-width: 200px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            margin-top: 0.25rem;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--muted);
+            transition: all 0.2s;
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+        }
+        .dropdown-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
 
         /* STATS */
         .stats-row {
@@ -374,7 +408,7 @@ const BASE = 'https://dokets.com';
 let token = localStorage.getItem('dokets_token');
 let currentMode = 'customer';
 let userData = null;
-let activeTab = 'dashboard';
+let activeTab = 'home';
 
 async function init() {
     if (!token) { showLoginModal(); return; }
@@ -384,7 +418,7 @@ async function init() {
         userData = await res.json();
         currentMode = userData.current_mode || 'customer';
         updateUI();
-        renderDashboard();
+        renderHome();
     } catch (e) { console.error(e); showLoginModal(); }
 }
 
@@ -419,7 +453,7 @@ async function doLogin() {
         currentMode = mode;
         userData = data.user;
         updateUI();
-        renderDashboard();
+        renderHome();
     } else { showToast(data.detail || 'Login failed', 'error'); }
 }
 
@@ -459,14 +493,25 @@ async function switchMode(mode) {
         localStorage.setItem('dokets_token', token);
         currentMode = mode;
         updateUI();
-        renderDashboard();
+        renderHome();
     }
 }
 
 function logout() { localStorage.removeItem('dokets_token'); token = null; userData = null; showLoginModal(); }
+function toggleMoreMenu() {
+    document.getElementById('moreMenu').classList.toggle('show');
+}
+function hideMoreMenu() {
+    document.getElementById('moreMenu').classList.remove('show');
+}
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#moreBtn') && !e.target.closest('#moreMenu')) {
+        document.getElementById('moreMenu').classList.remove('show');
+    }
+});
 
 // ==================== DASHBOARD RENDER ====================
-function renderDashboard() {
+function renderHome() {
     const main = document.getElementById('mainContent');
     const stats = currentMode === 'customer' ? [
         {icon:'📋',value:userData.total_contracts||0,label:'Contracts'},
@@ -482,12 +527,17 @@ function renderDashboard() {
 
     main.innerHTML = `
         <div class="tabs">
-            <button class="tab ${activeTab==='dashboard'?'active':''}" onclick="activeTab='dashboard';renderDashboard()">🏠 Dashboard</button>
+            <button class="tab ${activeTab==='home'?'active':''}" onclick="activeTab='home';renderHome()">🏠 Home</button>
             <button class="tab ${activeTab==='contracts'?'active':''}" onclick="activeTab='contracts';renderContractsTab()">📄 Contracts <span class="badge-count" id="contractCount">-</span></button>
-            <button class="tab ${activeTab==='ai'?'active':''}" onclick="activeTab='ai';renderAITab()">🤖 AI Tools</button>
-            <button class="tab ${activeTab==='advanced'?'active':''}" onclick="activeTab='advanced';renderAdvancedTab()">⚡ Advanced</button>
-            <button class="tab ${activeTab==='providers'?'active':''}" onclick="activeTab='providers';renderProvidersTab()">🔍 Discover</button>
             <button class="tab ${activeTab==='marketplace'?'active':''}" onclick="activeTab='marketplace';renderMarketplace()">🏪 Marketplace</button>
+            <div style="position:relative;margin-left:auto">
+                <button class="tab ${activeTab==='ai'||activeTab==='advanced'||activeTab==='providers'?'active':''}" onclick="toggleMoreMenu()" id="moreBtn">🔧 More ▾</button>
+                <div class="dropdown-menu" id="moreMenu">
+                    <button class="dropdown-item" onclick="activeTab='ai';renderAITab();hideMoreMenu()">🤖 AI Tools</button>
+                    <button class="dropdown-item" onclick="activeTab='advanced';renderAdvancedTab();hideMoreMenu()">⚡ Advanced Features</button>
+                    <button class="dropdown-item" onclick="activeTab='providers';renderProvidersTab();hideMoreMenu()">⭐ Top Providers</button>
+                </div>
+            </div>
         </div>
 
         <div class="stats-row animate-in">${stats.map(s=>`
