@@ -815,19 +815,47 @@ async function handleRegister(e) {
             } catch(e) { console.error(e); }
         }
 
-        function displayContracts(contracts) {
-            if (!contracts.length) {
-                document.getElementById('recentContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div>';
-                return;
-            }
-            const html = contracts.map(c => `
-                <div class="contract-item">
-                    <div><strong>${c.title}</strong>${c.ai_generated?' <span class="tag tag-ai">AI</span>':''}<span class="tag tag-escrow">Escrow</span><div style="font-size:0.8rem;color:var(--text-secondary);">${c.currency} ${c.total_amount.toLocaleString()}</div></div>
-                    <div style="text-align:right;"><span class="status-badge status-${c.status}">${c.status}</span><div style="font-size:0.75rem;color:var(--text-secondary);">${c.id}</div>${c.status==='draft'?`<button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">Approve</button>`:''}${c.status==='active'?`<button class="btn btn-primary btn-sm" onclick="completeContract('${c.id}')">Complete</button>`:''}</div>
-                </div>`).join('');
-            document.getElementById('recentContracts').innerHTML = html;
-            document.getElementById('allContracts').innerHTML = html;
-        }
+function displayContracts(contracts) {
+    if (!contracts.length) {
+        document.getElementById('recentContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet! Create one now.</p></div>';
+        document.getElementById('allContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div>';
+        return;
+    }
+    const html = contracts.map(c => {
+        const statusColor = c.status === 'draft' ? '#F59E0B' : c.status === 'active' ? '#10B981' : c.status === 'completed' ? '#3B82F6' : '#EF4444';
+        const statusLabel = c.status === 'draft' ? '⏳ Pending Approval' : c.status === 'active' ? '✅ Active' : c.status === 'completed' ? '🎉 Completed' : c.status;
+        
+        return `
+        <div class="contract-item" style="border-left:4px solid ${statusColor};">
+            <div>
+                <strong>${c.title}</strong>
+                <span class="status-badge status-${c.status}">${statusLabel}</span>
+                ${c.ai_generated?' <span class="tag tag-ai">AI</span>':''}
+                <span class="tag tag-escrow">Escrow</span>
+                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.3rem;">
+                    💰 ${c.currency} ${c.total_amount.toLocaleString()} | 📋 ${c.id}
+                </div>
+            </div>
+            <div style="text-align:right;">
+                ${c.status==='draft' ? `
+                    <button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">✅ Approve</button>
+                    <div style="font-size:0.7rem;color:#F59E0B;margin-top:0.2rem;">Awaiting provider</div>
+                ` : ''}
+                ${c.status==='active' ? `
+                    <button class="btn btn-primary btn-sm" onclick="completeContract('${c.id}')">🎉 Complete</button>
+                    <div style="font-size:0.7rem;color:#10B981;margin-top:0.2rem;">Work in progress</div>
+                ` : ''}
+                ${c.status==='completed' ? `
+                    <div style="font-size:0.8rem;color:#3B82F6;">✅ Done!</div>
+                ` : ''}
+                <a href="/contract-view/${c.id}" target="_blank" style="font-size:0.75rem;color:#6366F1;display:block;margin-top:0.3rem;">🔍 View Details</a>
+            </div>
+        </div>`;
+    }).join('');
+    
+    document.getElementById('recentContracts').innerHTML = html;
+    document.getElementById('allContracts').innerHTML = html;
+}
 
         function displayActivity(contracts) {
             const activities = [];
@@ -1418,34 +1446,41 @@ async function createTicket(e) {
 }
 
 async function showProviderContracts() {
-    const phone = prompt("Enter your phone number to find contracts:", "+91");
-    if (!phone) return;
-    
-    // Search contracts by provider phone
     const contractsData = await api('/contracts/');
     const contracts = contractsData.contracts || [];
-    const myContracts = contracts.filter(c => c.provider_phone === phone);
     
-    if (myContracts.length === 0) {
-        document.getElementById('mainContent').innerHTML = `
-            <div class="card"><div class="card-body">
-                <div class="empty-state"><div class="icon">📋</div><p>No contracts found for ${phone}</p></div>
-            </div></div>`;
-        return;
-    }
+    const pendingContracts = contracts.filter(c => c.status === 'draft');
+    const activeContracts = contracts.filter(c => c.status === 'active');
+    const completedContracts = contracts.filter(c => c.status === 'completed');
     
-    const html = myContracts.map(c => `
-        <div class="contract-item">
-            <div><strong>${c.title}</strong><div style="font-size:0.8rem;">${c.currency} ${c.total_amount}</div></div>
-            <div>
-                <span class="status-badge status-${c.status}">${c.status}</span>
-                <div><a href="/contract-view/${c.id}" target="_blank" style="font-size:0.8rem;">View</a></div>
-                ${c.status==='draft'?`<button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">Approve</button>`:''}
+    const sectionHTML = (title, list, color) => {
+        if (list.length === 0) return '';
+        return `
+        <div class="card" style="margin-bottom:1rem;">
+            <div class="card-header" style="border-left:4px solid ${color};">
+                <span class="card-title">${title} (${list.length})</span>
             </div>
-        </div>`).join('');
+            ${list.map(c => `
+                <div class="contract-item">
+                    <div>
+                        <strong>${c.title}</strong>
+                        <span class="status-badge status-${c.status}">${c.status}</span>
+                        <div style="font-size:0.8rem;">${c.currency} ${c.total_amount} | ${c.id}</div>
+                    </div>
+                    <div>
+                        <a href="/contract-view/${c.id}" target="_blank" style="font-size:0.8rem;">View</a>
+                        ${c.status==='draft'?`<button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">Approve</button>`:''}
+                    </div>
+                </div>`).join('')}
+        </div>`;
+    };
     
     document.getElementById('mainContent').innerHTML = `
-        <div class="card"><div class="card-header"><span class="card-title">📋 Contracts for ${phone}</span></div>${html}</div>`;
+        ${sectionHTML('⏳ Pending Approval', pendingContracts, '#F59E0B')}
+        ${sectionHTML('✅ Active Contracts', activeContracts, '#10B981')}
+        ${sectionHTML('🎉 Completed', completedContracts, '#3B82F6')}
+        ${contracts.length === 0 ? '<div class="empty-state"><div class="icon">📋</div><p>No contracts found</p></div>' : ''}
+    `;
 }
 
 async function loadLanguages() {
