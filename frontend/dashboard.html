@@ -638,7 +638,26 @@
     <option value="SAR">🇸🇦 SAR (﷼)</option>
     <option value="BDT">🇧🇩 BDT (৳)</option>
     <option value="PKR">🇵🇰 PKR (₨)</option>
-</select></div></div><button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;">🛡️ Create with Escrow</button></form></div></div></div>
+</select></div>
+</div>
+
+<!-- 🆕 Add Milestones Section -->
+<div style="background:#F8FAFC;padding:1rem;border-radius:8px;margin-top:0.5rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+        <strong>📋 Milestones (Partial Payments)</strong>
+        <button type="button" class="btn btn-sm btn-primary" onclick="addMilestone()">+ Add Milestone</button>
+    </div>
+    <div id="milestoneList">
+        <div class="milestone-item" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;padding:0.5rem;background:white;border-radius:8px;">
+            <input type="text" class="ms-title" placeholder="Milestone title" value="Complete Work" required>
+            <input type="number" class="ms-amount" placeholder="Amount" value="" required>
+        </div>
+    </div>
+    <small style="color:#6B7280;">💡 Total of milestones should equal the contract amount above</small>
+</div>
+
+
+<button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;">🛡️ Create with Escrow</button></form></div></div></div>
 
     <div class="modal-overlay" id="aiModal"><div class="modal"><div class="modal-header"><h3>🤖 AI Smart Contract</h3><button class="btn btn-sm" onclick="closeModal('aiModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="createAIContract(event)"><div class="form-group"><label>Describe the work naturally</label><textarea id="aitext" rows="3" placeholder="e.g., Need plumber to fix kitchen sink by tomorrow for 1500 rupees" required></textarea></div><div class="form-group"><label>Provider Phone</label><input type="tel" id="aiphone" placeholder="+919876543210" required></div><button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;background:linear-gradient(135deg,#7C3AED,#4F46E5);">🤖 Generate AI Contract</button></form></div></div></div>
 
@@ -858,6 +877,19 @@ function displayContracts(contracts) {
                 <div class="activity-item"><div class="activity-dot ${a.type}"></div><span>${a.text}</span></div>`).join('');
         }
 
+function addMilestone() {
+    const container = document.getElementById('milestoneList');
+    const div = document.createElement('div');
+    div.className = 'milestone-item';
+    div.style = 'display:grid;grid-template-columns:1fr 1fr auto;gap:0.5rem;margin-bottom:0.5rem;padding:0.5rem;background:white;border-radius:8px;';
+    div.innerHTML = `
+        <input type="text" class="ms-title" placeholder="Milestone title" required>
+        <input type="number" class="ms-amount" placeholder="Amount" required>
+        <button type="button" class="btn btn-sm" style="background:#FEE2E2;color:#EF4444;" onclick="this.parentElement.remove()">✕</button>
+    `;
+    container.appendChild(div);
+}
+
         async function createContract(e) {
             e.preventDefault();
             const data = {title:document.getElementById('ctitle').value,description:document.getElementById('cdesc').value,provider_phone:document.getElementById('cphone').value,total_amount:parseFloat(document.getElementById('camount').value),currency:document.getElementById('ccurrency').value,milestones:[{id:'MS-'+Date.now(),title:'Complete Work',description:document.getElementById('cdesc').value,amount:parseFloat(document.getElementById('camount').value),deadline:new Date(Date.now()+7*86400000).toISOString().split('T')[0]}]};
@@ -865,11 +897,46 @@ function displayContracts(contracts) {
             if (result.success) { toast('Contract created! '+result.data.contract_id,'success'); closeModal('createModal'); await loadAll(); }
         }
 
-        async function createAIContract(e) {
-            e.preventDefault();
-            const result = await api('/ai/smart-contract','POST',{text:document.getElementById('aitext').value,provider_phone:document.getElementById('aiphone').value});
-            if (result.success) { toast('AI Contract: '+result.data.contract_id,'success'); closeModal('aiModal'); await loadAll(); }
+        async function createContract(e) {
+    e.preventDefault();
+    
+    // Collect milestones
+    const milestoneItems = document.querySelectorAll('#milestoneList .milestone-item');
+    const milestones = [];
+    milestoneItems.forEach((item, i) => {
+        const title = item.querySelector('.ms-title').value;
+        const amount = parseFloat(item.querySelector('.ms-amount').value);
+        if (title && amount > 0) {
+            milestones.push({
+                id: 'MS-' + (i+1) + '-' + Date.now(),
+                title: title,
+                description: title,
+                amount: amount,
+                deadline: new Date(Date.now() + (i+1)*7*86400000).toISOString().split('T')[0]
+            });
         }
+    });
+    
+    // Use milestone total if no total amount specified
+    const totalAmount = parseFloat(document.getElementById('camount').value) || 
+                        milestones.reduce((sum, m) => sum + m.amount, 0);
+    
+    const data = {
+        title: document.getElementById('ctitle').value,
+        description: document.getElementById('cdesc').value,
+        provider_phone: document.getElementById('cphone').value,
+        total_amount: totalAmount,
+        currency: document.getElementById('ccurrency').value,
+        milestones: milestones
+    };
+    
+    const result = await api('/contracts/', 'POST', data);
+    if (result.success) { 
+        toast('Contract created with ' + milestones.length + ' milestones!', 'success'); 
+        closeModal('createModal'); 
+        await loadAll(); 
+    }
+}
 
 async function approveContract(id) {
     const result = await api(`/contracts/${id}/approve`, 'PUT');
