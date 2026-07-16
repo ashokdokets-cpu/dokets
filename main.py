@@ -55,6 +55,10 @@ app.add_middleware(
         "http://localhost:8000",
         "http://localhost:3000",
     ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
+)
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
