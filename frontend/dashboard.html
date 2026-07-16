@@ -881,11 +881,32 @@ function displayContracts(contracts) {
             if (result.success) { toast('AI Contract: '+result.data.contract_id,'success'); closeModal('aiModal'); await loadAll(); }
         }
 
-        async function approveContract(id) { await api(`/contracts/${id}/approve`,'PUT'); toast('Approved!','success'); await loadAll(); }
-        async function completeContract(id) {
-            const c = await api(`/contracts/${id}`);
-            if (c.milestones?.length) { await api(`/contracts/${id}/complete-milestone/${c.milestones[0].id}`,'PUT'); toast('Completed! Payment released.','success'); await loadAll(); }
+async function approveContract(id) {
+    const result = await api(`/contracts/${id}/approve`, 'PUT');
+    console.log('Approve result:', result);
+    if (result.success) {
+        toast('Contract approved! ✅', 'success');
+        await loadAll();
+    } else {
+        toast('Approval failed: ' + (result.detail || 'Try again'), 'error');
+    }
+}
+
+async function completeContract(id) {
+    const c = await api(`/contracts/${id}`);
+    console.log('Contract data:', c);
+    if (c && c.milestones && c.milestones.length > 0) {
+        const result = await api(`/contracts/${id}/complete-milestone/${c.milestones[0].id}`, 'PUT');
+        if (result.success) {
+            toast('Completed! Payment released. 💰', 'success');
+            await loadAll();
+        } else {
+            toast('Failed: ' + (result.detail || 'Error'), 'error');
         }
+    } else {
+        toast('No milestones found', 'error');
+    }
+}
 
 async function createPayment(e) {
     e.preventDefault();
