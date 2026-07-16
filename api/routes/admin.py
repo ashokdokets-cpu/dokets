@@ -26,3 +26,23 @@ async def admin_stats(current_user: dict = Depends(get_current_user)):
         "users": [{"email": u["email"], "role": u.get("user_role"), "vouch_score": u.get("vouch_score")} for u in _users],
         "contracts": [{"id": c["id"], "title": c["title"], "status": c.get("status"), "amount": c.get("total_amount")} for c in _contracts]
     }
+
+@router.delete("/contracts/clean")
+async def clean_contracts(current_user: dict = Depends(get_current_user)):
+    """Admin: Delete all contracts"""
+    if current_user.get("email") not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    from api.routes.contracts import _contracts
+    count = len(_contracts)
+    _contracts.clear()
+    
+    # Also clear from MongoDB
+    db = mongodb.get_db()
+    if db is not None:
+        try:
+            await db.contracts.delete_many({})
+        except:
+            pass
+    
+    return {"success": True, "message": f"Deleted {count} contracts"}
