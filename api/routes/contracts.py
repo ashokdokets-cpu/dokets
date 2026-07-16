@@ -191,24 +191,43 @@ async def submit_proof(contract_id: str, milestone_id: str, data: dict, current_
 
 @router.put("/{contract_id}/complete-milestone/{milestone_id}")
 async def complete_milestone(contract_id: str, milestone_id: str, current_user: dict = Depends(get_current_user)):
+    # Update in-memory
     for c in _contracts:
         if c.get("id") == contract_id:
             for ms in c.get("milestones", []):
                 if ms.get("id") == milestone_id:
                     ms["status"] = "completed"
                     ms["completed_at"] = str(datetime.utcnow())
-                    
+
                     if ms.get("escrow_id"):
                         escrow_engine.release_escrow(ms["escrow_id"])
-                    
+
                     all_done = all(m.get("status") == "completed" for m in c.get("milestones", []))
                     if all_done:
                         c["status"] = "completed"
                         c["completed_at"] = str(datetime.utcnow())
-                    
+
                     c["updated_at"] = str(datetime.utcnow())
-                    
-                    # Return simple - no ObjectId
+
+                    # Update MongoDB
+                    db = mongodb.get_db()
+                    if db is not None:
+                        try:
+                            update_data = {
+                                "milestones": c["milestones"],
+                                "updated_at": c["updated_at"]
+                            }
+                            if all_done:
+                                update_data["status"] = "completed"
+                                update_data["completed_at"] = c["completed_at"]
+                            
+                            await db.contracts.update_one(
+                                {"id": contract_id},
+                                {"$set": update_data}
+                            )
+                        except Exception as e:
+                            print(f"MongoDB update error: {e}")
+
                     return {"success": True, "message": "Milestone completed", "contract_id": contract_id}
     raise HTTPException(status_code=404, detail="Milestone not found")
 
