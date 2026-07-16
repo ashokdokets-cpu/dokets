@@ -124,8 +124,19 @@ async def get_my_contracts(current_user: dict = Depends(get_current_user)):
 @router.get("/{contract_id}")
 async def get_contract(contract_id: str):
     for c in _contracts:
-        if c["id"] == contract_id:
-            return c
+        if c.get("id") == contract_id:
+            return {
+                "id": c.get("id"),
+                "title": c.get("title"),
+                "description": c.get("description", ""),
+                "status": c.get("status"),
+                "total_amount": c.get("total_amount"),
+                "currency": c.get("currency", "INR"),
+                "provider_phone": c.get("provider_phone", ""),
+                "customer_id": c.get("customer_id"),
+                "milestones": c.get("milestones", []),
+                "created_at": c.get("created_at", "")
+            }
     raise HTTPException(status_code=404, detail="Contract not found")
 
 @router.put("/{contract_id}/approve")
