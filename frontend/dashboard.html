@@ -734,7 +734,7 @@ function providerCard(p) {
         <div class="feature-card">
             <div class="card-badge" style="background:rgba(16,185,129,0.15);color:#34d399">⭐ ${p.vouch_score}</div>
             <div class="card-icon">👤</div>
-            <div class="card-title">${p.name}</div>
+            <div class="card-title">${p.name} <span onclick="event.stopPropagation();toggleFavorite('${p.id}')" id="fav-${p.id}" style="cursor:pointer;float:right">🤍</span></div>
             <div class="card-desc">
                 ${(p.skills||[]).join(' · ')}<br>
                 💰 ₹${p.hourly_rate}/hr · 📅 ${p.experience_years}yr<br>
@@ -752,6 +752,26 @@ function hireProvider(pid, name) {
         <button class="btn btn-primary" onclick="quickHire('${pid}')">Send Contract</button>
         <button class="btn btn-outline" style="margin-top:0.5rem;width:100%" onclick="closeModal()">Cancel</button>`;
     document.getElementById('modalOverlay').classList.add('show');
+}
+
+async function toggleFavorite(providerId) {
+    const check = await fetch(`${BASE}/api/v1/favorites/check/${providerId}`, {
+        headers: {'Authorization': 'Bearer ' + token}
+    }).then(r => r.json());
+    
+    if (check.saved) {
+        await fetch(`${BASE}/api/v1/favorites/remove/${providerId}`, {
+            method: 'DELETE', headers: {'Authorization': 'Bearer ' + token}
+        });
+        document.getElementById('fav-'+providerId).textContent = '🤍';
+        showToast('Removed from favorites');
+    } else {
+        await fetch(`${BASE}/api/v1/favorites/add/${providerId}`, {
+            method: 'POST', headers: {'Authorization': 'Bearer ' + token}
+        });
+        document.getElementById('fav-'+providerId).textContent = '❤️';
+        showToast('Saved to favorites!');
+    }
 }
 
 async function quickHire(pid) {
