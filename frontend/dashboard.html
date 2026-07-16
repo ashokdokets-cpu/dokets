@@ -794,64 +794,54 @@ async function handleRegister(e) {
             } catch(err) { return {success:false, detail:err.message}; }
         }
 
-        async function loadAll() {
-            try {
-                const profile = await api('/users/me');
-                currentUser = profile;
-                document.getElementById('userName').textContent = profile.full_name || 'User';
-                const contractsData = await api('/contracts/');
-                const contracts = contractsData.contracts || [];
-                document.getElementById('statTotal').textContent = contracts.length;
-                document.getElementById('statActive').textContent = contracts.filter(c => c.status === 'active').length;
-                let escrowTotal = 0;
-                contracts.forEach(c => { if (c.escrows) c.escrows.forEach(e => { if (e.status === 'funded') escrowTotal += e.amount; }); });
-                document.getElementById('statEscrow').textContent = '₹' + escrowTotal.toLocaleString();
-                const vouch = await api(`/contracts/user/${profile.id}/vouch-score`);
-                ['statVouch','vouchLarge','vouchSide'].forEach(id => document.getElementById(id).textContent = vouch.vouch_score);
-                ['vouchLevel','vouchSideLevel'].forEach(id => document.getElementById(id).textContent = vouch.level + ' Level');
-                displayContracts(contracts);
-                displayActivity(contracts);
-                showOnboardingTips();
-            } catch(e) { console.error(e); }
-        }
+async function loadAll() {
+    try {
+        const profile = await api('/users/me');
+        currentUser = profile;
+        document.getElementById('userName').textContent = profile.full_name || 'User';
+        
+        // Force fresh data with timestamp
+        const contractsData = await api('/contracts/?t=' + Date.now());
+        const contracts = contractsData.contracts || [];
+        
+        document.getElementById('statTotal').textContent = contracts.length;
+        document.getElementById('statActive').textContent = contracts.filter(c => c.status === 'active').length;
+        let escrowTotal = 0;
+        contracts.forEach(c => { if (c.escrows) c.escrows.forEach(e => { if (e.status === 'funded') escrowTotal += e.amount; }); });
+        document.getElementById('statEscrow').textContent = '₹' + escrowTotal.toLocaleString();
+        const vouch = await api(`/contracts/user/${profile.id}/vouch-score?t=` + Date.now());
+        ['statVouch','vouchLarge','vouchSide'].forEach(id => document.getElementById(id).textContent = vouch.vouch_score);
+        ['vouchLevel','vouchSideLevel'].forEach(id => document.getElementById(id).textContent = vouch.level + ' Level');
+        displayContracts(contracts);
+        displayActivity(contracts);
+        showOnboardingTips();
+    } catch(e) { console.error(e); }
+}
 
 function displayContracts(contracts) {
+    console.log('Displaying contracts:', contracts.length, contracts.map(c => c.status));
+    
     if (!contracts.length) {
-        document.getElementById('recentContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet! Create one now.</p></div>';
+        document.getElementById('recentContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div>';
         document.getElementById('allContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div>';
         return;
     }
-    const html = contracts.map(c => {
-        const statusColor = c.status === 'draft' ? '#F59E0B' : c.status === 'active' ? '#10B981' : c.status === 'completed' ? '#3B82F6' : '#EF4444';
-        const statusLabel = c.status === 'draft' ? '⏳ Pending Approval' : c.status === 'active' ? '✅ Active' : c.status === 'completed' ? '🎉 Completed' : c.status;
-        
-        return `
-        <div class="contract-item" style="border-left:4px solid ${statusColor};">
+    const html = contracts.map(c => `
+        <div class="contract-item">
             <div>
                 <strong>${c.title}</strong>
-                <span class="status-badge status-${c.status}">${statusLabel}</span>
+                <span class="status-badge status-${c.status}">${c.status === 'active' ? '✅ Active' : c.status === 'draft' ? '⏳ Pending' : c.status}</span>
                 ${c.ai_generated?' <span class="tag tag-ai">AI</span>':''}
                 <span class="tag tag-escrow">Escrow</span>
-                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:0.3rem;">
-                    💰 ${c.currency} ${c.total_amount.toLocaleString()} | 📋 ${c.id}
-                </div>
+                <div style="font-size:0.8rem;color:var(--text-secondary);">${c.currency} ${c.total_amount.toLocaleString()} | ${c.id}</div>
             </div>
             <div style="text-align:right;">
-                ${c.status==='draft' ? `
-                    <button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">✅ Approve</button>
-                    <div style="font-size:0.7rem;color:#F59E0B;margin-top:0.2rem;">Awaiting provider</div>
-                ` : ''}
-                ${c.status==='active' ? `
-                    <button class="btn btn-primary btn-sm" onclick="completeContract('${c.id}')">🎉 Complete</button>
-                    <div style="font-size:0.7rem;color:#10B981;margin-top:0.2rem;">Work in progress</div>
-                ` : ''}
-                ${c.status==='completed' ? `
-                    <div style="font-size:0.8rem;color:#3B82F6;">✅ Done!</div>
-                ` : ''}
-                <a href="/contract-view/${c.id}" target="_blank" style="font-size:0.75rem;color:#6366F1;display:block;margin-top:0.3rem;">🔍 View Details</a>
+                ${c.status==='draft' ? `<button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">✅ Approve</button>` : ''}
+                ${c.status==='active' ? `<button class="btn btn-primary btn-sm" onclick="completeContract('${c.id}')">🎉 Complete</button>` : ''}
+                ${c.status==='completed' ? `<span style="color:#3B82F6;">✅ Done!</span>` : ''}
+                <div><a href="/contract-view/${c.id}" target="_blank" style="font-size:0.75rem;color:#6366F1;">🔍 View</a></div>
             </div>
-        </div>`;
-    }).join('');
+        </div>`).join('');
     
     document.getElementById('recentContracts').innerHTML = html;
     document.getElementById('allContracts').innerHTML = html;
