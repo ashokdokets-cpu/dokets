@@ -11,6 +11,20 @@ from datetime import datetime
 
 router = APIRouter(prefix="/api/v1/providers", tags=["Providers"])
 
+SERVICE_CATEGORIES = [
+    {"id": "home", "name": "🏠 Home Services", "icon": "🏠", "skills": ["Painting", "Plumbing", "Electrical", "Cleaning", "Carpentry", "AC Repair", "Masonry", "Waterproofing", "Pest Control", "Interior Design"]},
+    {"id": "tech", "name": "💻 Tech & IT", "icon": "💻", "skills": ["Web Development", "App Development", "Graphic Design", "Video Editing", "Data Entry", "SEO", "WordPress", "Cybersecurity", "Cloud Services"]},
+    {"id": "transport", "name": "🚗 Transport & Logistics", "icon": "🚗", "skills": ["Cab Service", "Bike Transport", "Truck Transport", "Packers & Movers", "Courier", "Food Delivery"]},
+    {"id": "education", "name": "📚 Education & Training", "icon": "📚", "skills": ["Tutoring", "Exam Prep", "Music Lessons", "Yoga Training", "Language Classes", "Coding Classes", "Dance Classes"]},
+    {"id": "events", "name": "🎉 Events & Entertainment", "icon": "🎉", "skills": ["Photography", "Catering", "Decoration", "DJ Service", "Event Planning", "Makeup Artist", "Mehendi", "Balloon Decoration"]},
+    {"id": "health", "name": "🏥 Health & Wellness", "icon": "🏥", "skills": ["Physiotherapy", "Massage", "Diet Planning", "Personal Training", "Counselling", "Yoga", "Meditation"]},
+    {"id": "business", "name": "💼 Business & Finance", "icon": "💼", "skills": ["Accounting", "Legal Advice", "Marketing", "Content Writing", "Tax Filing", "Company Registration", "GST Filing"]},
+    {"id": "auto", "name": "🔧 Auto Services", "icon": "🔧", "skills": ["Car Repair", "Bike Repair", "Car Wash", "Tyre Service", "Battery Service", "Car Detailing", "Windshield Repair"]},
+    {"id": "beauty", "name": "💅 Beauty & Personal Care", "icon": "💅", "skills": ["Hair Styling", "Spa Service", "Nail Art", "Bridal Makeup", "Mehendi", "Facial", "Waxing"]},
+    {"id": "realestate", "name": "🏠 Real Estate", "icon": "🏠", "skills": ["Property Listing", "Rental Agent", "Property Inspection", "Interior Design", "Vastu Consultation"]},
+    {"id": "other", "name": "📦 Other Services", "icon": "📦", "skills": ["Custom Service", "Anything Else"]},
+]
+
 @router.get("/search")
 async def search_providers(service: str = "", location: str = "", min_score: float = 70):
     """Search providers by service, location, and minimum vouch score"""
@@ -144,21 +158,7 @@ async def get_provider_profile(user_id: str):
 @router.get("/categories")
 async def get_service_categories():
     """Get all service categories"""
-    return {
-        SERVICE_CATEGORIES = [
-    {"id": "home", "name": "🏠 Home Services", "icon": "🏠", "skills": ["Painting", "Plumbing", "Electrical", "Cleaning", "Carpentry", "AC Repair", "Masonry", "Waterproofing", "Pest Control", "Interior Design"]},
-    {"id": "tech", "name": "💻 Tech & IT", "icon": "💻", "skills": ["Web Development", "App Development", "Graphic Design", "Video Editing", "Data Entry", "SEO", "WordPress", "Cybersecurity", "Cloud Services"]},
-    {"id": "transport", "name": "🚗 Transport & Logistics", "icon": "🚗", "skills": ["Cab Service", "Bike Transport", "Truck Transport", "Packers & Movers", "Courier", "Food Delivery"]},
-    {"id": "education", "name": "📚 Education & Training", "icon": "📚", "skills": ["Tutoring", "Exam Prep", "Music Lessons", "Yoga Training", "Language Classes", "Coding Classes", "Dance Classes"]},
-    {"id": "events", "name": "🎉 Events & Entertainment", "icon": "🎉", "skills": ["Photography", "Catering", "Decoration", "DJ Service", "Event Planning", "Makeup Artist", "Mehendi", "Balloon Decoration"]},
-    {"id": "health", "name": "🏥 Health & Wellness", "icon": "🏥", "skills": ["Physiotherapy", "Massage", "Diet Planning", "Personal Training", "Counselling", "Yoga", "Meditation"]},
-    {"id": "business", "name": "💼 Business & Finance", "icon": "💼", "skills": ["Accounting", "Legal Advice", "Marketing", "Content Writing", "Tax Filing", "Company Registration", "GST Filing"]},
-    {"id": "auto", "name": "🔧 Auto Services", "icon": "🔧", "skills": ["Car Repair", "Bike Repair", "Car Wash", "Tyre Service", "Battery Service", "Car Detailing", "Windshield Repair"]},
-    {"id": "beauty", "name": "💅 Beauty & Personal Care", "icon": "💅", "skills": ["Hair Styling", "Spa Service", "Nail Art", "Bridal Makeup", "Mehendi", "Facial", "Waxing"]},
-    {"id": "realestate", "name": "🏠 Real Estate", "icon": "🏠", "skills": ["Property Listing", "Rental Agent", "Property Inspection", "Interior Design", "Vastu Consultation"]},
-    {"id": "other", "name": "📦 Other Services", "icon": "📦", "skills": ["Custom Service", "Anything Else"]},
-]
-    }
+    return {"categories": SERVICE_CATEGORIES}
 
 
 @router.get("/by-category/{category_id}")
