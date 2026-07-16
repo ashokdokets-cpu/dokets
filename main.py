@@ -447,50 +447,26 @@ async def view_contract(contract_id: str):
             <p>Status: <span style="color:#4F46E5;">{ms.get('status', 'pending')}</span></p>
         </div>"""
     
+    status_color = {'draft': '#F59E0B', 'active': '#10B981', 'completed': '#3B82F6'}.get(contract.get('status'), '#6B7280')
+    
     return f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>{contract['title']} - Dokets VouchAI</title>
-        <style>
-            * {{ margin:0; padding:0; box-sizing:border-box; }}
-            body {{ font-family:'Segoe UI',sans-serif; background:#F0F2F5; padding:2rem; }}
-            .container {{ max-width:700px; margin:0 auto; }}
-            .card {{ background:white; border-radius:12px; padding:2rem; box-shadow:0 4px 6px rgba(0,0,0,0.1); }}
-            .header {{ background:linear-gradient(135deg,#4F46E5,#7C3AED); color:white; padding:1.5rem; border-radius:12px 12px 0 0; text-align:center; }}
-            h1 {{ font-size:1.8rem; }}
-            .status {{ display:inline-block; padding:0.3rem 1rem; border-radius:20px; font-weight:600; }}
-            .status-draft {{ background:#FEF3C7; color:#92400E; }}
-            .btn {{ padding:0.8rem 2rem; border-radius:8px; border:none; cursor:pointer; font-weight:600; font-size:1rem; }}
-            .btn-approve {{ background:#10B981; color:white; width:100%; }}
-            .btn-approve:hover {{ background:#059669; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🛡️ {contract['title']}</h1>
-                <p style="margin-top:0.5rem;opacity:0.9;">Dokets VouchAI Contract</p>
-            </div>
-            <div class="card">
-                <p><strong>Contract ID:</strong> {contract['id']}</p>
-                <p><strong>Customer:</strong> {contract.get('customer_id', 'N/A')}</p>
-                <p><strong>Provider:</strong> {contract.get('provider_phone', 'N/A')}</p>
-                <p><strong>Total Amount:</strong> {contract.get('currency', 'INR')} {contract.get('total_amount', 0)}</p>
-                <p><strong>Status:</strong> <span class="status status-{contract.get('status', 'draft')}">{contract.get('status', 'draft')}</span></p>
-                <p><strong>Created:</strong> {contract.get('created_at', 'N/A')}</p>
-                
-                <h3 style="margin-top:1.5rem;">Milestones</h3>
-                {milestones_html}
-                
-                <p style="margin-top:1rem;color:#6B7280;font-size:0.9rem;">
-                    🔒 Payment secured in escrow | 🤖 AI-verified | ⭐ Vouch Score tracked
-                </p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+    <!DOCTYPE html><html><head><title>{contract['title']} - Dokets</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>body{{font-family:Segoe UI;background:#F0F2F5;padding:2rem}}
+    .container{{max-width:700px;margin:0 auto}}
+    .card{{background:white;border-radius:16px;padding:2rem;box-shadow:0 4px 6px rgba(0,0,0,0.1)}}
+    .header{{background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;padding:1.5rem;border-radius:16px 16px 0 0;text-align:center}}
+    .status{{display:inline-block;padding:0.3rem 1rem;border-radius:20px;font-weight:600;background:{status_color}20;color:{status_color}}}
+</style></head><body><div class="container">
+<div class="header"><h1>{contract['title']}</h1><p>Dokets VouchAI Contract</p></div>
+<div class="card">
+<p><strong>ID:</strong> {contract['id']}</p>
+<p><strong>Status:</strong> <span class="status">{contract.get('status','draft').upper()}</span></p>
+<p><strong>Amount:</strong> {contract.get('currency','INR')} {contract.get('total_amount',0)}</p>
+<p><strong>Provider Phone:</strong> {contract.get('provider_phone','N/A')}</p>
+<h3>Milestones</h3>{milestones_html}
+<p style="color:#6B7280;margin-top:1rem;">🔒 Secured by Dokets Escrow</p>
+</div></div></body></html>"""
 
 @app.get("/payment-tracker/{contract_id}", response_class=HTMLResponse)
 async def payment_tracker(contract_id: str):
