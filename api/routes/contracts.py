@@ -135,11 +135,6 @@ async def approve_contract(contract_id: str, current_user: dict = Depends(get_cu
             c["provider_id"] = current_user["user_id"]
             c["status"] = "active"
             c["updated_at"] = str(datetime.utcnow())
-            
-            # Update escrows with provider ID
-            for e in c.get("escrows", []):
-                e["provider_id"] = current_user["user_id"]
-            
             return {
                 "success": True,
                 "message": "Contract approved and escrow activated",
