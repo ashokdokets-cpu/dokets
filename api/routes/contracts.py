@@ -99,18 +99,11 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
 
 @router.get("/")
 async def get_my_contracts(current_user: dict = Depends(get_current_user)):
-    contracts_col = await get_contracts_collection()
-    if contracts_col is not None:
-        mongo_contracts = await contracts_col.find({
-            "$or": [
-                {"customer_id": current_user["user_id"]},
-                {"provider_id": current_user["user_id"]}
-            ]
-        }).to_list(length=100)
-        # Merge with in-memory
-        return {"contracts": mongo_contracts + _contracts, "total": len(mongo_contracts) + len(_contracts)}
-    
-    my_contracts = [c for c in _contracts if c["customer_id"] == current_user["user_id"] or c["provider_id"] == current_user["user_id"]]
+    # Return from in-memory list (simpler, always works)
+    my_contracts = [
+        c for c in _contracts 
+        if c.get("customer_id") == current_user["user_id"] or c.get("provider_id") == current_user["user_id"]
+    ]
     return {"contracts": my_contracts, "total": len(my_contracts)}
 
 @router.get("/{contract_id}")
