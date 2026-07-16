@@ -430,24 +430,29 @@ async def view_contract(contract_id: str):
     
     contract = None
     for c in _contracts:
-        if c["id"] == contract_id:
+        if c.get("id") == contract_id:
             contract = c
             break
     
     if not contract:
-        return "<h2>Contract not found</h2>"
+        return f"""
+        <!DOCTYPE html><html><head><title>Contract - Dokets</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>body{{font-family:Segoe UI;background:#F0F2F5;padding:2rem;text-align:center}}
+        .card{{background:white;max-width:500px;margin:2rem auto;padding:2rem;border-radius:16px;box-shadow:0 4px 6px rgba(0,0,0,0.1)}}</style></head><body>
+        <div class="card"><h2>📋 Contract: {contract_id}</h2>
+        <p style="color:#6B7280;">View this contract in your dashboard for full details.</p>
+        <a href="/dashboard" style="display:inline-block;background:#6366F1;color:white;padding:1rem 2rem;border-radius:8px;text-decoration:none;font-weight:600;margin-top:1rem;">📊 Go to Dashboard</a></div></body></html>"""
     
     milestones_html = ""
     for ms in contract.get("milestones", []):
         milestones_html += f"""
         <div style="background:#F3F4F6;padding:1rem;border-radius:8px;margin-bottom:0.5rem;">
             <strong>{ms.get('title', 'Milestone')}</strong>
-            <p>{ms.get('description', '')}</p>
-            <p>Amount: {contract.get('currency', 'INR')} {ms.get('amount', 0)}</p>
-            <p>Status: <span style="color:#4F46E5;">{ms.get('status', 'pending')}</span></p>
+            <p>Amount: {contract.get('currency','INR')} {ms.get('amount',0)}</p>
         </div>"""
     
-    status_color = {'draft': '#F59E0B', 'active': '#10B981', 'completed': '#3B82F6'}.get(contract.get('status'), '#6B7280')
+    status_color = {'draft':'#F59E0B','active':'#10B981','completed':'#3B82F6'}.get(contract.get('status'),'#6B7280')
     
     return f"""
     <!DOCTYPE html><html><head><title>{contract['title']} - Dokets</title>
