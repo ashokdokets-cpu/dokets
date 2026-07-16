@@ -75,19 +75,45 @@ async def my_providers(current_user: dict = Depends(get_current_user)):
 
 @router.put("/profile")
 async def update_provider_profile(data: dict, current_user: dict = Depends(get_current_user)):
-    """Provider updates their service profile"""
+    """Provider updates their service profile with skills, rates, portfolio"""
     db = mongodb.get_db()
+    
+    skills = data.get("skills", [])
+    categories = data.get("categories", [])
+    
+    # Auto-assign uncategorized skills to "other" category
+    all_known_skills = []
+    for cat in SERVICE_CATEGORIES:
+        all_known_skills.extend([s.lower() for s in cat["skills"]])
+    
+    has_unknown_skill = False
+    for skill in skills:
+        if skill.lower() not in all_known_skills:
+            has_unknown_skill = True
+            break
+    
+    # If provider has skills not in any category, add "other" category
+    if has_unknown_skill and "other" not in categories:
+        categories.append("other")
+    
+    # If provider selected categories but no skills, auto-suggest based on categories
+    if not skills and categories:
+        suggested_skills = []
+        for cat in SERVICE_CATEGORIES:
+            if cat["id"] in categories:
+                suggested_skills.extend(cat["skills"][:3])  # Top 3 skills per category
+        skills = suggested_skills[:5]  # Max 5 suggested skills
     
     profile = {
         "user_id": current_user["user_id"],
-        "skills": data.get("skills", []),           # ["Painting", "Plumbing"]
-        "categories": data.get("categories", []),    # ["Home Services"]
+        "skills": skills,
+        "categories": categories,
         "experience_years": data.get("experience_years", 0),
         "hourly_rate": data.get("hourly_rate", 0),
         "bio": data.get("bio", ""),
-        "portfolio": data.get("portfolio", []),      # Image URLs
+        "portfolio": data.get("portfolio", []),
         "languages": data.get("languages", ["English"]),
-        "availability": data.get("availability", "available"),  # available, busy, away
+        "availability": data.get("availability", "available"),
         "service_cities": data.get("service_cities", []),
         "updated_at": str(datetime.utcnow())
     }
@@ -99,7 +125,7 @@ async def update_provider_profile(data: dict, current_user: dict = Depends(get_c
             upsert=True
         )
     
-    return {"success": True, "message": "Profile updated", "profile": profile}
+    return {"success": True, "message": "Profile updated!", "profile": profile}
 
 
 @router.get("/profile/{user_id}")
@@ -119,16 +145,19 @@ async def get_provider_profile(user_id: str):
 async def get_service_categories():
     """Get all service categories"""
     return {
-        "categories": [
-            {"id": "home", "name": "🏠 Home Services", "icon": "🏠", "skills": ["Painting", "Plumbing", "Electrical", "Cleaning", "Carpentry", "AC Repair"]},
-            {"id": "tech", "name": "💻 Tech & IT", "icon": "💻", "skills": ["Web Development", "App Development", "Graphic Design", "Video Editing", "Data Entry"]},
-            {"id": "transport", "name": "🚗 Transport", "icon": "🚗", "skills": ["Cab Service", "Bike Transport", "Truck Transport", "Packers & Movers"]},
-            {"id": "education", "name": "📚 Education", "icon": "📚", "skills": ["Tutoring", "Exam Prep", "Music Lessons", "Yoga Training", "Language Classes"]},
-            {"id": "events", "name": "🎉 Events", "icon": "🎉", "skills": ["Photography", "Catering", "Decoration", "DJ Service", "Event Planning"]},
-            {"id": "health", "name": "🏥 Health & Wellness", "icon": "🏥", "skills": ["Physiotherapy", "Massage", "Diet Planning", "Personal Training"]},
-            {"id": "business", "name": "💼 Business", "icon": "💼", "skills": ["Accounting", "Legal Advice", "Marketing", "Content Writing", "SEO"]},
-            {"id": "auto", "name": "🔧 Auto Services", "icon": "🔧", "skills": ["Car Repair", "Bike Repair", "Car Wash", "Tyre Service", "Battery Service"]},
-        ]
+        SERVICE_CATEGORIES = [
+    {"id": "home", "name": "🏠 Home Services", "icon": "🏠", "skills": ["Painting", "Plumbing", "Electrical", "Cleaning", "Carpentry", "AC Repair", "Masonry", "Waterproofing", "Pest Control", "Interior Design"]},
+    {"id": "tech", "name": "💻 Tech & IT", "icon": "💻", "skills": ["Web Development", "App Development", "Graphic Design", "Video Editing", "Data Entry", "SEO", "WordPress", "Cybersecurity", "Cloud Services"]},
+    {"id": "transport", "name": "🚗 Transport & Logistics", "icon": "🚗", "skills": ["Cab Service", "Bike Transport", "Truck Transport", "Packers & Movers", "Courier", "Food Delivery"]},
+    {"id": "education", "name": "📚 Education & Training", "icon": "📚", "skills": ["Tutoring", "Exam Prep", "Music Lessons", "Yoga Training", "Language Classes", "Coding Classes", "Dance Classes"]},
+    {"id": "events", "name": "🎉 Events & Entertainment", "icon": "🎉", "skills": ["Photography", "Catering", "Decoration", "DJ Service", "Event Planning", "Makeup Artist", "Mehendi", "Balloon Decoration"]},
+    {"id": "health", "name": "🏥 Health & Wellness", "icon": "🏥", "skills": ["Physiotherapy", "Massage", "Diet Planning", "Personal Training", "Counselling", "Yoga", "Meditation"]},
+    {"id": "business", "name": "💼 Business & Finance", "icon": "💼", "skills": ["Accounting", "Legal Advice", "Marketing", "Content Writing", "Tax Filing", "Company Registration", "GST Filing"]},
+    {"id": "auto", "name": "🔧 Auto Services", "icon": "🔧", "skills": ["Car Repair", "Bike Repair", "Car Wash", "Tyre Service", "Battery Service", "Car Detailing", "Windshield Repair"]},
+    {"id": "beauty", "name": "💅 Beauty & Personal Care", "icon": "💅", "skills": ["Hair Styling", "Spa Service", "Nail Art", "Bridal Makeup", "Mehendi", "Facial", "Waxing"]},
+    {"id": "realestate", "name": "🏠 Real Estate", "icon": "🏠", "skills": ["Property Listing", "Rental Agent", "Property Inspection", "Interior Design", "Vastu Consultation"]},
+    {"id": "other", "name": "📦 Other Services", "icon": "📦", "skills": ["Custom Service", "Anything Else"]},
+]
     }
 
 
