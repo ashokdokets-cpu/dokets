@@ -883,10 +883,8 @@ async function approveContract(id) {
 }
 
 async function completeContract(id) {
-    // Get from list API which has milestones
     const list = await api('/contracts/');
     const c = list.contracts?.find(x => x.id === id);
-    console.log('Contract:', c?.title, 'Milestones:', c?.milestones?.length);
     
     if (c && c.milestones && c.milestones.length > 0) {
         const result = await api(`/contracts/${id}/complete-milestone/${c.milestones[0].id}`, 'PUT');
@@ -894,10 +892,10 @@ async function completeContract(id) {
             toast('Completed! Payment released. 💰', 'success');
             await loadAll();
         } else {
-            toast('Failed: ' + (result.detail || 'Error'), 'error');
+            toast('Failed', 'error');
         }
     } else {
-        toast('No milestones found. Try refreshing.', 'error');
+        toast('No milestones found', 'error');
     }
 }
 
