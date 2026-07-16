@@ -98,33 +98,39 @@ async def login_user(request: Request, data: dict):
 @router.get("/me")
 async def get_my_profile(current_user: dict = Depends(get_current_user)):
     user_id = current_user["user_id"]
-    users = await get_users_collection()
     
-    user = None
-    if users is not None:
-        from bson import ObjectId
+    # Try MongoDB first
+    db = mongodb.get_db()
+    if db is not None:
         try:
-            user = await users.find_one({"_id": ObjectId(user_id)})
+            from bson import ObjectId
+            user = await db.users.find_one({"_id": ObjectId(user_id)})
+            if user:
+                return {
+                    "id": str(user["_id"]),
+                    "email": user["email"],
+                    "phone_number": user.get("phone_number", ""),
+                    "full_name": user.get("full_name", "User"),
+                    "user_role": user.get("user_role", "customer"),
+                    "vouch_score": user.get("vouch_score", 100.0),
+                    "total_contracts": user.get("total_contracts", 0)
+                }
         except:
             pass
     
-    if not user:
-        for u in _fallback_users:
-            if u.get("id") == user_id:
-                user = u
-                break
+    # Fallback to in-memory
+    for u in _fallback_users:
+        if u.get("id") == user_id:
+            return {
+                "id": u["id"],
+                "email": u["email"],
+                "phone_number": u.get("phone_number", ""),
+                "full_name": u.get("full_name", "User"),
+                "user_role": u.get("user_role", "customer"),
+                "vouch_score": u.get("vouch_score", 100.0),
+                "total_contracts": u.get("total_contracts", 0)
+            }
     
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    return {
-        "id": str(user.get("_id", user.get("id"))),
-        "email": user["email"],
-        "phone_number": user.get("phone_number", ""),
-        "full_name": user.get("full_name", "User"),
-        "user_role": user.get("user_role", "customer"),
-        "vouch_score": user.get("vouch_score", 100.0),
-        "total_contracts": user.get("total_contracts", 0)
-    }
+    raise HTTPException(status_code=404, detail="User not found")
 
 _fallback_users = []

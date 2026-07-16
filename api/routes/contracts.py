@@ -99,8 +99,27 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
 
 @router.get("/")
 async def get_my_contracts(current_user: dict = Depends(get_current_user)):
-    # Return all contracts (both user's own and where they are provider)
-    return {"contracts": _contracts, "total": len(_contracts)}
+    # Try MongoDB first
+    db = mongodb.get_db()
+    if db is not None:
+        try:
+            contracts = await db.contracts.find({
+                "$or": [
+                    {"customer_id": current_user["user_id"]},
+                    {"provider_id": current_user["user_id"]}
+                ]
+            }).to_list(length=100)
+            # Convert ObjectId to string
+            for c in contracts:
+                c["_id"] = str(c["_id"])
+            if contracts:
+                return {"contracts": contracts, "total": len(contracts)}
+        except:
+            pass
+    
+    # Fallback to in-memory
+    my_contracts = [c for c in _contracts if c.get("customer_id") == current_user["user_id"] or c.get("provider_id") == current_user["user_id"]]
+    return {"contracts": my_contracts, "total": len(my_contracts)}
 
 @router.get("/{contract_id}")
 async def get_contract(contract_id: str):
