@@ -130,12 +130,26 @@ async def get_contract(contract_id: str):
 
 @router.put("/{contract_id}/approve")
 async def approve_contract(contract_id: str, current_user: dict = Depends(get_current_user)):
+    # Update in-memory
     for c in _contracts:
         if c.get("id") == contract_id:
             c["provider_id"] = current_user.get("user_id", "")
             c["status"] = "active"
             c["updated_at"] = str(datetime.utcnow())
+            
+            # Also update MongoDB
+            db = mongodb.get_db()
+            if db is not None:
+                try:
+                    await db.contracts.update_one(
+                        {"id": contract_id},
+                        {"$set": {"status": "active", "provider_id": current_user.get("user_id", ""), "updated_at": str(datetime.utcnow())}}
+                    )
+                except:
+                    pass
+            
             return {"success": True, "message": "Contract approved", "contract_id": contract_id}
+    
     raise HTTPException(status_code=404, detail="Contract not found")
 
 @router.post("/{contract_id}/milestone/{milestone_id}/submit-proof")
