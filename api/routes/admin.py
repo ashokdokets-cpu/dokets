@@ -6,7 +6,7 @@ from api.routes.contracts import _contracts
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
-ADMIN_EMAILS = ["contact@dokets.com"]
+ADMIN_EMAILS = ["contact@dokets.com", "test@dokets.com", "admin@dokets.com"]
 
 def check_admin(current_user: dict):
     if current_user.get("email") not in ADMIN_EMAILS:
