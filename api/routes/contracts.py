@@ -181,30 +181,25 @@ async def submit_proof(contract_id: str, milestone_id: str, data: dict, current_
 @router.put("/{contract_id}/complete-milestone/{milestone_id}")
 async def complete_milestone(contract_id: str, milestone_id: str, current_user: dict = Depends(get_current_user)):
     for c in _contracts:
-        if c["id"] == contract_id:
+        if c.get("id") == contract_id:
             for ms in c.get("milestones", []):
-                if ms["id"] == milestone_id:
+                if ms.get("id") == milestone_id:
                     ms["status"] = "completed"
                     ms["completed_at"] = str(datetime.utcnow())
                     
-                    # Release escrow
                     if ms.get("escrow_id"):
                         escrow_engine.release_escrow(ms["escrow_id"])
                     
-                    # Check if all milestones complete
-                    all_done = all(m["status"] == "completed" for m in c["milestones"])
+                    all_done = all(m.get("status") == "completed" for m in c.get("milestones", []))
                     if all_done:
                         c["status"] = "completed"
                         c["completed_at"] = str(datetime.utcnow())
                     
                     c["updated_at"] = str(datetime.utcnow())
                     
-                    return {
-                        "success": True,
-                        "message": "Milestone completed and payment released",
-                        "contract": c
-                    }
-    raise HTTPException(status_code=404, detail="Contract or milestone not found")
+                    # Return simple - no ObjectId
+                    return {"success": True, "message": "Milestone completed", "contract_id": contract_id}
+    raise HTTPException(status_code=404, detail="Milestone not found")
 
 @router.get("/user/{user_id}/vouch-score")
 async def get_vouch_score(user_id: str):
