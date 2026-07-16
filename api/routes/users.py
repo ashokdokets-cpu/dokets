@@ -19,17 +19,15 @@ async def get_users_collection():
 @router.post("/register")
 @limiter.limit("5/minute")
 async def register_user(request: Request, data: dict):
-"""Register a new user. Mode selected at login, not registration."""
-# Validate password strength
+    """Register a new user. Mode selected at login, not registration."""
+    # Validate password strength
     valid, msg = validator.validate_password_strength(data.get("password", ""))
-if not valid:
+    if not valid:
         raise HTTPException(status_code=400, detail=msg)
 
-# Remove the old password check since validator already checks length
     email_valid, email = validator.validate_email(data.get("email", ""))
-if not email_valid:
+    if not email_valid:
         raise HTTPException(status_code=400, detail="Invalid email")
-
 
     phone_valid, phone = validator.validate_phone(data.get("phone_number", ""))
     if not phone_valid:
@@ -55,7 +53,7 @@ if not email_valid:
         "total_earned": 0,
         "total_spent": 0,
         "created_at": datetime.utcnow(),
-        "last_mode": "customer"  # Default mode
+        "last_mode": "customer"
     }
 
     if users is not None:
@@ -67,11 +65,10 @@ if not email_valid:
         _fallback_users.append(user)
 
     return {
-        "success": True, 
+        "success": True,
         "message": "Account created! You can now login as Customer or Provider.",
         "data": {"user_id": user_id}
     }
-
 @router.post("/login")
 @limiter.limit("10/minute")
 async def login_user(request: Request, data: dict):
