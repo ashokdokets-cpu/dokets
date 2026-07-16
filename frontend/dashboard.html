@@ -662,9 +662,16 @@
         }
 
         async function init() {
-            if (!token) { showLogin(); return; }
-            await loadAll();
-        }
+    if (!token) { 
+        // Hide sidebar and header user menu until logged in
+        document.querySelector('.sidebar').style.display = 'none';
+        document.querySelector('.right-panel').style.display = 'none';
+        document.querySelector('.user-menu').style.display = 'none';
+        showLogin(); 
+        return; 
+    }
+    await loadAll();
+}
 
 function showLogin() {
     document.getElementById('mainContent').innerHTML = `
@@ -760,12 +767,16 @@ async function handleRegister(e) {
                 data = await res.json();
             }
             if (data.access_token) {
-                token = data.access_token;
-                localStorage.setItem('dokets_token', token);
-                currentUser = data.user;
-                toast('Welcome, ' + data.user.full_name + '!', 'success');
-                await loadAll();
-            }
+    token = data.access_token;
+    localStorage.setItem('dokets_token', token);
+    currentUser = data.user;
+    // Show sidebar now
+    document.querySelector('.sidebar').style.display = '';
+    document.querySelector('.right-panel').style.display = '';
+    document.querySelector('.user-menu').style.display = '';
+    toast('Welcome, ' + data.user.full_name + '!', 'success');
+    await loadAll();
+}
         }
 
         async function api(endpoint, method='GET', body=null) {
