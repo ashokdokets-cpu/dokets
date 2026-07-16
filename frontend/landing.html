@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokets VouchAI - Trust in Every Deal 🛡️</title>
+    <meta name="description" content="AI-powered escrow platform. Describe work → AI creates contract → Money secured → Work verified → Payment released. 1% fee. WhatsApp ready.">
+    <style>
+        :root {
+            --bg: #0a0e17; --card: #111827; --border: #1e293b;
+            --text: #f1f5f9; --muted: #94a3b8; --primary: #6366f1;
+            --success: #10b981; --ai: #8b5cf6; --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            background-image: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.04) 0%, transparent 50%);
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+        
+        /* HERO */
+        .hero { text-align: center; padding: 4rem 0 2rem; }
+        .badge {
+            display: inline-block; background: rgba(139,92,246,0.15);
+            border: 1px solid rgba(139,92,246,0.3); padding: 0.4rem 1.2rem;
+            border-radius: 50px; font-size: 0.85rem; margin-bottom: 1.5rem; animation: fadeIn 0.8s;
+        }
+        h1 {
+            font-size: 3rem; font-weight: 800; line-height: 1.2;
+            background: linear-gradient(135deg, #818cf8, #c084fc, #34d399);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        .subtitle { font-size: 1.2rem; color: var(--muted); max-width: 600px; margin: 0 auto 2rem; }
+        
+        /* BUTTONS */
+        .btn-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            padding: 0.9rem 2rem; border-radius: 12px; font-weight: 600;
+            text-decoration: none; transition: all 0.3s; font-size: 1rem; border: none; cursor: pointer;
+        }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; box-shadow: 0 4px 20px rgba(99,102,241,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(99,102,241,0.5); }
+        .btn-outline { border: 2px solid rgba(255,255,255,0.2); color: #fff; background: transparent; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); }
+        
+        /* STATS */
+        .stats { display: flex; justify-content: center; gap: 3rem; margin: 3rem 0; flex-wrap: wrap; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 2rem; font-weight: 800; color: #34d399; }
+        .stat-label { color: var(--muted); font-size: 0.85rem; }
+        
+        /* STEPS */
+        .section-title { text-align: center; font-size: 2rem; font-weight: 700; margin: 3rem 0 1.5rem; }
+        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .step-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 2rem; transition: all 0.3s; text-align: center;
+        }
+        .step-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .step-num { font-size: 2.5rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem; }
+        .step-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .step-desc { color: var(--muted); font-size: 0.9rem; }
+        
+        /* FEATURES GRID */
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .feat-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.5rem; text-align: center; transition: all 0.3s;
+        }
+        .feat-card:hover { border-color: var(--ai); }
+        .feat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .feat-title { font-weight: 700; margin-bottom: 0.3rem; }
+        .feat-desc { color: var(--muted); font-size: 0.85rem; }
+        
+        /* CTA */
+        .cta {
+            text-align: center; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1));
+            border: 1px solid var(--border); border-radius: var(--radius); padding: 3rem 2rem; margin: 3rem 0;
+        }
+        .cta h2 { font-size: 1.8rem; margin-bottom: 1rem; }
+        
+        /* FOOTER */
+        .footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--border); }
+        .footer a { color: var(--primary); text-decoration: none; margin: 0 0.5rem; }
+        
+        /* COMPARISON TABLE */
+        .comparison { overflow-x: auto; margin: 2rem 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 0.75rem 1rem; text-align: center; border-bottom: 1px solid var(--border); }
+        th { background: var(--card); font-weight: 700; }
+        .check { color: #34d399; font-weight: 700; }
+        .cross { color: #f87171; }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .stats { gap: 1.5rem; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- HERO -->
+    <div class="hero">
+        <div class="badge">🤖 Powered by AI & Escrow Technology</div>
+        <h1>Trust in Every Deal</h1>
+        <p class="subtitle">
+            Describe your work → AI creates contract → Money secured in escrow → AI verifies completion → Payment released.<br>
+            <strong>No lawyers. No paperwork. Just trust.</strong>
+        </p>
+        <div class="btn-group">
+            <a href="/dashboard" class="btn btn-primary">🚀 Get Started Free</a>
+            <a href="/dashboard" class="btn btn-outline">📋 Open Dashboard</a>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat"><div class="stat-num">1%</div><div class="stat-label">Platform Fee</div></div>
+        <div class="stat"><div class="stat-num">13</div><div class="stat-label">Currencies</div></div>
+        <div class="stat"><div class="stat-num">6</div><div class="stat-label">Languages</div></div>
+        <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">AI Mediation</div></div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <h2 class="section-title">🚀 How It Works in 3 Simple Steps</h2>
+    <div class="steps">
+        <div class="step-card">
+            <div class="step-num">1</div>
+            <div class="step-title">📝 Describe the Work</div>
+            <div class="step-desc">Just type what you need. "Paint my house for ₹15,000 by Friday." AI extracts everything and creates a binding contract.</div>
+            <div style="background:rgba(99,102,241,0.1);padding:0.5rem;border-radius:8px;margin-top:0.75rem;font-size:0.8rem;color:#a5b4fc">"Paint my living room blue by Friday for ₹5000"</div>
+        </div>
+        <div class="step-card">
+            <div class="step-num">2</div>
+            <div class="step-title">🔒 Secure with Escrow</div>
+            <div class="step-desc">Payment is held securely. Only released when AI verifies work is done. Provider gets WhatsApp notification instantly.</div>
+            <div style="background:rgba(16,185,129,0.1);padding:0.5rem;border-radius:8px;margin-top:0.75rem;font-size:0.8rem;color:#6ee7b7">🔒 Only 1% platform fee</div>
+        </div>
+        <div class="step-card">
+            <div class="step-num">3</div>
+            <div class="step-title">🤖 AI Verifies & Pays</div>
+            <div class="step-desc">Provider uploads proof photo. AI compares before/after and auto-releases payment. Both parties earn Vouch Score ⭐</div>
+            <div style="background:rgba(245,158,11,0.1);padding:0.5rem;border-radius:8px;margin-top:0.75rem;font-size:0.8rem;color:#fcd34d">⭐ Both parties earn Vouch Score</div>
+        </div>
+    </div>
+
+    <!-- FLOW DIAGRAM -->
+    <h2 class="section-title">📊 Complete Workflow</h2>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;overflow-x:auto">
+        <pre style="color:var(--text);font-size:0.85rem;line-height:1.8;text-align:left;display:inline-block">
+<b>YOU</b>                          <b>DOKETS AI</b>                    <b>PROVIDER</b>
+ |                                |                            |
+ |-- "Paint house ₹15,000" ----->|                            |
+ |                                |-- Creates Contract ------->|
+ |-- Pay ₹15,000 --------------->|                            |
+ |                                |-- WhatsApp Notification -->|
+ |                                |                            |-- Accept ✅
+ |                                |                            |-- Start Work 🎨
+ |                                |<-- Upload Proof Photo -----|
+ |<-- AI: "Work Verified!" ------|                            |
+ |                                |-- Release Payment -------->| 💰
+ |                                |                            |
+ |-- ⭐ Vouch Score Updated ------|-- ⭐ Vouch Score Updated --|
+        </pre>
+    </div>
+
+    <!-- FEATURES -->
+    <h2 class="section-title">✨ Why Dokets?</h2>
+    <div class="features">
+        <div class="feat-card"><div class="feat-icon">🤖</div><div class="feat-title">AI Smart Contracts</div><div class="feat-desc">Just describe work naturally. AI extracts all details.</div></div>
+        <div class="feat-card"><div class="feat-icon">🔒</div><div class="feat-title">Secure Escrow</div><div class="feat-desc">Money held safely until work verified. Only 1% fee.</div></div>
+        <div class="feat-card"><div class="feat-icon">📱</div><div class="feat-title">WhatsApp Ready</div><div class="feat-desc">Everything works via WhatsApp. No app needed.</div></div>
+        <div class="feat-card"><div class="feat-icon">🔍</div><div class="feat-title">AI Verification</div><div class="feat-desc">AI compares before/after photos to verify work.</div></div>
+        <div class="feat-card"><div class="feat-icon">⭐</div><div class="feat-title">Vouch Score</div><div class="feat-desc">Build reputation. Higher score = more trust.</div></div>
+        <div class="feat-card"><div class="feat-icon">⚖️</div><div class="feat-title">AI Mediation</div><div class="feat-desc">Fair dispute resolution. 24/7 available.</div></div>
+        <div class="feat-card"><div class="feat-icon">🌍</div><div class="feat-title">Global</div><div class="feat-desc">13 currencies. 6 languages. Works worldwide.</div></div>
+        <div class="feat-card"><div class="feat-icon">🔄</div><div class="feat-title">Partial Payments</div><div class="feat-desc">Pay in milestones. Release as work progresses.</div></div>
+    </div>
+
+    <!-- COMPARISON -->
+    <h2 class="section-title">🏆 Dokets vs Competition</h2>
+    <div class="comparison">
+        <table>
+            <tr><th>Feature</th><th>Dokets</th><th>Upwork</th><th>Fiverr</th><th>Escrow.com</th></tr>
+            <tr><td>Platform Fee</td><td class="check">1%</td><td class="cross">20%</td><td class="cross">20%</td><td class="cross">3-6%</td></tr>
+            <tr><td>AI Contract Creation</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+            <tr><td>AI Work Verification</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+            <tr><td>WhatsApp Integration</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+            <tr><td>Video Calls</td><td class="check">✅</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+            <tr><td>Recurring Contracts</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+            <tr><td>Vouch Score</td><td class="check">✅</td><td class="cross">❌</td><td class="check">⭐</td><td class="cross">❌</td></tr>
+            <tr><td>Multi-Language</td><td class="check">6</td><td class="check">✅</td><td class="check">✅</td><td class="cross">❌</td></tr>
+        </table>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+        <h2>Ready to Trust Every Deal?</h2>
+        <p style="color:var(--muted);margin-bottom:1.5rem">Create your first AI-powered contract in under 60 seconds.</p>
+        <a href="/dashboard" class="btn btn-primary">🚀 Get Started Free</a>
+        <p style="color:var(--muted);margin-top:0.75rem;font-size:0.85rem">No credit card required · 1% fee only when you transact</p>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <p>© 2026 Dokets VouchAI · Trust in Every Deal · dokets.com</p>
+        <p style="margin-top:0.5rem">
+            <a href="/about">About</a> | <a href="/privacy">Privacy</a> | <a href="/terms">Terms</a> | 
+            <a href="/cookies">Cookies</a> | <a href="/gdpr">GDPR</a> | <a href="/contact">Contact</a>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
