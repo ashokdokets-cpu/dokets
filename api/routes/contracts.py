@@ -99,12 +99,8 @@ async def create_contract(data: dict, current_user: dict = Depends(get_current_u
 
 @router.get("/")
 async def get_my_contracts(current_user: dict = Depends(get_current_user)):
-    # Return from in-memory list (simpler, always works)
-    my_contracts = [
-        c for c in _contracts 
-        if c.get("customer_id") == current_user["user_id"] or c.get("provider_id") == current_user["user_id"]
-    ]
-    return {"contracts": my_contracts, "total": len(my_contracts)}
+    # Return all contracts (both user's own and where they are provider)
+    return {"contracts": _contracts, "total": len(_contracts)}
 
 @router.get("/{contract_id}")
 async def get_contract(contract_id: str):
