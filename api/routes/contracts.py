@@ -131,15 +131,11 @@ async def get_contract(contract_id: str):
 @router.put("/{contract_id}/approve")
 async def approve_contract(contract_id: str, current_user: dict = Depends(get_current_user)):
     for c in _contracts:
-        if c["id"] == contract_id:
-            c["provider_id"] = current_user["user_id"]
+        if c.get("id") == contract_id:
+            c["provider_id"] = current_user.get("user_id", "")
             c["status"] = "active"
             c["updated_at"] = str(datetime.utcnow())
-            return {
-                "success": True,
-                "message": "Contract approved",
-                "contract": c
-            }
+            return {"success": True, "message": "Contract approved", "contract_id": contract_id}
     raise HTTPException(status_code=404, detail="Contract not found")
 
 @router.post("/{contract_id}/milestone/{milestone_id}/submit-proof")
