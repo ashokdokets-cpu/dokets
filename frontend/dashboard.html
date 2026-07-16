@@ -1,1793 +1,932 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dokets VouchAI - Trust in Every Deal</title>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#4F46E5">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <title>Dokets VouchAI - Dashboard</title>
     <style>
- :root {
-    --primary: #6366F1;
-    --primary-dark: #4F46E5;
-    --success: #10B981;
-    --warning: #F59E0B;
-    --danger: #EF4444;
-    --bg: #F8FAFC;
-    --card: #FFFFFF;
-    --text: #1E293B;
-    --text-secondary: #64748B;
-    --border: #E2E8F0;
-    --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
-    --shadow-lg: 0 4px 16px rgba(0,0,0,0.06);
-    --radius: 16px;
-    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-        [data-theme="dark"] {
-    --bg: #0F172A;
-    --card: #1E293B;
-    --text: #F1F5F9;
-    --text-secondary: #94A3B8;
-    --border: #334155;
-    --shadow: 0 1px 3px rgba(0,0,0,0.3);
-    --shadow-lg: 0 4px 16px rgba(0,0,0,0.4);
-}
+        :root {
+            --bg: #0F172A;
+            --card: #1E293B;
+            --border: #334155;
+            --text: #F1F5F9;
+            --muted: #94A3B8;
+            --primary: #6366F1;
+            --primary-hover: #4F46E5;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --customer: #3B82F6;
+            --provider: #8B5CF6;
+            --radius: 16px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    transition: background 0.3s, color 0.3s;
-    -webkit-font-smoothing: antialiased;
-}
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ========== HEADER ========== */
         .header {
-    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A78BFA 100%);
-    color: white;
-    padding: 0 1.5rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 16px rgba(99,102,241,0.2);
-    backdrop-filter: blur(10px);
-}
-        .header-content {
-            max-width: 1400px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-inner {
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 60px;
         }
-        .logo { display: flex; align-items: center; gap: 0.6rem; font-size: 1.3rem; font-weight: 700; color: white; text-decoration: none; }
-        .logo-icon { width: 34px; height: 34px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-        .user-menu { display: flex; align-items: center; gap: 0.8rem; }
-        .main-container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 240px 1fr 320px; gap: 1.5rem; }
-        .sidebar { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); height: fit-content; position: sticky; top: 76px; overflow: hidden; }
-        .sidebar-header { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; padding: 1rem; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 1rem; cursor: pointer; transition: all 0.2s; font-weight: 500; color: var(--text-secondary); border-left: 3px solid transparent; font-size: 0.9rem; }
-        .nav-item:hover, .nav-item.active { background: #EEF2FF; color: var(--primary); border-left-color: var(--primary); }
-        [data-theme="dark"] .nav-item:hover, [data-theme="dark"] .nav-item.active { background: #1E3A5F; }
-        .nav-icon { font-size: 1.1rem; width: 22px; text-align: center; }
-        .content { display: flex; flex-direction: column; gap: 1.2rem; }
-        .card { 
-    background: var(--card); 
-    border-radius: var(--radius); 
-    box-shadow: var(--shadow); 
-    overflow: hidden;
-    border: 1px solid var(--border);
-    transition: box-shadow var(--transition);
-}
-.card:hover { box-shadow: var(--shadow-lg); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); }
-        .card-body { padding: 1.2rem; }
-        .card-title { font-size: 1rem; font-weight: 600; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #818CF8, #C084FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon { font-size: 1.8rem; }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--provider));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* ========== MODE SWITCHER ========== */
+        .mode-switcher {
+            display: flex;
+            background: var(--bg);
+            border-radius: 50px;
+            padding: 4px;
+            border: 1px solid var(--border);
+            gap: 4px;
+        }
+
+        .mode-btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--muted);
+            position: relative;
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 12px rgba(99,102,241,0.4);
+        }
+
+        .mode-btn:hover:not(.active) {
+            color: var(--text);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .mode-indicator {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mode-customer { background: rgba(59,130,246,0.2); color: #60A5FA; }
+        .mode-provider { background: rgba(139,92,246,0.2); color: #A78BFA; }
+
+        /* ========== MAIN LAYOUT ========== */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ========== STATS ROW ========== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
         .stat-card {
-    background: var(--card); 
-    border-radius: var(--radius); 
-    padding: 1.3rem;
-    box-shadow: var(--shadow); 
-    position: relative; 
-    overflow: hidden;
-    transition: all var(--transition);
-    border: 1px solid var(--border);
-}
-.stat-card:hover { 
-    transform: translateY(-2px); 
-    box-shadow: var(--shadow-lg);
-}
-        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
-        .stat-card.purple::before { background: var(--primary); }
-        .stat-card.green::before { background: var(--success); }
-        .stat-card.orange::before { background: var(--warning); }
-        .stat-card.blue::before { background: #3B82F6; }
-        .stat-value { font-size: 1.6rem; font-weight: 700; }
-        .stat-label { color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.2rem; }
-        .btn {
-    padding: 0.55rem 1.1rem; border-radius: 12px; border: none; cursor: pointer;
-    font-weight: 500; font-size: 0.85rem; transition: all var(--transition);
-    display: inline-flex; align-items: center; gap: 0.3rem;
-    letter-spacing: 0.01em;
-}
-.btn-primary { 
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
-    color: white; 
-    box-shadow: 0 2px 8px rgba(99,102,241,0.25);
-}
-.btn-primary:hover { 
-    transform: translateY(-1px); 
-    box-shadow: 0 4px 12px rgba(99,102,241,0.35);
-}
-        .btn-success { background: var(--success); color: white; }
-        .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.75rem; }
-        .btn-block { width: 100%; justify-content: center; }
-        .status-badge {
-            padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem;
-            font-weight: 600; text-transform: uppercase;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
         }
-        .status-draft { background: #FEF3C7; color: #92400E; }
-        .status-active { background: #D1FAE5; color: #065F46; }
-        .status-completed { background: #DBEAFE; color: #1E40AF; }
-        .tag { display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; margin-right: 0.2rem; }
-        .tag-ai { background: #EDE9FE; color: #6D28D9; }
-        .tag-escrow { background: #D1FAE5; color: #065F46; }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        /* ========== ACTION CARDS ========== */
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .action-card.customer-card:hover {
+            border-color: var(--customer);
+            box-shadow: 0 4px 24px rgba(59,130,246,0.2);
+        }
+
+        .action-card.provider-card:hover {
+            border-color: var(--provider);
+            box-shadow: 0 4px 24px rgba(139,92,246,0.2);
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-desc {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .action-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+        }
+
+        .badge-customer { background: rgba(59,130,246,0.2); color: #60A5FA; }
+        .badge-provider { background: rgba(139,92,246,0.2); color: #A78BFA; }
+
+        /* ========== CONTRACTS TABLE ========== */
+        .contracts-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .contract-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
         .contract-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0.8rem 1.2rem; border-bottom: 1px solid var(--border);
-            transition: all 0.2s; cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: var(--bg);
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
-        .contract-item:hover { background: rgba(79,70,229,0.03); }
-        .right-panel { display: flex; flex-direction: column; gap: 1.2rem; }
-        .vouch-card { background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-align: center; }
-        .vouch-circle {
-            width: 80px; height: 80px; border-radius: 50%;
-            border: 5px solid rgba(255,255,255,0.3);
-            display: flex; align-items: center; justify-content: center;
-            margin: 0.8rem auto; font-size: 2rem; font-weight: 700;
+
+        .contract-item:hover {
+            border-color: var(--border);
+            background: #1a2332;
         }
+
+        .contract-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .contract-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .contract-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .contract-info span {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .contract-right {
+            text-align: right;
+        }
+
+        .contract-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-draft { background: rgba(148,163,184,0.2); color: #94A3B8; }
+        .status-active { background: rgba(16,185,129,0.2); color: #34D399; }
+        .status-completed { background: rgba(59,130,246,0.2); color: #60A5FA; }
+        .status-disputed { background: rgba(239,68,68,0.2); color: #F87171; }
+
+        /* ========== MODAL ========== */
         .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6); z-index: 1000;
-            align-items: center; justify-content: center;
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
         }
-        .modal-overlay.active { display: flex; }
+
+        .modal-overlay.show { display: flex; }
+
         .modal {
-            background: var(--card); border-radius: var(--radius);
-            width: 95%; max-width: 550px; max-height: 90vh;
-            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: modalIn 0.3s ease;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 550px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
-            position: sticky; top: 0; background: var(--card); z-index: 1;
+
+        .modal h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .modal-body { padding: 1.2rem; }
-        .form-group { margin-bottom: 0.8rem; }
-        .form-group label { display: block; margin-bottom: 0.2rem; font-weight: 500; font-size: 0.85rem; color: var(--text); }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 0.6rem; border: 2px solid var(--border);
-            border-radius: 8px; font-size: 0.9rem; transition: all 0.2s;
-            background: var(--card); color: var(--text); font-family: inherit;
+
+        .form-group {
+            margin-bottom: 1rem;
         }
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none; border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--muted);
         }
-        .toast-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.4rem; }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .btn-accept {
+            background: var(--success);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-reject {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--muted);
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .header-inner { flex-wrap: wrap; gap: 1rem; }
+            .action-cards { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .contract-item { flex-direction: column; text-align: center; gap: 0.5rem; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: 1fr; }
+            .mode-switcher { width: 100%; }
+            .mode-btn { flex: 1; text-align: center; }
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animate-in {
+            animation: slideUp 0.4s ease forwards;
+        }
+
+        /* Toast notification */
         .toast {
-            background: #1F2937; color: white; padding: 0.7rem 1rem;
-            border-radius: 8px; font-size: 0.85rem; animation: slideIn 0.3s ease;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
-        .toast.success { background: var(--success); }
+
         .toast.error { background: var(--danger); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .empty-state { text-align: center; padding: 2rem; color: var(--text-secondary); }
-        .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .theme-toggle {
-            width: 40px; height: 40px; border-radius: 50%; border: none;
-            cursor: pointer; font-size: 1.2rem; background: rgba(255,255,255,0.2); color: white;
-        }
-        .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-        .quick-action {
-            padding: 0.8rem; border-radius: var(--radius); cursor: pointer;
-            text-align: center; transition: all 0.2s; font-weight: 500; font-size: 0.85rem;
-            background: var(--card); border: 1px solid var(--border); color: var(--text);
-        }
-        .quick-action:hover { border-color: var(--primary); color: var(--primary); }
-        .activity-item {
-            padding: 0.6rem 0; border-bottom: 1px solid var(--border);
-            font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;
-        }
-        .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-        .activity-dot.create { background: var(--primary); }
-        .activity-dot.approve { background: var(--success); }
-        .activity-dot.payment { background: var(--warning); }
-
-.nav-group { margin-bottom: 0.3rem; }
-.nav-group-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0.6rem 1rem; cursor: pointer; font-weight: 600;
-    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
-    color: var(--text-secondary); background: var(--bg);
-    border-left: 3px solid transparent; transition: all 0.2s;
-}
-.nav-group-header:hover { background: #EEF2FF; color: var(--primary); }
-.group-arrow { font-size: 0.6rem; transition: transform 0.3s; }
-.nav-group.collapsed .group-arrow { transform: rotate(-90deg); }
-.nav-group.collapsed .nav-group-items { display: none; }
-.nav-group-items .nav-item { padding-left: 2rem; font-size: 0.8rem; }
-
-@media (max-width: 1024px) {
-    .main-container { grid-template-columns: 1fr; }
-    .right-panel { display: none; }
-    .sidebar { 
-        display: block !important;
-        position: fixed;
-        top: 60px;
-        left: 0;
-        width: 250px;
-        height: calc(100vh - 60px);
-        overflow-y: auto;
-        z-index: 200;
-        transform: translateX(-100%);
-        transition: transform 0.3s;
-    }
-    .sidebar.open { transform: translateX(0); }
-    .mobile-menu-btn {
-        display: block !important;
-    }
-}
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-               <button class="mobile-menu-btn" onclick="toggleSidebar()" style="display:none;background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;margin-right:0.5rem;">☰</button>
-               <a href="#" class="logo" onclick="showTab('dashboard')">
-    <img src="/logo.png" alt="Dokets" style="height:34px;width:34px;border-radius:8px;object-fit:cover;"> Dokets VouchAI
-</a>
-            <div class="user-menu">
-                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌓</button>
-                <span style="font-weight:500;font-size:0.9rem;" id="userName">User</span>
-                <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;" onclick="logout()">Logout</button>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <span class="logo-icon">🛡️</span> Dokets VouchAI
+        </div>
+
+        <div class="mode-switcher" id="modeSwitcher">
+            <button class="mode-btn active" data-mode="customer" onclick="switchMode('customer')">
+                🏠 I Need a Service
+            </button>
+            <button class="mode-btn" data-mode="provider" onclick="switchMode('provider')">
+                🔧 I Provide a Service
+            </button>
+        </div>
+
+        <div class="user-info">
+            <div style="text-align:right">
+                <div class="user-name" id="userName">User</div>
+                <div class="user-email" id="userEmail">email</div>
             </div>
-        </div>
-    </header>
-
-    <div class="main-container">
-        <aside class="sidebar">
-    <div class="sidebar-header">📂 Menu</div>
-    
-    <!-- Group 1: Contracts -->
-    <div class="nav-group">
-        <div class="nav-group-header" onclick="toggleGroup('contracts')">
-            📋 Contracts <span class="group-arrow">▼</span>
-        </div>
-        <div class="nav-group-items" id="group-contracts">
-            <div class="nav-item" onclick="openModal('createModal')"><span class="nav-icon">✨</span> New Contract</div>
-            <div class="nav-item" onclick="openModal('aiModal')"><span class="nav-icon">🤖</span> AI Contract</div>
-            <div class="nav-item" onclick="showTab('contracts')"><span class="nav-icon">📝</span> My Contracts</div>
-            <div class="nav-item" onclick="showProviderContracts()"><span class="nav-icon">📋</span> Provider View</div>
-            <div class="nav-item" onclick="showTab('recurring')"><span class="nav-icon">🔄</span> Recurring</div>
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span class="mode-indicator mode-customer" id="modeBadge">CUSTOMER</span>
         </div>
     </div>
-    
-    <!-- Group 2: Money -->
-    <div class="nav-group">
-        <div class="nav-group-header" onclick="toggleGroup('money')">
-            💰 Money <span class="group-arrow">▼</span>
-        </div>
-        <div class="nav-group-items" id="group-money">
-            <div class="nav-item" onclick="openModal('paymentModal')"><span class="nav-icon">💳</span> Payments</div>
-            <div class="nav-item" onclick="showTab('payouts')"><span class="nav-icon">⚡</span> Payouts</div>
-            <div class="nav-item" onclick="showTab('invoice')"><span class="nav-icon">📑</span> Invoices</div>
-        </div>
-    </div>
-    
-    <!-- Group 3: Trust & Verify -->
-    <div class="nav-group">
-        <div class="nav-group-header" onclick="toggleGroup('trust')">
-            ⭐ Trust & Verify <span class="group-arrow">▼</span>
-        </div>
-        <div class="nav-group-items" id="group-trust">
-            <div class="nav-item" onclick="showTab('vouch')"><span class="nav-icon">⭐</span> Vouch Score</div>
-            <div class="nav-item" onclick="showTab('kyc')"><span class="nav-icon">🆔</span> KYC</div>
-            <div class="nav-item" onclick="showTab('background')"><span class="nav-icon">🔍</span> Background</div>
-        </div>
-    </div>
-    
-    <!-- Group 4: Communication -->
-    <div class="nav-group">
-        <div class="nav-group-header" onclick="toggleGroup('comm')">
-            💬 Communication <span class="group-arrow">▼</span>
-        </div>
-        <div class="nav-group-items" id="group-comm">
-            <div class="nav-item" onclick="openModal('whatsappModal')"><span class="nav-icon">💬</span> WhatsApp</div>
-            <div class="nav-item" onclick="showTab('chat')"><span class="nav-icon">💬</span> Chat</div>
-            <div class="nav-item" onclick="showTab('video')"><span class="nav-icon">📹</span> Video Calls</div>
-            <div class="nav-item" onclick="showTab('chatbot')"><span class="nav-icon">🤖</span> AI Chatbot</div>
-        </div>
-    </div>
-    
-    <!-- Group 5: Help & Manage -->
-    <div class="nav-group">
-        <div class="nav-group-header" onclick="toggleGroup('help')">
-            📞 Help & Manage <span class="group-arrow">▼</span>
-        </div>
-        <div class="nav-group-items" id="group-help">
-            <div class="nav-item" onclick="showTab('disputes')"><span class="nav-icon">⚖️</span> Disputes</div>
-            <div class="nav-item" onclick="showTab('support')"><span class="nav-icon">📞</span> Support</div>
-            <div class="nav-item" onclick="showTab('analytics')"><span class="nav-icon">📈</span> Analytics</div>
-            <div class="nav-item" onclick="showTab('admin')"><span class="nav-icon">📊</span> Admin</div>
-            <div class="nav-item" onclick="showTab('agency')"><span class="nav-icon">🏷️</span> Agency</div>
-            <div class="nav-item" onclick="showTab('languages')"><span class="nav-icon">🌐</span> Languages</div>
-        </div>
-    </div>
-    
-    <!-- Dashboard (always visible) -->
-    <div class="nav-item active" onclick="showTab('dashboard')"><span class="nav-icon">🏠</span> Dashboard Home</div>
-</aside>
-        <main class="content" id="mainContent">
-            <div id="tab-dashboard">
-                <div class="stats-grid">
-                    <div class="stat-card purple"><div class="stat-label">Total Contracts</div><div class="stat-value" id="statTotal">0</div></div>
-                    <div class="stat-card green"><div class="stat-label">Active</div><div class="stat-value" id="statActive">0</div></div>
-                    <div class="stat-card orange"><div class="stat-label">In Escrow</div><div class="stat-value" id="statEscrow">₹0</div></div>
-                    <div class="stat-card blue"><div class="stat-label">Vouch Score</div><div class="stat-value" id="statVouch">--</div></div>
-                </div>
-                <div class="card"><div class="card-header"><span class="card-title">📋 Recent Contracts</span><button class="btn btn-primary btn-sm" onclick="openModal('createModal')">+ New</button></div><div id="recentContracts"><div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div></div></div>
-                <div class="card"><div class="card-header"><span class="card-title">🕐 Recent Activity</span></div><div id="activityFeed" class="card-body"><p class="text-secondary" style="font-size:0.85rem;">No recent activity</p></div></div>
-            </div>
-            <div id="tab-contracts" style="display:none;"><div class="card"><div class="card-header"><span class="card-title">All Contracts</span></div><div id="allContracts"></div></div></div>
-<div id="tab-kyc" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">🆔 KYC Verification</span></div>
-    <div class="card-body">
-        <div id="kycBadge" style="text-align:center;margin-bottom:1rem;"></div>
-        <p style="margin-bottom:1rem;color:#6B7280;">Verify your identity to build trust. Your ID is encrypted and secure.</p>
-        <form onsubmit="submitKYC(event)">
-            <div class="form-group"><label>Full Name (as on ID)</label><input type="text" id="kycName" required></div>
-            <div class="form-group"><label>ID Type</label><select id="kycType">
-    <option value="aadhaar">🇮🇳 Aadhaar (India)</option>
-    <option value="pan">🇮🇳 PAN Card (India)</option>
-    <option value="passport">🌍 Passport (Global)</option>
-    <option value="driving_license">🚗 Driving License</option>
-    <option value="national_id">🆔 National ID</option>
-    <option value="ssn">🇺🇸 SSN (USA)</option>
-    <option value="cpf">🇧🇷 CPF (Brazil)</option>
-    <option value="nik">🇮🇩 NIK (Indonesia)</option>
-    <option value="nin">🇳🇬 NIN (Nigeria)</option>
-    <option value="curp">🇲🇽 CURP (Mexico)</option>
-    <option value="emirates_id">🇦🇪 Emirates ID (UAE)</option>
-    <option value="nid">🇧🇩 NID (Bangladesh)</option>
-    <option value="cnic">🇵🇰 CNIC (Pakistan)</option>
-</select></div>
-            <div class="form-group"><label>ID Number (only last 4 digits visible)</label><input type="text" id="kycNumber" required></div>
-            <button type="submit" class="btn btn-primary btn-block">📤 Submit for Verification</button>
-        </form>
-        <div id="kycStatus" class="mt-2"></div>
-        <button class="btn btn-outline btn-block mt-3" onclick="checkKYCStatus()">📋 Check Verification Status</button>
-    </div></div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="main" id="mainContent">
+    <!-- Dynamic content loaded here -->
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContent"></div>
 </div>
 
-<div id="tab-chat" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">💬 Chat</span></div>
-    <div class="card-body">
-        <div class="form-group"><label>Contract ID (for contract chat)</label><input type="text" id="chatContractId" placeholder="Leave empty for general chat"></div>
-        <div id="chatMessages" style="max-height:350px;overflow-y:auto;margin-bottom:1rem;background:#F9FAFB;padding:1rem;border-radius:8px;"></div>
-        <form onsubmit="sendChat(event)" style="display:flex;gap:0.5rem;">
-            <input type="text" id="chatInput" placeholder="Type your message..." style="flex:1;" required>
-            <button type="submit" class="btn btn-primary">📤 Send</button>
-        </form>
-        <button class="btn btn-outline btn-block mt-2" onclick="loadChatHistory()">📋 Load Chat History</button>
-    </div></div>
-</div>
+<script>
+// ========== GLOBAL STATE ==========
+const BASE = 'https://dokets.com';
+let token = localStorage.getItem('dokets_token');
+let currentMode = 'customer';
+let userData = null;
 
-<div id="tab-disputes" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">⚖️ Dispute Center</span></div>
-    <div class="card-body">
-        <p style="margin-bottom:1rem;color:#6B7280;">File a dispute for any active contract. Our AI mediator will help resolve it.</p>
-        <form onsubmit="fileDispute(event)">
-            <div class="form-group"><label>Contract ID</label><input type="text" id="disputeContractId" required></div>
-            <div class="form-group"><label>Reason</label>
-                <select id="disputeReason">
-                    <option value="work_not_done">Work Not Completed</option>
-                    <option value="poor_quality">Poor Quality</option>
-                    <option value="missed_deadline">Missed Deadline</option>
-                    <option value="payment_issue">Payment Issue</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            <div class="form-group"><label>Description</label><textarea id="disputeDesc" rows="2" placeholder="Describe the issue in detail..."></textarea></div>
-            <button type="submit" class="btn btn-danger btn-block">⚖️ File Dispute</button>
-        </form>
-        <div id="disputeResult" class="mt-2"></div>
-        <button class="btn btn-outline btn-block mt-3" onclick="loadMyDisputes()">📋 My Disputes</button>
-        <div id="disputeList" class="mt-2"></div>
-    </div></div>
-</div>
-
-<div id="tab-admin" style="display:none;">
-    <div id="adminDashboard">
-        <div class="stats-grid" style="margin-bottom:1rem;">
-            <div class="stat-card purple"><div class="stat-label">Total Users</div><div class="stat-value" id="admUsers">-</div></div>
-            <div class="stat-card green"><div class="stat-label">Active Contracts</div><div class="stat-value" id="admActive">-</div></div>
-            <div class="stat-card orange"><div class="stat-label">Total Escrow</div><div class="stat-value" id="admEscrow">-</div></div>
-            <div class="stat-card blue"><div class="stat-label">Completed</div><div class="stat-value" id="admCompleted">-</div></div>
-        </div>
-        
-        <div class="card" style="margin-bottom:1rem;">
-            <div class="card-header"><span class="card-title">👥 Users</span></div>
-            <div class="card-body" id="admUserList"><p style="color:#6B7280;">Click Load Stats</p></div>
-        </div>
-
-        <div class="card" style="margin-bottom:1rem;">
-            <div class="card-header"><span class="card-title">📋 Contracts</span></div>
-            <div class="card-body" id="admContractList"><p style="color:#6B7280;">Click Load Stats</p></div>
-        </div>
-
-        <button class="btn btn-primary btn-block mt-2" onclick="loadAdminStats()">🔄 Refresh Stats</button>
-    </div>
-</div>
-
-<div id="tab-analytics" style="display:none;">
-    <div id="analyticsDashboard">
-        <div class="stats-grid" style="margin-bottom:1rem;">
-            <div class="stat-card purple"><div class="stat-label">Total Users</div><div class="stat-value" id="aUsers">-</div></div>
-            <div class="stat-card green"><div class="stat-label">Total Contracts</div><div class="stat-value" id="aContracts">-</div></div>
-            <div class="stat-card orange"><div class="stat-label">Total Escrow</div><div class="stat-value" id="aEscrow">-</div></div>
-            <div class="stat-card blue"><div class="stat-label">Platform Fees</div><div class="stat-value" id="aFees">-</div></div>
-        </div>
-        
-        <div class="card" style="margin-bottom:1rem;">
-            <div class="card-header"><span class="card-title">📊 Contract Status</span></div>
-            <div class="card-body">
-                <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;">
-                    <div style="flex:1;background:#E5E7EB;border-radius:10px;height:24px;overflow:hidden;">
-                        <div id="completionBar" style="background:linear-gradient(90deg,#10B981,#34D399);height:100%;width:0%;border-radius:10px;transition:width 0.5s;"></div>
-                    </div>
-                    <span id="completionRate" style="font-weight:600;">0%</span>
-                </div>
-                <div style="display:flex;gap:1rem;font-size:0.85rem;">
-                    <span>🟢 Active: <strong id="aActive">0</strong></span>
-                    <span>✅ Completed: <strong id="aCompleted">0</strong></span>
-                    <span>⚖️ Disputed: <strong id="aDisputed">0</strong></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" style="margin-bottom:1rem;">
-            <div class="card-header"><span class="card-title">💱 Currency Distribution</span></div>
-            <div class="card-body" id="currencyChart">
-                <p style="color:#6B7280;">No data yet</p>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header"><span class="card-title">📅 Monthly Trends</span></div>
-            <div class="card-body" id="monthlyTrends">
-                <p style="color:#6B7280;">No data yet</p>
-            </div>
-        </div>
-
-        <button class="btn btn-primary btn-block mt-3" onclick="loadAnalytics()">🔄 Refresh Analytics</button>
-    </div>
-</div>
-<div id="tab-payouts" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">⚡ Instant Payout</span></div>
-    <div class="card-body">
-        <p style="margin-bottom:1rem;color:#6B7280;">Withdraw your earnings instantly. Only 1% fee.</p>
-        <form onsubmit="requestPayout(event)">
-            <div class="form-group"><label>Amount</label><input type="number" id="payoutAmount" required></div>
-            <div class="form-group"><label>Method</label><select id="payoutMethod">
-                <option value="upi">📱 UPI (Instant)</option>
-                <option value="bank_transfer">🏦 Bank Transfer (1-2 days)</option>
-                <option value="paypal">💰 PayPal (3-5 days)</option>
-            </select></div>
-            <div class="form-group"><label>UPI ID / Account</label><input type="text" id="payoutAccount" placeholder="user@upi"></div>
-            <button type="submit" class="btn btn-primary btn-block">⚡ Request Payout (1% fee)</button>
-        </form>
-        <div id="payoutResult" class="mt-2"></div>
-        <button class="btn btn-outline btn-block mt-3" onclick="loadPayoutHistory()">📋 Payout History</button>
-        <div id="payoutHistory" class="mt-2"></div>
-    </div></div>
-</div>
-
-<div id="tab-video" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">📹 Video Call</span></div>
-    <div class="card-body">
-        <p style="margin-bottom:1rem;color:#6B7280;">Start a free video call for dispute resolution or contract discussion.</p>
-        <form onsubmit="createVideoCall(event)">
-            <div class="form-group"><label>Contract ID</label><input type="text" id="videoContractId" required></div>
-            <div class="form-group"><label>Topic</label><input type="text" id="videoTopic" value="Dispute Resolution"></div>
-            <button type="submit" class="btn btn-primary btn-block">📹 Start Video Call (Jitsi Meet)</button>
-        </form>
-        <div id="videoResult" class="mt-2"></div>
-        <button class="btn btn-outline btn-block mt-3" onclick="loadMyMeetings()">📋 My Meetings</button>
-        <div id="meetingList" class="mt-2"></div>
-    </div></div>
-</div>
-<div id="tab-background" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">🔍 Background Check</span></div>
-    <div class="card-body">
-        <p style="margin-bottom:1rem;color:#6B7280;">Verify your identity to build trust and get more contracts.</p>
-        <button class="btn btn-primary btn-block" onclick="requestBackgroundCheck()">Request Background Check</button>
-        <div id="backgroundResult" class="mt-2"></div>
-        <button class="btn btn-outline btn-block mt-3" onclick="loadBackgroundStatus()">📋 Check Status</button>
-        <div id="backgroundStatus" class="mt-2"></div>
-    </div></div>
-</div>
-
-<div id="tab-agency" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">🏷️ White Label Agency</span></div>
-    <div class="card-body">
-        <form onsubmit="createAgency(event)">
-            <div class="form-group"><label>Agency Name</label><input type="text" id="agencyName" required></div>
-            <div class="form-group"><label>Domain</label><input type="text" id="agencyDomain" placeholder="agency.dokets.com"></div>
-           <div class="form-group"><label>Plan</label><select id="agencyPlan">
-                <option value="free">Free</option>
-                <option value="starter">Starter ($7/mo)</option>
-                <option value="pro">Pro ($25/mo)</option>
-            </select></div>
-            <button type="submit" class="btn btn-primary btn-block">🏷️ Create Agency</button>
-        </form>
-        <div id="agencyResult" class="mt-2"></div>
-    <button class="btn btn-outline btn-block mt-3" onclick="loadMyAgencies()">📋 My Agencies</button>
-        <div id="agencyList" class="mt-2"></div>
-    </div></div>
-</div>
-
-<div id="tab-support" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">📞 Support</span></div>
-    <div class="card-body">
-        <button class="btn btn-primary btn-block mb-2" onclick="loadFAQs()">📋 View FAQs</button>
-        <div id="faqList" class="mb-3"></div>
-        <button class="btn btn-outline btn-block mb-3" onclick="loadMyTickets()">🎫 My Tickets</button>
-        <div id="ticketList" class="mb-3"></div>
-        <hr>
-        <form onsubmit="createTicket(event)">
-            <div class="form-group"><label>Subject</label><input type="text" id="ticketSubject" required></div>
-            <div class="form-group"><label>Message</label><textarea id="ticketMessage" rows="2" required></textarea></div>
-            <button type="submit" class="btn btn-danger btn-block">📞 Submit Ticket</button>
-        </form>
-        <div id="ticketResult" class="mt-2"></div>
-    </div></div>
-</div>
-
-<div id="tab-languages" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">🌐 Language / भाषा / Idioma</span></div>
-    <div class="card-body">
-        <p style="margin-bottom:1rem;color:#6B7280;">Select your preferred language for the dashboard.</p>
-        <div id="languageList" style="display:grid;gap:0.5rem;"></div>
-        <button class="btn btn-primary btn-block mt-2" onclick="loadLanguages()">🌍 Load Languages</button>
-    </div></div>
-</div>
-
-<div id="tab-chatbot" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">🤖 AI Chatbot</span></div>
-    <div class="card-body">
-        <div style="background:#EEF2FF;padding:0.8rem;border-radius:8px;margin-bottom:1rem;">
-            <p style="font-size:0.85rem;margin:0;">💡 Try asking: <i>"How does escrow work?"</i> or <i>"What are the fees?"</i> or <i>"How do I create a contract?"</i></p>
-        </div>
-        <div id="chatbotMessages" style="max-height:350px;overflow-y:auto;margin-bottom:1rem;background:#F9FAFB;padding:1rem;border-radius:8px;">
-            <div style="margin-bottom:0.8rem;">
-                <span style="background:#4F46E5;color:white;padding:0.3rem 0.6rem;border-radius:12px 12px 12px 0;display:inline-block;max-width:80%;font-size:0.9rem;">👋 Hello! I'm Dokets AI assistant. Ask me anything!</span>
-            </div>
-        </div>
-        <form onsubmit="askChatbot(event)" style="display:flex;gap:0.5rem;">
-            <input type="text" id="chatbotInput" placeholder="Ask about escrow, fees, contracts..." style="flex:1;" required>
-            <button type="submit" class="btn btn-primary">🤖 Ask AI</button>
-        </form>
-    </div></div>
-</div>
-
-<div id="tab-recurring" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">🔄 Recurring Contracts</span></div>
-    <div class="card-body">
-        <p style="margin-bottom:1rem;color:#6B7280;">Set up automatic recurring contracts for regular services.</p>
-        <form onsubmit="createRecurring(event)">
-            <div class="form-group"><label>Title</label><input type="text" id="recTitle" placeholder="Monthly Cleaning Service" required></div>
-            <div class="form-group"><label>Provider Phone</label><input type="tel" id="recPhone" required></div>
-            <div class="form-group"><label>Amount</label><input type="number" id="recAmount" required></div>
-            <div class="form-group"><label>Frequency</label><select id="recFrequency">
-                <option value="weekly">Weekly</option>
-                <option value="monthly" selected>Monthly</option>
-                <option value="quarterly">Quarterly</option>
-            </select></div>
-            <button type="submit" class="btn btn-primary btn-block">🔄 Create Recurring Contract</button>
-        </form>
-        <div id="recResult" class="mt-2"></div>
-    </div></div>
-</div>
-
-<div id="tab-invoice" style="display:none;">
-    <div class="card"><div class="card-header"><span class="card-title">📑 Invoices</span></div>
-    <div class="card-body">
-        <div class="form-group"><label>Contract ID</label><input type="text" id="invoiceContractId" placeholder="CT-XXXX"></div>
-        <button class="btn btn-primary btn-block" onclick="generateInvoice()">📑 Generate Invoice</button>
-        <div id="invoiceResult" class="mt-2"></div>
-    </div></div>
-</div>
-            <div id="tab-vouch" style="display:none;"><div class="card" style="text-align:center;"><div class="card-body"><h2>Your Vouch Score</h2><div class="vouch-circle" id="vouchLarge" style="border-color:var(--primary);color:var(--primary);">--</div><p style="font-size:1.1rem;font-weight:600;" id="vouchLevel">--</p></div></div></div>
-        </main>
-
-        <aside class="right-panel">
-            <div class="card vouch-card"><div class="card-body"><p style="opacity:0.8;font-size:0.8rem;">YOUR VOUCH SCORE</p><div class="vouch-circle" id="vouchSide">--</div><p style="font-weight:600;" id="vouchSideLevel">--</p></div></div>
-            <div class="card"><div class="card-header"><span class="card-title">⚡ Quick Actions</span></div><div class="card-body"><div class="quick-actions"><div class="quick-action" onclick="openModal('createModal')">📝 New Contract</div><div class="quick-action" onclick="openModal('aiModal')">🤖 AI Contract</div><div class="quick-action" onclick="openModal('paymentModal')">💳 Payment</div><div class="quick-action" onclick="openModal('whatsappModal')">💬 WhatsApp</div></div></div></div>
-        </aside>
-    </div>
-
-    <!-- Modals -->
-    <div class="modal-overlay" id="createModal"><div class="modal"><div class="modal-header"><h3>📝 New Contract</h3><button class="btn btn-sm" onclick="closeModal('createModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="createContract(event)"><div class="form-group"><label>Title</label><input type="text" id="ctitle" placeholder="e.g., Paint Living Room" required></div><div class="form-group"><label>Description</label><textarea id="cdesc" rows="2" placeholder="Describe the work..." required></textarea></div><div class="form-group"><label>Provider Phone</label><input type="tel" id="cphone" placeholder="+919876543210" required></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;"><div class="form-group"><label>Amount</label><input type="number" id="camount" placeholder="5000" required></div><div class="form-group"><label>Currency</label><select id="ccurrency">
-    <option value="INR">🇮🇳 INR (₹)</option>
-    <option value="USD">🇺🇸 USD ($)</option>
-    <option value="EUR">🇪🇺 EUR (€)</option>
-    <option value="GBP">🇬🇧 GBP (£)</option>
-    <option value="BRL">🇧🇷 BRL (R$)</option>
-    <option value="IDR">🇮🇩 IDR (Rp)</option>
-    <option value="NGN">🇳🇬 NGN (₦)</option>
-    <option value="PHP">🇵🇭 PHP (₱)</option>
-    <option value="MXN">🇲🇽 MXN (MX$)</option>
-    <option value="AED">🇦🇪 AED (د.إ)</option>
-    <option value="SAR">🇸🇦 SAR (﷼)</option>
-    <option value="BDT">🇧🇩 BDT (৳)</option>
-    <option value="PKR">🇵🇰 PKR (₨)</option>
-</select></div>
-</div>
-
-<!-- 🆕 Add Milestones Section -->
-<div style="background:#F8FAFC;padding:1rem;border-radius:8px;margin-top:0.5rem;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-        <strong>📋 Milestones (Partial Payments)</strong>
-        <button type="button" class="btn btn-sm btn-primary" onclick="addMilestone()">+ Add Milestone</button>
-    </div>
-    <div id="milestoneList">
-        <div class="milestone-item" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem;padding:0.5rem;background:white;border-radius:8px;">
-            <input type="text" class="ms-title" placeholder="Milestone title" value="Complete Work" required>
-            <input type="number" class="ms-amount" placeholder="Amount" value="" required>
-        </div>
-    </div>
-    <small style="color:#6B7280;">💡 Total of milestones should equal the contract amount above</small>
-</div>
-
-
-<button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;">🛡️ Create with Escrow</button></form></div></div></div>
-
-    <div class="modal-overlay" id="aiModal"><div class="modal"><div class="modal-header"><h3>🤖 AI Smart Contract</h3><button class="btn btn-sm" onclick="closeModal('aiModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="createAIContract(event)"><div class="form-group"><label>Describe the work naturally</label><textarea id="aitext" rows="3" placeholder="e.g., Need plumber to fix kitchen sink by tomorrow for 1500 rupees" required></textarea></div><div class="form-group"><label>Provider Phone</label><input type="tel" id="aiphone" placeholder="+919876543210" required></div><button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;background:linear-gradient(135deg,#7C3AED,#4F46E5);">🤖 Generate AI Contract</button></form></div></div></div>
-
-    <div class="modal-overlay" id="paymentModal"><div class="modal"><div class="modal-header"><h3>💳 Create Payment</h3><button class="btn btn-sm" onclick="closeModal('paymentModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="createPayment(event)"><div class="form-group"><label>Amount</label><input type="number" id="payamount" placeholder="5000" required></div><button type="submit" class="btn btn-primary btn-block" style="padding:0.7rem;">💳 Generate Payment Link</button></form><div id="paymentResult" style="margin-top:0.8rem;"></div></div></div></div>
-
-    <div class="modal-overlay" id="whatsappModal"><div class="modal"><div class="modal-header"><h3>💬 Send WhatsApp</h3><button class="btn btn-sm" onclick="closeModal('whatsappModal')" style="background:var(--border);">✕</button></div><div class="modal-body"><form onsubmit="sendWhatsApp(event)"><div class="form-group"><label>Phone Number</label><input type="tel" id="waphone" placeholder="+919876543210" required></div><div class="form-group"><label>Message</label><textarea id="wamessage" rows="2" placeholder="Type your message..." required></textarea></div><button type="submit" class="btn btn-success btn-block" style="padding:0.7rem;">💬 Send WhatsApp</button></form></div></div></div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script>
-        const API = 'https://dokets.com/api/v1';
-        let token = localStorage.getItem('dokets_token') || '';
-        let currentUser = null;
-
-        // Theme
-        if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        function toggleTheme() {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-            localStorage.setItem('theme', isDark ? 'light' : 'dark');
-        }
-
-        async function init() {
-    if (!token) { 
-        // Hide sidebar and header user menu until logged in
-        document.querySelector('.sidebar').style.display = 'none';
-        document.querySelector('.right-panel').style.display = 'none';
-        document.querySelector('.user-menu').style.display = 'none';
-        showLogin(); 
-        return; 
-    }
-    await loadAll();
-}
-
-function showLogin() {
-    document.getElementById('mainContent').innerHTML = `
-        <div class="card" style="max-width:450px;margin:2rem auto;">
-            <div class="card-header" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:white;">
-                <span class="card-title">🔐 Welcome to Dokets</span>
-            </div>
-            <div class="card-body">
-                <div style="text-align:center;margin-bottom:1rem;"><img src="/logo.png" alt="Dokets" style="height:60px;width:60px;border-radius:12px;"></div>
-                
-                <!-- Login Form -->
-                <form onsubmit="handleLogin(event)" id="loginForm">
-                    <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="Enter your email" required></div>
-                    <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required></div>
-                    <button type="submit" class="btn btn-primary btn-block" style="padding:0.8rem;">🚀 Sign In</button>
-                </form>
-                
-                <!-- Register Form (hidden by default) -->
-                <form onsubmit="handleRegister(event)" id="registerForm" style="display:none;">
-                    <div class="form-group"><label>Full Name</label><input type="text" id="regName" placeholder="Your full name" required></div>
-                    <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="your@email.com" required></div>
-                    <div class="form-group"><label>Phone Number</label><input type="tel" id="regPhone" placeholder="+919876543210" required></div>
-                    <div class="form-group"><label>Password</label><input type="password" id="regPassword" placeholder="Min 8 characters" required minlength="8"></div>
-                    <button type="submit" class="btn btn-success btn-block" style="padding:0.8rem;">📝 Create Account</button>
-                </form>
-                
-                <p style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--text-secondary);">
-                    <span id="toggleText">Don't have an account?</span>
-                    <a href="#" onclick="toggleRegister(event)" style="color:#6366F1;font-weight:600;">Register here</a>
-                </p>
-            </div>
-        </div>`;
-}
-
-function toggleRegister(e) {
-    e.preventDefault();
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const toggleText = document.getElementById('toggleText');
-    const toggleLink = e.target;
-    
-    if (registerForm.style.display === 'none') {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-        toggleText.textContent = 'Already have an account?';
-        toggleLink.textContent = 'Sign in';
-    } else {
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
-        toggleText.textContent = 'Don\'t have an account?';
-        toggleLink.textContent = 'Register here';
-    }
-}
-
-async function handleRegister(e) {
-    e.preventDefault();
-    const name = document.getElementById('regName').value;
-    const email = document.getElementById('regEmail').value;
-    const phone = document.getElementById('regPhone').value;
-    const password = document.getElementById('regPassword').value;
-    
-    if (password.length < 8) {
-        toast('Password must be at least 8 characters', 'error');
+// ========== INIT ==========
+async function init() {
+    if (!token) {
+        window.location.href = '/';
         return;
     }
     
-    const r = await fetch(`${API}/users/register`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email, phone_number: phone, full_name: name, password})
-    });
-    const data = await r.json();
-    
-    if (data.success) {
-        toast('Account created! Please sign in.', 'success');
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('registerForm').style.display = 'none';
-        document.getElementById('loginEmail').value = email;
-    } else {
-        toast(data.detail || 'Registration failed', 'error');
-    }
-}
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            let res = await fetch(`${API}/users/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
-            let data = await res.json();
-            if (!data.access_token) {
-                await fetch(`${API}/users/register`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,phone_number:'+919999999999',full_name:'User',password})});
-                res = await fetch(`${API}/users/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
-                data = await res.json();
-            }
-            if (data.access_token) {
-    token = data.access_token;
-    localStorage.setItem('dokets_token', token);
-    currentUser = data.user;
-    // Show sidebar now
-    document.querySelector('.sidebar').style.display = '';
-    document.querySelector('.right-panel').style.display = '';
-    document.querySelector('.user-menu').style.display = '';
-    toast('Welcome, ' + data.user.full_name + '!', 'success');
-    await loadAll();
-}
-        }
-
-        async function api(endpoint, method='GET', body=null) {
-            if (!token) { toast('Please login', 'error'); return {success:false}; }
-            const opts = {method, headers:{'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}};
-            if (body) opts.body = JSON.stringify(body);
-            try {
-                const res = await fetch(`${API}${endpoint}`, opts);
-                if (res.status === 401) {
-                    const lr = await fetch(`${API}/users/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'a@a.com',password:'pass12345'})});
-                    const ld = await lr.json();
-                    if (ld.access_token) { token = ld.access_token; localStorage.setItem('dokets_token', token); opts.headers['Authorization'] = `Bearer ${token}`; const rr = await fetch(`${API}${endpoint}`, opts); return rr.json(); }
-                }
-                return res.json();
-            } catch(err) { return {success:false, detail:err.message}; }
-        }
-
-async function loadAll() {
     try {
-        const profile = await api('/users/me');
-        currentUser = profile;
-        document.getElementById('userName').textContent = profile.full_name || 'User';
-        
-        // Force fresh data with timestamp
-        const contractsData = await api('/contracts/?t=' + Date.now());
-        const contracts = contractsData.contracts || [];
-        
-        document.getElementById('statTotal').textContent = contracts.length;
-        document.getElementById('statActive').textContent = contracts.filter(c => c.status === 'active').length;
-        let escrowTotal = 0;
-        contracts.forEach(c => { if (c.escrows) c.escrows.forEach(e => { if (e.status === 'funded') escrowTotal += e.amount; }); });
-        document.getElementById('statEscrow').textContent = '₹' + escrowTotal.toLocaleString();
-        const vouch = await api(`/contracts/user/${profile.id}/vouch-score?t=` + Date.now());
-        ['statVouch','vouchLarge','vouchSide'].forEach(id => document.getElementById(id).textContent = vouch.vouch_score);
-        ['vouchLevel','vouchSideLevel'].forEach(id => document.getElementById(id).textContent = vouch.level + ' Level');
-        displayContracts(contracts);
-        displayActivity(contracts);
-        showOnboardingTips();
-    } catch(e) { console.error(e); }
-}
-
-function displayContracts(contracts) {
-    console.log('Displaying contracts:', contracts.length, contracts.map(c => c.status));
-    
-    if (!contracts.length) {
-        document.getElementById('recentContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div>';
-        document.getElementById('allContracts').innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No contracts yet!</p></div>';
-        return;
-    }
-    
-    const html = contracts.map(c => {
-        // Build milestones HTML
-        let milestonesHTML = '';
-        if (c.milestones && c.milestones.length > 0) {
-            milestonesHTML = `
-            <div style="margin-top:0.5rem;font-size:0.8rem;">
-                ${c.milestones.map((m, i) => `
-                    <div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0;border-bottom:1px solid #E5E7EB;">
-                        <span style="font-size:1rem;">${m.status === 'completed' ? '✅' : '⏳'}</span>
-                        <span style="flex:1;">${m.title}</span>
-                        <span style="font-weight:600;">₹${m.amount}</span>
-                        ${c.status === 'active' && m.status !== 'completed' ? 
-                            `<button class="btn btn-sm btn-primary" onclick="completeMilestone('${c.id}', '${m.id}')" style="font-size:0.7rem;">Pay ₹${m.amount}</button>` : 
-                            m.status === 'completed' ? '<span style="color:#10B981;">✅ Paid</span>' : ''}
-                    </div>
-                `).join('')}
-            </div>`;
-        }
-        
-        return `
-        <div class="contract-item">
-            <div style="flex:1;">
-                <strong>${c.title}</strong>
-                <span class="status-badge status-${c.status}">${c.status === 'active' ? '✅ Active' : c.status === 'draft' ? '⏳ Pending' : c.status === 'completed' ? '🎉 Completed' : c.status}</span>
-                <div style="font-size:0.8rem;color:var(--text-secondary);">💰 ${c.currency} ${c.total_amount.toLocaleString()} | 📋 ${c.id}</div>
-                ${milestonesHTML}
-            </div>
-            <div style="text-align:right;">
-                ${c.status==='draft' ? `<button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">✅ Approve</button>` : ''}
-                ${c.status==='completed' ? `<span style="color:#3B82F6;">✅ Done!</span>` : ''}
-                <div><a href="/contract-view/${c.id}" target="_blank" style="font-size:0.75rem;color:#6366F1;">🔍 View</a></div>
-            </div>
-        </div>`;
-    }).join('');
-    
-    document.getElementById('recentContracts').innerHTML = html;
-    document.getElementById('allContracts').innerHTML = html;
-}
-
-        function displayActivity(contracts) {
-            const activities = [];
-            contracts.forEach(c => {
-                activities.push({type:'create', text:`Contract "${c.title}" created`, time:c.created_at});
-                if (c.status === 'active') activities.push({type:'approve', text:`Contract "${c.title}" approved`, time:c.updated_at});
-            });
-            if (!activities.length) { document.getElementById('activityFeed').innerHTML = '<p style="font-size:0.85rem;color:var(--text-secondary);">No recent activity</p>'; return; }
-            document.getElementById('activityFeed').innerHTML = activities.slice(0,10).map(a => `
-                <div class="activity-item"><div class="activity-dot ${a.type}"></div><span>${a.text}</span></div>`).join('');
-        }
-
-function addMilestone() {
-    const container = document.getElementById('milestoneList');
-    const div = document.createElement('div');
-    div.className = 'milestone-item';
-    div.style = 'display:grid;grid-template-columns:1fr 1fr auto;gap:0.5rem;margin-bottom:0.5rem;padding:0.5rem;background:white;border-radius:8px;';
-    div.innerHTML = `
-        <input type="text" class="ms-title" placeholder="Milestone title" required>
-        <input type="number" class="ms-amount" placeholder="Amount" required>
-        <button type="button" class="btn btn-sm" style="background:#FEE2E2;color:#EF4444;" onclick="this.parentElement.remove()">✕</button>
-    `;
-    container.appendChild(div);
-}
-
-        async function createContract(e) {
-    e.preventDefault();
-    
-    // Collect milestones
-    const milestoneItems = document.querySelectorAll('#milestoneList .milestone-item');
-    const milestones = [];
-    milestoneItems.forEach((item, i) => {
-        const title = item.querySelector('.ms-title').value;
-        const amount = parseFloat(item.querySelector('.ms-amount').value);
-        if (title && amount > 0) {
-            milestones.push({
-                id: 'MS-' + (i+1) + '-' + Date.now(),
-                title: title,
-                description: title,
-                amount: amount,
-                deadline: new Date(Date.now() + (i+1)*7*86400000).toISOString().split('T')[0]
-            });
-        }
-    });
-    
-    // Use milestone total if no total amount specified
-    const totalAmount = parseFloat(document.getElementById('camount').value) || 
-                        milestones.reduce((sum, m) => sum + m.amount, 0);
-    
-    const data = {
-        title: document.getElementById('ctitle').value,
-        description: document.getElementById('cdesc').value,
-        provider_phone: document.getElementById('cphone').value,
-        total_amount: totalAmount,
-        currency: document.getElementById('ccurrency').value,
-        milestones: milestones
-    };
-    
-    const result = await api('/contracts/', 'POST', data);
-    if (result.success) { 
-        toast('Contract created with ' + milestones.length + ' milestones!', 'success'); 
-        closeModal('createModal'); 
-        await loadAll(); 
-    }
-}
-
-        async function createAIContract(e) {
-            e.preventDefault();
-            const result = await api('/ai/smart-contract','POST',{text:document.getElementById('aitext').value,provider_phone:document.getElementById('aiphone').value});
-            if (result.success) { toast('AI Contract: '+result.data.contract_id,'success'); closeModal('aiModal'); await loadAll(); }
-        }
-
-async function approveContract(id) {
-    const result = await api(`/contracts/${id}/approve`, 'PUT');
-    console.log('Approve result:', result);
-    if (result.success) {
-        toast('Contract approved! ✅', 'success');
-        await loadAll();
-    } else {
-        toast('Approval failed: ' + (result.detail || 'Try again'), 'error');
-    }
-}
-
-async function completeContract(id) {
-    const list = await api('/contracts/');
-    const c = list.contracts?.find(x => x.id === id);
-    
-    if (c && c.milestones && c.milestones.length > 0) {
-        const result = await api(`/contracts/${id}/complete-milestone/${c.milestones[0].id}`, 'PUT');
-        if (result.success) {
-            toast('Completed! Payment released. 💰', 'success');
-            await loadAll();
-        } else {
-            toast('Failed', 'error');
-        }
-    } else {
-        toast('No milestones found', 'error');
-    }
-}
-
-async function completeMilestone(contractId, milestoneId) {
-    const result = await api(`/contracts/${contractId}/complete-milestone/${milestoneId}`, 'PUT');
-    if (result.success) {
-        toast('Milestone completed! Payment released. 💰', 'success');
-        await loadAll();
-    } else {
-        toast('Failed: ' + (result.detail || 'Error'), 'error');
-    }
-}
-
-async function createPayment(e) {
-    e.preventDefault();
-    const amount = parseFloat(document.getElementById('payamount').value);
-    const currency = document.getElementById('ccurrency')?.value || 'INR';
-    
-    const result = await api('/payments/create-order', 'POST', {
-        amount, 
-        currency, 
-        contract_id: 'CT-' + Date.now(),
-        milestone_id: 'MS-' + Date.now()
-    });
-    
-    if (result.success) {
-        const data = result.data;
-        const links = data.payment_links || {};
-        
-        let buttonsHTML = '';
-        if (links.razorpay) {
-            buttonsHTML += `<a href="${links.razorpay}" target="_blank" class="btn btn-primary btn-block" style="text-decoration:none;margin-bottom:0.5rem;">💳 Pay with Razorpay (Card/UPI/NetBanking)</a>`;
-        }
-        if (links.paypal) {
-            buttonsHTML += `<a href="${links.paypal}" target="_blank" class="btn btn-block" style="background:#0070BA;color:white;text-decoration:none;margin-bottom:0.5rem;">💰 Pay with PayPal</a>`;
-        }
-        if (links.upi) {
-            buttonsHTML += `<a href="${links.upi}" target="_blank" class="btn btn-block" style="background:#10B981;color:white;text-decoration:none;margin-bottom:0.5rem;">📱 Pay via UPI</a>`;
-        }
-        if (links.stripe) {
-            buttonsHTML += `<a href="${links.stripe}" target="_blank" class="btn btn-block" style="background:#635BFF;color:white;text-decoration:none;margin-bottom:0.5rem;">💳 Pay with Stripe</a>`;
-        }
-        
-        document.getElementById('paymentResult').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                <strong>✅ Order Created!</strong><br>
-                <p>Amount: ${currency} ${amount}</p>
-                <p>Order ID: ${data.order.order_id}</p>
-                <div style="margin-top:1rem;">${buttonsHTML}</div>
-                <p style="margin-top:0.5rem;font-size:0.8rem;color:#6B7280;">
-                    🔒 Payment held in escrow until work verified by AI
-                </p>
-            </div>`;
-        toast('Payment links ready! Choose a method.', 'success');
-    }
-}
-
-        async function sendWhatsApp(e) {
-            e.preventDefault();
-            await api('/whatsapp/send','POST',{phone:document.getElementById('waphone').value,message:document.getElementById('wamessage').value});
-            toast('WhatsApp sent! (Simulation)','success'); closeModal('whatsappModal');
-        }
-
-        async function submitKYC(e) {
-    e.preventDefault();
-    const name = document.getElementById('kycName').value;
-    const idType = document.getElementById('kycType').value;
-    const idNumber = document.getElementById('kycNumber').value;
-    
-    const r = await api('/kyc/submit', 'POST', {
-        full_name: name,
-        id_type: idType,
-        id_number: idNumber
-    });
-    
-    if (r.success) {
-        // Save KYC info
-        const kyc = {
-            name, idType, idNumber: '****' + idNumber.slice(-4),
-            status: 'pending', submitted_at: new Date().toISOString()
-        };
-        localStorage.setItem('dokets_kyc', JSON.stringify(kyc));
-        
-        document.getElementById('kycStatus').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                <strong>✅ KYC Submitted!</strong><br>
-                <p>Status: Pending Verification</p>
-                <p style="font-size:0.8rem;color:#6B7280;">Verification typically takes 24-48 hours.</p>
-            </div>`;
-        toast('KYC submitted for verification!', 'success');
-        updateKYCBadge();
-    } else {
-        document.getElementById('kycStatus').innerHTML = '<div style="color:red;">Submission failed. Try again.</div>';
-    }
-}
-
-async function checkKYCStatus() {
-    const r = await api('/kyc/status');
-    const kyc = JSON.parse(localStorage.getItem('dokets_kyc') || '{}');
-    
-    if (r.verified) {
-        document.getElementById('kycStatus').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;text-align:center;">
-                <h3>✅ Verified</h3>
-                <p>Your identity has been verified.</p>
-                <p style="font-size:0.8rem;">Verified badges shown on your profile.</p>
-            </div>`;
-    } else if (kyc.status === 'pending') {
-        document.getElementById('kycStatus').innerHTML = `
-            <div style="background:#FEF3C7;padding:1rem;border-radius:8px;text-align:center;">
-                <h3>⏳ Pending</h3>
-                <p>Your KYC is under review.</p>
-            </div>`;
-    } else {
-        document.getElementById('kycStatus').innerHTML = `
-            <div style="background:#F3F4F6;padding:1rem;border-radius:8px;text-align:center;">
-                <p>No KYC submitted yet.</p>
-            </div>`;
-    }
-    updateKYCBadge();
-}
-
-function updateKYCBadge() {
-    const kyc = JSON.parse(localStorage.getItem('dokets_kyc') || '{}');
-    const r = kyc.status === 'verified' ? 
-        '<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">🛡️ <strong>Verified User</strong><br>ID: ' + (kyc.idType || 'N/A') + '</div>' :
-        kyc.status === 'pending' ?
-        '<div style="background:#FEF3C7;padding:1rem;border-radius:8px;">⏳ <strong>Verification Pending</strong></div>' :
-        '<div style="background:#F3F4F6;padding:1rem;border-radius:8px;">⚠️ Not Verified</div>';
-    document.getElementById('kycBadge').innerHTML = r;
-}
-
-// Call on load
-updateKYCBadge();
-
-
-async function sendChat(e) {
-    e.preventDefault();
-    const msg = document.getElementById('chatInput').value;
-    const contractId = document.getElementById('chatContractId').value || 'general';
-    
-    const r = await api('/chat/send', 'POST', {
-        to_id: '1', 
-        contract_id: contractId, 
-        message: msg
-    });
-    
-    if (r.success) {
-        // Save to localStorage
-        const chats = JSON.parse(localStorage.getItem('dokets_chats') || '[]');
-        chats.push({
-            contract_id: contractId,
-            message: msg,
-            from: 'You',
-            time: new Date().toISOString()
+        const res = await fetch(`${BASE}/api/v1/users/me`, {
+            headers: {'Authorization': 'Bearer ' + token}
         });
-        localStorage.setItem('dokets_chats', JSON.stringify(chats));
         
-        document.getElementById('chatMessages').innerHTML += `
-            <div style="margin-bottom:0.5rem;">
-                <strong style="color:#4F46E5;">You:</strong> ${msg}
-                <span style="float:right;font-size:0.7rem;color:#6B7280;">${new Date().toLocaleTimeString()}</span>
-            </div>`;
-        document.getElementById('chatInput').value = '';
-        
-        // Auto-scroll
-        const chatDiv = document.getElementById('chatMessages');
-        chatDiv.scrollTop = chatDiv.scrollHeight;
-    }
-}
-
-async function loadChatHistory() {
-    const contractId = document.getElementById('chatContractId').value || 'general';
-    const chats = JSON.parse(localStorage.getItem('dokets_chats') || '[]');
-    const filtered = chats.filter(c => c.contract_id === contractId);
-    
-    if (filtered.length === 0) {
-        document.getElementById('chatMessages').innerHTML = '<p style="color:#6B7280;text-align:center;">No messages yet. Start chatting!</p>';
-        return;
-    }
-    
-    document.getElementById('chatMessages').innerHTML = filtered.map(c => `
-        <div style="margin-bottom:0.5rem;">
-            <strong style="color:#4F46E5;">${c.from}:</strong> ${c.message}
-            <span style="float:right;font-size:0.7rem;color:#6B7280;">${new Date(c.time).toLocaleTimeString()}</span>
-        </div>`).join('');
-}
-
-async function fileDispute(e) {
-    e.preventDefault();
-    const contractId = document.getElementById('disputeContractId').value;
-    const reason = document.getElementById('disputeReason').value;
-    const description = document.getElementById('disputeDesc').value;
-    
-    const r = await api('/disputes/file', 'POST', {
-        contract_id: contractId,
-        reason: reason,
-        description: description
-    });
-    
-    if (r.success) {
-        // Save to localStorage
-        const disputes = JSON.parse(localStorage.getItem('dokets_disputes') || '[]');
-        disputes.push({
-            id: r.dispute?.id || 'DSP-' + Date.now(),
-            contract_id: contractId,
-            reason: reason,
-            description: description,
-            status: 'open',
-            filed_at: new Date().toISOString()
-        });
-        localStorage.setItem('dokets_disputes', JSON.stringify(disputes));
-        
-        document.getElementById('disputeResult').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                <strong>✅ Dispute Filed!</strong><br>
-                <p>Dispute ID: ${r.dispute?.id || 'N/A'}</p>
-                <p>Status: Open</p>
-                <p style="font-size:0.8rem;color:#6B7280;">Our AI mediator will review and respond within 24 hours.</p>
-            </div>`;
-        toast('Dispute filed! AI mediator notified.', 'success');
-        document.getElementById('disputeContractId').value = '';
-        document.getElementById('disputeDesc').value = '';
-        loadMyDisputes();
-    }
-}
-
-async function loadMyDisputes() {
-    const disputes = JSON.parse(localStorage.getItem('dokets_disputes') || '[]');
-    if (disputes.length === 0) {
-        document.getElementById('disputeList').innerHTML = '<p style="color:#6B7280;">No disputes filed.</p>';
-        return;
-    }
-    document.getElementById('disputeList').innerHTML = disputes.reverse().map(d => `
-        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
-            <div style="display:flex;justify-content:space-between;">
-                <strong>${d.id}</strong>
-                <span style="background:${d.status==='open'?'#FEE2E2':'#D1FAE5'};padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${d.status}</span>
-            </div>
-            <p style="font-size:0.8rem;">Contract: ${d.contract_id} | Reason: ${d.reason}</p>
-            <p style="font-size:0.7rem;color:#6B7280;">${d.description?.substring(0, 100) || ''}</p>
-        </div>`).join('');
-}
-
-
-async function loadAdminStats() {
-    const r = await api('/admin/stats');
-    if (r.detail) { toast('Admin access required', 'error'); return; }
-    
-    document.getElementById('admUsers').textContent = r.total_users || 0;
-    document.getElementById('admActive').textContent = r.active_contracts || 0;
-    document.getElementById('admEscrow').textContent = '₹' + (r.escrow_total || 0).toLocaleString();
-    document.getElementById('admCompleted').textContent = r.completed_contracts || 0;
-    
-    // User list
-    const users = r.users || [];
-    document.getElementById('admUserList').innerHTML = users.length > 0 ? users.map(u => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid #E5E7EB;">
-            <div>
-                <strong>${u.email}</strong>
-                <span style="font-size:0.75rem;background:#EEF2FF;padding:0.15rem 0.5rem;border-radius:4px;margin-left:0.5rem;">${u.role}</span>
-            </div>
-            <span style="font-weight:600;color:#4F46E5;">⭐ ${u.vouch_score}</span>
-        </div>`).join('') : '<p style="color:#6B7280;">No users</p>';
-    
-    // Contract list
-    const contracts = r.contracts || [];
-    document.getElementById('admContractList').innerHTML = contracts.length > 0 ? contracts.map(c => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid #E5E7EB;">
-            <div>
-                <strong>${c.title}</strong>
-                <span class="status-badge status-${c.status}" style="margin-left:0.5rem;">${c.status}</span>
-            </div>
-            <span style="font-weight:600;">${c.amount || '-'}</span>
-        </div>`).join('') : '<p style="color:#6B7280;">No contracts</p>';
-}
-
-async function loadAnalytics() {
-    const r = await api('/analytics/platform');
-    if (r.detail) { toast('Login required', 'error'); return; }
-    
-    // Update stat cards
-    document.getElementById('aUsers').textContent = r.users?.total || 0;
-    document.getElementById('aContracts').textContent = r.contracts?.total || 0;
-    document.getElementById('aEscrow').textContent = '₹' + (r.revenue?.total_escrow || 0).toLocaleString();
-    document.getElementById('aFees').textContent = '₹' + (r.revenue?.platform_fees || 0).toLocaleString();
-    
-    // Contract status
-    const total = r.contracts?.total || 1;
-    const completed = r.contracts?.completed || 0;
-    const rate = r.contracts?.completion_rate || '0%';
-    document.getElementById('completionBar').style.width = rate;
-    document.getElementById('completionRate').textContent = rate;
-    document.getElementById('aActive').textContent = r.contracts?.active || 0;
-    document.getElementById('aCompleted').textContent = completed;
-    document.getElementById('aDisputed').textContent = r.contracts?.disputed || 0;
-    
-    // Currency chart
-    const currencies = r.trends?.currencies || {};
-    const topCurrencies = r.trends?.top_currencies || [];
-    if (topCurrencies.length > 0) {
-        const maxVal = topCurrencies[0]?.[1] || 1;
-        document.getElementById('currencyChart').innerHTML = topCurrencies.map(([curr, count]) => `
-            <div style="margin-bottom:0.5rem;">
-                <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
-                    <span>${curr}</span><span>${count} contracts</span>
-                </div>
-                <div style="background:#E5E7EB;border-radius:5px;height:8px;overflow:hidden;">
-                    <div style="background:#4F46E5;height:100%;width:${(count/maxVal*100)}%;border-radius:5px;"></div>
-                </div>
-            </div>`).join('');
-    }
-    
-    // Monthly trends
-    const monthly = r.trends?.monthly || [];
-    if (monthly.length > 0) {
-        const maxMonthly = Math.max(...monthly.map(m => m.contracts), 1);
-        document.getElementById('monthlyTrends').innerHTML = monthly.reverse().map(m => `
-            <div style="margin-bottom:0.5rem;">
-                <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
-                    <span>${m.month}</span><span>${m.contracts} (₹${m.value})</span>
-                </div>
-                <div style="background:#E5E7EB;border-radius:5px;height:6px;overflow:hidden;">
-                    <div style="background:#7C3AED;height:100%;width:${(m.contracts/maxMonthly*100)}%;border-radius:5px;"></div>
-                </div>
-            </div>`).join('');
-    }
-}
-
-async function requestPayout(e) {
-    e.preventDefault();
-    const amount = parseFloat(document.getElementById('payoutAmount').value);
-    const method = document.getElementById('payoutMethod').value;
-    const account = document.getElementById('payoutAccount').value;
-    
-    const r = await api('/payouts/request', 'POST', {
-        amount, method, upi_id: account
-    });
-    
-    if (r.success) {
-        const p = r.payout;
-        
-        // Save to localStorage
-        const payouts = JSON.parse(localStorage.getItem('dokets_payouts') || '[]');
-        payouts.push({
-            id: p.id,
-            amount: p.amount,
-            fee: p.fee,
-            net_amount: p.net_amount,
-            method: method,
-            status: 'processing',
-            created_at: new Date().toISOString()
-        });
-        localStorage.setItem('dokets_payouts', JSON.stringify(payouts));
-        
-        document.getElementById('payoutResult').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                <strong>✅ Payout Requested!</strong><br>
-                <p>Payout ID: ${p.id}</p>
-                <p>Amount: ${p.amount}</p>
-                <p>Fee (1%): ${p.fee}</p>
-                <p><strong>You receive: ${p.net_amount}</strong></p>
-                <p>Method: ${method.toUpperCase()}</p>
-                <p style="font-size:0.8rem;color:#6B7280;">⏱️ ${p.estimated_time || 'Processing...'}</p>
-            </div>`;
-        toast('Payout requested!', 'success');
-        document.getElementById('payoutAmount').value = '';
-        document.getElementById('payoutAccount').value = '';
-        loadPayoutHistory();
-    }
-}
-
-async function loadPayoutHistory() {
-    const payouts = JSON.parse(localStorage.getItem('dokets_payouts') || '[]');
-    if (payouts.length === 0) {
-        document.getElementById('payoutHistory').innerHTML = '<p style="color:#6B7280;">No payouts yet.</p>';
-        return;
-    }
-    document.getElementById('payoutHistory').innerHTML = payouts.reverse().map(p => `
-        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
-            <div style="display:flex;justify-content:space-between;">
-                <strong>${p.id}</strong>
-                <span style="background:#FEF3C7;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${p.status}</span>
-            </div>
-            <p style="font-size:0.8rem;">Amount: ${p.amount} | Fee: ${p.fee} | <strong>Net: ${p.net_amount}</strong></p>
-            <p style="font-size:0.7rem;color:#6B7280;">Method: ${p.method?.toUpperCase()}</p>
-        </div>`).join('');
-}
-
-async function createVideoCall(e) {
-    e.preventDefault();
-    const contractId = document.getElementById('videoContractId').value;
-    const topic = document.getElementById('videoTopic').value;
-    
-    const r = await api('/video/create', 'POST', {
-        contract_id: contractId,
-        topic: topic
-    });
-    
-    if (r.success && r.join_url) {
-        // Save to localStorage
-        const meetings = JSON.parse(localStorage.getItem('dokets_meetings') || '[]');
-        meetings.push({
-            id: r.meeting?.id || 'VC-' + Date.now(),
-            contract_id: contractId,
-            topic: topic,
-            join_url: r.join_url,
-            status: 'active',
-            created_at: new Date().toISOString()
-        });
-        localStorage.setItem('dokets_meetings', JSON.stringify(meetings));
-        
-        document.getElementById('videoResult').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                <strong>✅ Meeting Created!</strong><br>
-                <a href="${r.join_url}" target="_blank" 
-                   style="display:inline-block;margin-top:0.5rem;background:#4F46E5;color:white;padding:0.8rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">
-                   📹 Join Video Call Now
-                </a>
-                <p style="font-size:0.8rem;color:#6B7280;margin-top:0.5rem;">
-                    Share this link with the other party. No account needed.
-                </p>
-            </div>`;
-        toast('Meeting created! Share the link.', 'success');
-        loadMyMeetings();
-    }
-}
-
-async function loadMyMeetings() {
-    const meetings = JSON.parse(localStorage.getItem('dokets_meetings') || '[]');
-    if (meetings.length === 0) {
-        document.getElementById('meetingList').innerHTML = '<p style="color:#6B7280;">No meetings yet.</p>';
-        return;
-    }
-    document.getElementById('meetingList').innerHTML = meetings.map(m => `
-        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
-            <strong>${m.topic}</strong>
-            <p style="font-size:0.8rem;color:#6B7280;">Contract: ${m.contract_id}</p>
-            <a href="${m.join_url}" target="_blank" style="color:#4F46E5;font-weight:600;">📹 Join Call →</a>
-            <span style="float:right;background:#D1FAE5;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${m.status}</span>
-        </div>`).join('');
-}
-
-async function requestBackgroundCheck() {
-    const r = await api('/background/request', 'POST', {provider: 'manual'});
-    console.log('Background response:', r);
-    
-    if (r.success && r.check) {
-        document.getElementById('backgroundResult').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                <strong>✅ Background Check Requested!</strong><br>
-                <p>Check ID: ${r.check.id}</p>
-                <p>Status: ${r.check.status || 'Pending'}</p>
-                <p style="font-size:0.8rem;color:#6B7280;">⏱️ Results typically in 24-48 hours</p>
-            </div>`;
-        toast('Background check requested!', 'success');
-    } else {
-        document.getElementById('backgroundResult').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                <strong>✅ Background Check Requested!</strong><br>
-                <p>Your request has been submitted for review.</p>
-                <p style="font-size:0.8rem;color:#6B7280;">We'll notify you when results are ready.</p>
-            </div>`;
-        toast('Background check submitted!', 'success');
-    }
-}
-
-async function loadBackgroundStatus() {
-    const r = await api('/background/status');
-    const checks = r || [];
-    if (checks.length === 0) {
-        document.getElementById('backgroundStatus').innerHTML = '<p style="color:#6B7280;">No checks found.</p>';
-        return;
-    }
-    document.getElementById('backgroundStatus').innerHTML = checks.map(c => `
-        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
-            <strong>${c.id}</strong>
-            <span style="background:#FEF3C7;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${c.status}</span>
-            <p style="font-size:0.8rem;color:#6B7280;">Provider: ${c.provider}</p>
-        </div>`).join('');
-}
-
-async function createAgency(e) {
-    e.preventDefault();
-    const name = document.getElementById('agencyName').value;
-    const domain = document.getElementById('agencyDomain').value;
-    const plan = document.getElementById('agencyPlan').value;
-    
-    const r = await api('/agency/create', 'POST', {name, domain, plan});
-    
-    // Save to localStorage
-    const agencies = JSON.parse(localStorage.getItem('dokets_agencies') || '[]');
-    agencies.push({
-        id: r.agency?.id || 'AG-' + Date.now(),
-        name,
-        domain: domain || 'agency.dokets.com',
-        plan,
-        status: 'active',
-        created_at: new Date().toISOString()
-    });
-    localStorage.setItem('dokets_agencies', JSON.stringify(agencies));
-    
-    document.getElementById('agencyResult').innerHTML = r.success ?
-        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Agency: ${name}<br>ID: ${r.agency?.id || 'N/A'}<br>Plan: ${plan}</div>` : 'Failed';
-    if (r.success) toast('Agency created!', 'success');
-    document.getElementById('agencyName').value = '';
-    document.getElementById('agencyDomain').value = '';
-    loadMyAgencies();
-}
-
-async function loadMyAgencies() {
-    const agencies = JSON.parse(localStorage.getItem('dokets_agencies') || '[]');
-    if (agencies.length === 0) {
-        document.getElementById('agencyList').innerHTML = '<p style="color:#6B7280;">No agencies yet.</p>';
-        return;
-    }
-    document.getElementById('agencyList').innerHTML = agencies.map(a => `
-        <div style="background:#F3F4F6;padding:1rem;border-radius:8px;margin-bottom:0.5rem;">
-            <strong>${a.name}</strong> <span style="background:#D1FAE5;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;">${a.plan}</span>
-            <p style="font-size:0.8rem;color:#6B7280;">Domain: ${a.domain}</p>
-            <p style="font-size:0.7rem;color:#6B7280;">Status: Active | ID: ${a.id}</p>
-        </div>`).join('');
-}
-
-async function loadFAQs() {
-    const r = await api('/support/faqs');
-    document.getElementById('faqList').innerHTML = r.map(f => 
-        `<div style="padding:0.5rem;border-bottom:1px solid #E5E7EB;"><strong>Q: ${f.q}</strong><br>A: ${f.a}</div>`
-    ).join('');
-}
-
-async function loadMyTickets() {
-    // Show tickets from local storage
-    const tickets = JSON.parse(localStorage.getItem('dokets_tickets') || '[]');
-    if (tickets.length === 0) {
-        document.getElementById('ticketList').innerHTML = '<p style="color:#6B7280;">No tickets yet.</p>';
-        return;
-    }
-    document.getElementById('ticketList').innerHTML = tickets.map(t => `
-        <div style="background:#F3F4F6;padding:0.8rem;border-radius:8px;margin-bottom:0.5rem;">
-            <strong>${t.subject}</strong>
-            <p style="font-size:0.8rem;color:#6B7280;">${t.message}</p>
-            <span style="font-size:0.7rem;background:#D1FAE5;padding:0.2rem 0.5rem;border-radius:4px;">${t.status || 'Open'}</span>
-        </div>`).join('');
-}
-
-async function createTicket(e) {
-    e.preventDefault();
-    const subject = document.getElementById('ticketSubject').value;
-    const message = document.getElementById('ticketMessage').value;
-    
-    // Save to local storage
-    const tickets = JSON.parse(localStorage.getItem('dokets_tickets') || '[]');
-    tickets.push({
-        id: 'TKT-' + Date.now(),
-        subject,
-        message,
-        status: 'Open',
-        created_at: new Date().toISOString()
-    });
-    localStorage.setItem('dokets_tickets', JSON.stringify(tickets));
-    
-    const r = await api('/support/tickets', 'POST', {subject, message});
-    document.getElementById('ticketResult').innerHTML = r.success ?
-        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Ticket: ${r.ticket.id}</div>` : 'Failed';
-    if (r.success) toast('Ticket created!', 'success');
-    document.getElementById('ticketSubject').value = '';
-    document.getElementById('ticketMessage').value = '';
-    loadMyTickets();
-}
-
-async function showProviderContracts() {
-    const contractsData = await api('/contracts/');
-    const contracts = contractsData.contracts || [];
-    
-    const pendingContracts = contracts.filter(c => c.status === 'draft');
-    const activeContracts = contracts.filter(c => c.status === 'active');
-    const completedContracts = contracts.filter(c => c.status === 'completed');
-    
-    const sectionHTML = (title, list, color) => {
-        if (list.length === 0) return '';
-        return `
-        <div class="card" style="margin-bottom:1rem;">
-            <div class="card-header" style="border-left:4px solid ${color};">
-                <span class="card-title">${title} (${list.length})</span>
-            </div>
-            ${list.map(c => `
-                <div class="contract-item">
-                    <div>
-                        <strong>${c.title}</strong>
-                        <span class="status-badge status-${c.status}">${c.status}</span>
-                        <div style="font-size:0.8rem;">${c.currency} ${c.total_amount} | ${c.id}</div>
-                    </div>
-                    <div>
-                        <a href="/contract-view/${c.id}" target="_blank" style="font-size:0.8rem;">View</a>
-                        ${c.status==='draft'?`<button class="btn btn-success btn-sm" onclick="approveContract('${c.id}')">Approve</button>`:''}
-                    </div>
-                </div>`).join('')}
-        </div>`;
-    };
-    
-    document.getElementById('mainContent').innerHTML = `
-        ${sectionHTML('⏳ Pending Approval', pendingContracts, '#F59E0B')}
-        ${sectionHTML('✅ Active Contracts', activeContracts, '#10B981')}
-        ${sectionHTML('🎉 Completed', completedContracts, '#3B82F6')}
-        ${contracts.length === 0 ? '<div class="empty-state"><div class="icon">📋</div><p>No contracts found</p></div>' : ''}
-    `;
-}
-
-async function loadLanguages() {
-    const r = await fetch(`${API}/languages`).then(r => r.json());
-    document.getElementById('languageList').innerHTML = r.map(l => `
-        <button class="btn btn-outline btn-block" onclick="setLanguage('${l.code}')" style="text-align:left;">
-            ${l.flag} ${l.name}
-        </button>`).join('');
-}
-
-function setLanguage(lang) {
-    localStorage.setItem('dokets_lang', lang);
-    toast('Language: ' + lang, 'success');
-    applyTranslations(lang);
-}
-
-async function applyTranslations(lang) {
-    if (lang === 'en') {
-        location.reload();
-        return;
-    }
-    
-    const r = await fetch(`${API}/translations/${lang}`).then(r => r.json());
-    
-    // Translate ALL static text on the dashboard
-    const translations = {
-        // Sidebar headers
-        '📂 Menu': '📂 ' + (r.dashboard || 'Menu'),
-        '📋 Contracts': r.contracts || 'Contracts',
-        '💰 Money': r.payments || 'Money', 
-        '⭐ Trust & Verify': r.vouch_score || 'Trust',
-        '💬 Communication': r.whatsapp || 'Communication',
-        '📞 Help & Manage': r.support || 'Help',
-        
-        // Dashboard labels
-        'Total Contracts': r.total_contracts || 'Total Contracts',
-        'Active': r.active || 'Active',
-        'In Escrow': r.in_escrow || 'In Escrow',
-        'Vouch Score': r.vouch_score || 'Vouch Score',
-        'No contracts yet!': r.no_contracts || 'No contracts yet!',
-        'No recent activity': r.no_contracts || 'No recent activity',
-        'Recent Contracts': r.contracts || 'Recent Contracts',
-        'Recent Activity': r.support || 'Recent Activity',
-    };
-    
-    // Update sidebar group headers
-    document.querySelectorAll('.nav-group-header').forEach(el => {
-        const fullText = el.textContent.trim();
-        const arrow = ' ▼';
-        const key = fullText.replace(arrow, '');
-        if (translations[key]) {
-            el.innerHTML = translations[key] + ' <span class="group-arrow">▼</span>';
+        if (!res.ok) {
+            localStorage.removeItem('dokets_token');
+            window.location.href = '/';
+            return;
         }
-    });
-    
-    // Update sidebar header
-    const sidebarHeader = document.querySelector('.sidebar-header');
-    if (sidebarHeader && r.dashboard) {
-        sidebarHeader.textContent = '📂 ' + r.dashboard;
+        
+        userData = await res.json();
+        currentMode = userData.current_mode || 'customer';
+        
+        updateUI();
+        loadDashboard();
+        loadContracts();
+    } catch (e) {
+        console.error('Init error:', e);
     }
+}
+
+// ========== UPDATE UI ==========
+function updateUI() {
+    document.getElementById('userName').textContent = userData.full_name;
+    document.getElementById('userEmail').textContent = userData.email;
+    document.getElementById('userAvatar').textContent = userData.full_name[0].toUpperCase();
     
-    // Update stat labels
-    document.querySelectorAll('.stat-label').forEach(el => {
-        const key = el.textContent.trim();
-        if (translations[key]) el.textContent = translations[key];
+    // Update mode switcher
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === currentMode);
     });
     
-    // Update empty states
-    document.querySelectorAll('.empty-state p').forEach(el => {
-        if (el.textContent.includes('No contracts')) {
-            el.textContent = r.no_contracts || 'No contracts yet!';
+    // Update mode badge
+    const badge = document.getElementById('modeBadge');
+    badge.textContent = currentMode === 'customer' ? 'CUSTOMER' : 'PROVIDER';
+    badge.className = `mode-indicator mode-${currentMode}`;
+}
+
+// ========== SWITCH MODE ==========
+async function switchMode(mode) {
+    if (mode === currentMode) return;
+    
+    try {
+        const res = await fetch(`${BASE}/api/v1/users/switch-mode`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({mode})
+        });
+        
+        const data = await res.json();
+        if (data.success) {
+            token = data.access_token;
+            localStorage.setItem('dokets_token', token);
+            currentMode = mode;
+            updateUI();
+            loadDashboard();
+            loadContracts();
         }
-    });
-    
-    // Update card titles
-    document.querySelectorAll('.card-title').forEach(el => {
-        const key = el.textContent.trim();
-        if (translations[key]) el.textContent = translations[key];
-    });
-    
-    toast('✅ ' + lang.toUpperCase() + ' activated!', 'success');
-}
-
-async function askChatbot(e) {
-    e.preventDefault();
-    const q = document.getElementById('chatbotInput').value;
-    if (!q.trim()) return;
-    
-    // Show user message
-    document.getElementById('chatbotMessages').innerHTML += `
-        <div style="margin-bottom:0.8rem;text-align:right;">
-            <span style="background:#1F2937;color:white;padding:0.3rem 0.6rem;border-radius:12px 12px 0 12px;display:inline-block;max-width:80%;font-size:0.9rem;">${q}</span>
-        </div>`;
-    document.getElementById('chatbotInput').value = '';
-    
-    // Show typing indicator
-    document.getElementById('chatbotMessages').innerHTML += `
-        <div id="typingIndicator" style="margin-bottom:0.8rem;">
-            <span style="background:#E5E7EB;color:#6B7280;padding:0.3rem 0.6rem;border-radius:12px 12px 12px 0;display:inline-block;font-size:0.85rem;">🤔 Thinking...</span>
-        </div>`;
-    
-    const chatDiv = document.getElementById('chatbotMessages');
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-    
-    // Get AI response
-    const r = await api('/chatbot/ask', 'POST', {question: q});
-    
-    // Remove typing indicator
-    document.getElementById('typingIndicator')?.remove();
-    
-    // Show AI response
-    const response = r.response || "I'm not sure about that. Try asking about contracts, escrow, or fees!";
-    document.getElementById('chatbotMessages').innerHTML += `
-        <div style="margin-bottom:0.8rem;">
-            <span style="background:#4F46E5;color:white;padding:0.3rem 0.6rem;border-radius:12px 12px 12px 0;display:inline-block;max-width:80%;font-size:0.9rem;">${response.replace(/\n/g, '<br>')}</span>
-            ${r.source === 'openai' ? '<span style="font-size:0.6rem;color:#10B981;margin-left:0.3rem;">✨ AI</span>' : ''}
-        </div>`;
-    
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-}
-
-async function createRecurring(e) {
-    e.preventDefault();
-    const r = await api('/recurring/create', 'POST', {
-        title: document.getElementById('recTitle').value,
-        provider_phone: document.getElementById('recPhone').value,
-        amount: parseFloat(document.getElementById('recAmount').value),
-        frequency: document.getElementById('recFrequency').value
-    });
-    document.getElementById('recResult').innerHTML = r.success ?
-        `<div style="background:#D1FAE5;padding:1rem;border-radius:8px;">✅ Recurring: ${r.subscription.id}<br>Next payment auto-scheduled</div>` : 'Failed';
-}
-
-async function generateInvoice() {
-    const contractId = document.getElementById('invoiceContractId').value;
-    if (!contractId) { toast('Enter a Contract ID', 'error'); return; }
-    
-    const r = await api(`/invoice/${contractId}`);
-    if (r.invoice) {
-        document.getElementById('invoiceResult').innerHTML = `
-            <div style="background:#D1FAE5;padding:1rem;border-radius:8px;">
-                <strong>📑 Invoice Generated!</strong><br>
-                <p>Invoice #: ${r.invoice.invoice_number}</p>
-                <p>Amount: ${r.invoice.currency} ${r.invoice.amount}</p>
-                <p>Fee (1%): ${r.invoice.platform_fee}</p>
-                <p><strong>Net: ${r.invoice.net_amount}</strong></p>
-            </div>`;
+    } catch (e) {
+        showToast('Failed to switch mode', 'error');
     }
 }
 
-function toggleSidebar() {
-    document.querySelector('.sidebar').classList.toggle('open');
-}
-
-function toggleGroup(group) {
-    document.getElementById('group-' + group).parentElement.classList.toggle('collapsed');
-}
-
-function showOnboardingTips() {
-    const seen = localStorage.getItem('dokets_onboarding_seen');
-    if (seen) return;
+// ========== LOAD DASHBOARD ==========
+async function loadDashboard() {
+    const main = document.getElementById('mainContent');
     
-    const tips = [
-        { icon: '📝', title: 'Create Contract', text: 'Start by creating a new contract or use AI Smart Contract to generate one automatically.' },
-        { icon: '🔒', title: 'Secure Escrow', text: 'Payment is held securely until work is verified. Only 1% platform fee.' },
-        { icon: '💬', title: 'WhatsApp Ready', text: 'Send contracts via WhatsApp. Providers can view and approve from their phone.' },
+    const stats = currentMode === 'customer' ? [
+        {icon: '📋', value: userData.total_contracts || 0, label: 'Total Contracts'},
+        {icon: '✅', value: userData.completed_as_customer || 0, label: 'Completed Deals'},
+        {icon: '💰', value: `₹${userData.total_spent || 0}`, label: 'Total Spent'},
+        {icon: '⭐', value: userData.vouch_score || 100, label: 'Vouch Score'}
+    ] : [
+        {icon: '📋', value: userData.total_contracts || 0, label: 'Total Jobs'},
+        {icon: '✅', value: userData.completed_as_provider || 0, label: 'Completed Jobs'},
+        {icon: '💵', value: `₹${userData.total_earned || 0}`, label: 'Total Earned'},
+        {icon: '⭐', value: userData.vouch_score || 100, label: 'Vouch Score'}
     ];
     
-    const tipsHTML = tips.map((t, i) => `
-        <div style="background:white;padding:1rem;border-radius:12px;margin-bottom:0.5rem;border-left:4px solid #6366F1;animation:slideIn ${0.3 + i*0.1}s ease;">
-            <strong>${t.icon} ${t.title}</strong>
-            <p style="font-size:0.85rem;color:#64748B;">${t.text}</p>
-        </div>`).join('');
-    
-    document.getElementById('mainContent').insertAdjacentHTML('afterbegin', `
-        <div id="onboardingTips" class="card" style="margin-bottom:1rem;">
-            <div class="card-header" style="display:flex;justify-content:space-between;">
-                <span>🎓 Quick Start Guide</span>
-                <button onclick="document.getElementById('onboardingTips').remove();localStorage.setItem('dokets_onboarding_seen','1');" style="background:none;border:none;cursor:pointer;font-size:1.2rem;">✕</button>
+    main.innerHTML = `
+        <!-- Stats -->
+        <div class="stats-row animate-in">
+            ${stats.map(s => `
+                <div class="stat-card">
+                    <div class="stat-icon">${s.icon}</div>
+                    <div class="stat-value">${s.value}</div>
+                    <div class="stat-label">${s.label}</div>
+                </div>
+            `).join('')}
+        </div>
+        
+        <!-- Actions -->
+        <h2 class="section-title">⚡ Quick Actions</h2>
+        <div class="action-cards animate-in">
+            ${currentMode === 'customer' ? `
+                <div class="action-card customer-card" onclick="openCreateContract()">
+                    <span class="action-badge badge-customer">CUSTOMER</span>
+                    <div class="action-icon">📝</div>
+                    <div class="action-title">Create New Contract</div>
+                    <div class="action-desc">Describe your work, set milestones, and secure payment in escrow</div>
+                </div>
+                <div class="action-card" onclick="openFindProviders()">
+                    <span class="action-badge badge-customer">DISCOVER</span>
+                    <div class="action-icon">🔍</div>
+                    <div class="action-title">Find Service Providers</div>
+                    <div class="action-desc">Browse top-rated providers by service, location, and vouch score</div>
+                </div>
+            ` : `
+                <div class="action-card provider-card" onclick="loadContracts()">
+                    <span class="action-badge badge-provider">PROVIDER</span>
+                    <div class="action-icon">📋</div>
+                    <div class="action-title">Available Jobs</div>
+                    <div class="action-desc">View and accept contracts waiting for your service</div>
+                </div>
+                <div class="action-card" onclick="openMyEarnings()">
+                    <span class="action-badge badge-provider">EARNINGS</span>
+                    <div class="action-icon">💵</div>
+                    <div class="action-title">My Earnings</div>
+                    <div class="action-desc">Track your completed work and total earnings</div>
+                </div>
+            `}
+            <div class="action-card" onclick="window.open('/contract-view/demo','_blank')">
+                <div class="action-icon">🔄</div>
+                <div class="action-title">Switch to ${currentMode === 'customer' ? 'Provider' : 'Customer'} Mode</div>
+                <div class="action-desc">You can be both! Switch modes to ${currentMode === 'customer' ? 'offer services' : 'hire services'}</div>
             </div>
-            <div class="card-body">${tipsHTML}</div>
-        </div>`);
+        </div>
+        
+        <!-- Contracts -->
+        <div class="contracts-section animate-in" id="contractsSection">
+            <h2 class="section-title">📄 ${currentMode === 'customer' ? 'My Contracts' : 'My Jobs'}</h2>
+            <div class="contract-list" id="contractList">
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <p>Loading contracts...</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ========== LOAD CONTRACTS ==========
+async function loadContracts() {
+    const container = document.getElementById('contractList');
+    if (!container) return;
     
-    localStorage.setItem('dokets_onboarding_seen', '1');
+    try {
+        const res = await fetch(`${BASE}/api/v1/contracts/`, {
+            headers: {'Authorization': 'Bearer ' + token}
+        });
+        const data = await res.json();
+        const contracts = data.contracts || [];
+        
+        if (contracts.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">📭</div>
+                    <p>No contracts yet</p>
+                    <p style="font-size:0.85rem;margin-top:0.5rem">${currentMode === 'customer' ? 'Create your first contract!' : 'Waiting for job offers...'}</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = contracts.map(c => {
+            const isProvider = currentMode === 'provider' && c.status === 'draft';
+            const statusClass = `status-${c.status || 'draft'}`;
+            const icon = c.status === 'completed' ? '✅' : c.status === 'active' ? '🔧' : '📝';
+            const bgColor = c.status === 'completed' ? '#1a3a2a' : c.status === 'active' ? '#1a2a3a' : '#2a2a1a';
+            
+            return `
+                <div class="contract-item" onclick="viewContract('${c.id}')" style="cursor:pointer">
+                    <div class="contract-left">
+                        <div class="contract-icon" style="background:${bgColor}">${icon}</div>
+                        <div class="contract-info">
+                            <h4>${c.title || 'Untitled'}</h4>
+                            <span>${c.id} · ${c.milestones?.length || 0} milestones</span>
+                        </div>
+                    </div>
+                    <div class="contract-right">
+                        <div class="contract-amount">${c.currency || 'INR'} ${c.total_amount || 0}</div>
+                        <span class="status-badge ${statusClass}">${c.status || 'draft'}</span>
+                        ${isProvider ? `
+                            <div style="margin-top:0.5rem">
+                                <button class="btn btn-accept" onclick="event.stopPropagation();acceptContract('${c.id}')" style="padding:0.4rem 1rem;font-size:0.85rem">Accept</button>
+                                <button class="btn btn-reject" onclick="event.stopPropagation();rejectContract('${c.id}')" style="padding:0.4rem 1rem;font-size:0.85rem">Reject</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        console.error('Load contracts error:', e);
+    }
 }
 
-        function showTab(tab) {
-    ['dashboard','contracts','vouch','kyc','chat','disputes','admin','analytics','payouts','video','background','agency','support','languages','chatbot','recurring','invoice'].forEach(t => document.getElementById('tab-'+t).style.display = t===tab?'block':'none');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    event?.target?.closest('.nav-item')?.classList.add('active');
-    // Close mobile sidebar
-    document.querySelector('.sidebar')?.classList.remove('open');
+// ========== CREATE CONTRACT MODAL ==========
+function openCreateContract() {
+    const modal = document.getElementById('modalOverlay');
+    const content = document.getElementById('modalContent');
+    
+    content.innerHTML = `
+        <h3>📝 Create New Contract</h3>
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="ctTitle" placeholder="e.g., House Painting - 3 Rooms">
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="ctDesc" rows="3" placeholder="Describe the work needed..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Provider Phone Number</label>
+            <input type="text" id="ctPhone" placeholder="+919876543210">
+        </div>
+        <div class="form-group">
+            <label>Total Amount (₹)</label>
+            <input type="number" id="ctAmount" placeholder="15000">
+        </div>
+        <div class="form-group">
+            <label>Currency</label>
+            <select id="ctCurrency">
+                <option value="INR">₹ INR</option>
+                <option value="USD">$ USD</option>
+                <option value="EUR">€ EUR</option>
+                <option value="GBP">£ GBP</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Milestones (comma-separated: "Title:Amount, Title:Amount")</label>
+            <input type="text" id="ctMilestones" placeholder="Prep:3000, Paint:8000, Final:4000">
+        </div>
+        <button class="btn btn-primary" onclick="createContract()">🚀 Create & Secure with Escrow</button>
+        <button class="btn btn-outline" style="margin-top:0.5rem;width:100%" onclick="closeModal()">Cancel</button>
+    `;
+    
+    modal.classList.add('show');
 }
 
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function toast(msg, type='') { const c = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3000); }
-        function logout() { localStorage.removeItem('dokets_token'); token = ''; location.reload(); }
+async function createContract() {
+    const title = document.getElementById('ctTitle').value;
+    const desc = document.getElementById('ctDesc').value;
+    const phone = document.getElementById('ctPhone').value;
+    const amount = parseFloat(document.getElementById('ctAmount').value);
+    const currency = document.getElementById('ctCurrency').value;
+    const milestonesStr = document.getElementById('ctMilestones').value;
+    
+    if (!title || !phone || !amount) {
+        showToast('Please fill all required fields', 'error');
+        return;
+    }
+    
+    // Parse milestones
+    const milestones = milestonesStr.split(',').map((m, i) => {
+        const parts = m.trim().split(':');
+        return {
+            id: `MS-${i+1}`,
+            title: parts[0]?.trim() || `Milestone ${i+1}`,
+            amount: parseFloat(parts[1]) || 0,
+            deadline: new Date(Date.now() + (i+1)*3*86400000).toISOString().split('T')[0]
+        };
+    }).filter(m => m.amount > 0);
+    
+    if (milestones.length === 0) {
+        milestones.push({
+            id: 'MS-1',
+            title: 'Complete Work',
+            amount: amount,
+            deadline: new Date(Date.now() + 7*86400000).toISOString().split('T')[0]
+        });
+    }
+    
+    try {
+        const res = await fetch(`${BASE}/api/v1/contracts/`, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title, description: desc, provider_phone: phone,
+                total_amount: amount, currency, milestones
+            })
+        });
+        
+        const data = await res.json();
+        if (data.success) {
+            closeModal();
+            showToast('✅ Contract created! Provider notified via WhatsApp');
+            loadContracts();
+        } else {
+            showToast('Failed to create contract', 'error');
+        }
+    } catch (e) {
+        showToast('Error creating contract', 'error');
+    }
+}
 
-        init();
-    </script>
+// ========== ACCEPT / REJECT CONTRACT ==========
+async function acceptContract(contractId) {
+    try {
+        const res = await fetch(`${BASE}/api/v1/contracts/${contractId}/accept`, {
+            method: 'PUT',
+            headers: {'Authorization': 'Bearer ' + token}
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('✅ Contract accepted! Work can begin.');
+            loadContracts();
+        } else {
+            showToast(data.detail || 'Failed to accept', 'error');
+        }
+    } catch (e) {
+        showToast('Error accepting contract', 'error');
+    }
+}
+
+async function rejectContract(contractId) {
+    try {
+        const res = await fetch(`${BASE}/api/v1/contracts/${contractId}/reject`, {
+            method: 'PUT',
+            headers: {'Authorization': 'Bearer ' + token}
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Contract rejected');
+            loadContracts();
+        }
+    } catch (e) {
+        showToast('Error rejecting contract', 'error');
+    }
+}
+
+// ========== VIEW CONTRACT ==========
+function viewContract(contractId) {
+    window.open(`/contract-view/${contractId}`, '_blank');
+}
+
+// ========== MODAL ==========
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// ========== TOAST ==========
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// ========== START ==========
+init();
+</script>
+
 </body>
 </html>

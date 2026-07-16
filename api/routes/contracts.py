@@ -139,6 +139,96 @@ async def get_contract(contract_id: str):
             }
     raise HTTPException(status_code=404, detail="Contract not found")
 
+@router.put("/{contract_id}/accept")
+async def accept_contract(contract_id: str, current_user: dict = Depends(get_current_user)):
+    """
+    Provider accepts the contract.
+    Only works when logged in as 'provider' mode.
+    """
+    # Verify user is in Provider mode
+    if current_user.get("mode") != "provider":
+        raise HTTPException(
+            status_code=403, 
+            detail="You are in Customer mode. Switch to Provider mode to accept contracts."
+        )
+    
+    for c in _contracts:
+        if c.get("id") == contract_id:
+            # Optional: Verify phone match
+            provider_phone = c.get("provider_phone", "")
+            user_phone = current_user.get("phone", "")
+            
+            c["provider_id"] = current_user["user_id"]
+            c["provider_name"] = current_user.get("name", "Provider")
+            c["status"] = "active"
+            c["accepted_at"] = str(datetime.utcnow())
+            c["updated_at"] = str(datetime.utcnow())
+
+            # Update MongoDB
+            db = mongodb.get_db()
+            if db is not None:
+                try:
+                    await db.contracts.update_one(
+                        {"id": contract_id},
+                        {"$set": {
+                            "provider_id": current_user["user_id"],
+                            "provider_name": current_user.get("name"),
+                            "status": "active",
+                            "accepted_at": str(datetime.utcnow()),
+                            "updated_at": str(datetime.utcnow())
+                        }}
+                    )
+                except:
+                    pass
+
+            # Notify customer
+            from core.messaging.whatsapp_bot import whatsapp_bot
+            customer_phone = c.get("customer_phone", "")
+            if customer_phone:
+                whatsapp_bot.send_message(
+                    customer_phone,
+                    f"✅ *Provider Accepted!*\n\n"
+                    f"Contract: {c['title']}\n"
+                    f"Provider: {current_user.get('name', 'Provider')}\n"
+                    f"Status: Work in Progress\n\n"
+                    f"Track: https://dokets.com/contract-view/{contract_id}"
+                )
+
+            return {
+                "success": True, 
+                "message": "Contract accepted! Work can begin.",
+                "contract_id": contract_id
+            }
+
+    raise HTTPException(status_code=404, detail="Contract not found")
+
+
+@router.put("/{contract_id}/reject")
+async def reject_contract(contract_id: str, current_user: dict = Depends(get_current_user)):
+    """Provider rejects the contract"""
+    if current_user.get("mode") != "provider":
+        raise HTTPException(status_code=403, detail="Switch to Provider mode to reject contracts")
+    
+    for c in _contracts:
+        if c.get("id") == contract_id:
+            c["status"] = "rejected"
+            c["rejected_by"] = current_user["user_id"]
+            c["updated_at"] = str(datetime.utcnow())
+            
+            db = mongodb.get_db()
+            if db is not None:
+                try:
+                    await db.contracts.update_one(
+                        {"id": contract_id},
+                        {"$set": {"status": "rejected", "updated_at": str(datetime.utcnow())}}
+                    )
+                except:
+                    pass
+
+            return {"success": True, "message": "Contract rejected", "contract_id": contract_id}
+    
+    raise HTTPException(status_code=404, detail="Contract not found")
+
 @router.put("/{contract_id}/approve")
 async def approve_contract(contract_id: str, current_user: dict = Depends(get_current_user)):
     # Update in-memory
