@@ -137,7 +137,7 @@ async def approve_contract(contract_id: str, current_user: dict = Depends(get_cu
             c["updated_at"] = str(datetime.utcnow())
             return {
                 "success": True,
-                "message": "Contract approved and escrow activated",
+                "message": "Contract approved",
                 "contract": c
             }
     raise HTTPException(status_code=404, detail="Contract not found")
