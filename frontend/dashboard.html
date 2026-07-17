@@ -804,6 +804,12 @@ function openProviderProfile() {
         <div class="form-group"><label>Hourly Rate (₹)</label><input type="number" id="ppRate" value="500"></div>
         <div class="form-group"><label>Bio</label><textarea id="ppBio" rows="2" placeholder="Tell customers about yourself..."></textarea></div>
         <div class="form-group"><label>Service Cities (comma separated)</label><input id="ppCities" placeholder="Hyderabad, Mumbai, Bangalore"></div>
+        <div class="form-group" style="border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem">
+    <label style="font-size:1rem;color:var(--text)">📦 Service Packages</label>
+</div>
+        <div class="form-group"><label>Basic Package Price (₹)</label><input type="number" id="ppBasicPrice" value="500"></div>
+        <div class="form-group"><label>Standard Package Price (₹)</label><input type="number" id="ppStdPrice" value="1500"></div>
+        <div class="form-group"><label>Premium Package Price (₹)</label><input type="number" id="ppPremPrice" value="3000"></div>
         <button class="btn btn-primary" onclick="saveProviderProfile()">💾 Save Profile</button>
         <button class="btn btn-outline" style="margin-top:0.5rem;width:100%" onclick="closeModal()">Cancel</button>`;
     document.getElementById('modalOverlay').classList.add('show');
@@ -833,7 +839,12 @@ async function saveProviderProfile() {
             experience_years: parseInt(document.getElementById('ppExp').value)||0,
             hourly_rate: parseInt(document.getElementById('ppRate').value)||500,
             bio: document.getElementById('ppBio').value,
-            service_cities: document.getElementById('ppCities').value.split(',').map(s=>s.trim()).filter(s=>s)
+            service_cities: document.getElementById('ppCities').value.split(',').map(s=>s.trim()).filter(s=>s),
+            packages: {
+                basic: {name:"Basic", price:parseInt(document.getElementById('ppBasicPrice')?.value)||500, description:"Basic service", delivery_days:1},
+                standard: {name:"Standard", price:parseInt(document.getElementById('ppStdPrice')?.value)||1500, description:"Standard service", delivery_days:3},
+                premium: {name:"Premium", price:parseInt(document.getElementById('ppPremPrice')?.value)||3000, description:"Premium service", delivery_days:7}
+            }
         })
     });
     const data = await res.json();

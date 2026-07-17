@@ -212,3 +212,34 @@ async def providers_by_skill(skill: str):
             })
     
     return {"providers": results}
+
+@router.put("/packages")
+async def update_service_packages(data: dict, current_user: dict = Depends(get_current_user)):
+    """Provider sets their service packages (Basic/Standard/Premium)"""
+    db = mongodb.get_db()
+    
+    packages = {
+        "basic": data.get("basic", {"name": "Basic", "price": 0, "description": "", "delivery_days": 1}),
+        "standard": data.get("standard", {"name": "Standard", "price": 0, "description": "", "delivery_days": 3}),
+        "premium": data.get("premium", {"name": "Premium", "price": 0, "description": "", "delivery_days": 7}),
+        "updated_at": str(datetime.utcnow())
+    }
+    
+    if db is not None:
+        await db.provider_profiles.update_one(
+            {"user_id": current_user["user_id"]},
+            {"$set": {"packages": packages}},
+            upsert=True
+        )
+    
+    return {"success": True, "message": "Packages updated!", "packages": packages}
+
+@router.get("/packages/{user_id}")
+async def get_provider_packages(user_id: str):
+    """Get provider's service packages"""
+    db = mongodb.get_db()
+    if db is not None:
+        profile = await db.provider_profiles.find_one({"user_id": user_id})
+        if profile and profile.get("packages"):
+            return {"success": True, "packages": profile["packages"]}
+    return {"success": False, "packages": None}
