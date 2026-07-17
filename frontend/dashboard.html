@@ -384,6 +384,10 @@
     <option value="pt">🇧🇷 PT</option>
     <option value="fr">🇫🇷 FR</option>
     <option value="ar">🇦🇪 AR</option>
+    <option value="id">🇮🇩 ID</option>
+    <option value="bn">🇧🇩 BN</option>
+    <option value="zh">🇨🇳 ZH</option>
+    <option value="de">🇩🇪 DE</option>
 </select>
             <button class="btn btn-outline btn-sm" onclick="logout()" style="display:flex;align-items:center;gap:0.25rem;font-weight:600">🚪 Logout</button>
         </div>
@@ -511,6 +515,30 @@ async function switchMode(mode) {
 }
 
 function logout() { localStorage.removeItem('dokets_token'); token = null; userData = null; showLoginModal(); }
+function switchLanguage(lang) {
+    localStorage.setItem('dokets_lang', lang);
+    // Reload UI with new language
+    updateUILanguage(lang);
+}
+
+async function updateUILanguage(lang) {
+    try {
+        const res = await fetch(`${BASE}/api/v1/translations/${lang}`);
+        const translations = await res.json();
+        window._translations = translations;
+        // Re-render current tab
+        if (activeTab === 'home') renderHome();
+        else if (activeTab === 'contracts') renderContractsTab();
+        else if (activeTab === 'marketplace') renderMarketplace();
+        else if (activeTab === 'jobs') renderJobsTab();
+        // Update static text
+        document.querySelector('.logo').childNodes[1] && (document.querySelector('.logo').innerHTML = `<span class="logo-icon">🛡️</span> ${translations.welcome || 'Dokets VouchAI'}`);
+    } catch(e) {}
+}
+
+function t(key) {
+    return (window._translations && window._translations[key]) || key;
+}
 function toggleMoreMenu() {
     document.getElementById('moreMenu').classList.toggle('show');
 }
