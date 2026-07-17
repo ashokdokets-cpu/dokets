@@ -142,12 +142,3 @@ async def mark_read(notif_id: str, current_user: dict = Depends(get_current_user
     notifications.mark_read(notif_id)
     return {"success": True, "message": "Marked as read"}
 
-@router.post("/payments/create-order")
-async def create_payment_order(data: dict, current_user: dict = Depends(get_current_user)):
-    """Create Razorpay order for escrow payment"""
-    from core.payments.razorpay_payments import razorpay_payments
-    amount = data.get("amount", 0)
-    currency = data.get("currency", "INR")
-    result = razorpay_payments.create_order(amount, currency)
-    result["key_id"] = settings.RAZORPAY_KEY_ID if hasattr(settings, 'RAZORPAY_KEY_ID') else None
-    return result
