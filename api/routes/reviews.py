@@ -15,7 +15,7 @@ async def submit_review(data: dict, current_user: dict = Depends(get_current_use
     db = mongodb.get_db()
     
     contract_id = data.get("contract_id")
-    rating = data.get("rating", 5)  # 1-5 stars
+    rating = data.get("rating", 5)
     review_text = data.get("review", "")
     
     if rating < 1 or rating > 5:
@@ -31,34 +31,28 @@ async def submit_review(data: dict, current_user: dict = Depends(get_current_use
     }
     
     if db is not None:
-        # Get contract to find the other party
         contract = await db.contracts.find_one({"id": contract_id})
         if not contract:
             raise HTTPException(status_code=404, detail="Contract not found")
         
-        # Determine who is being reviewed
         if current_user["user_id"] == contract.get("customer_id"):
             reviewed_id = contract.get("provider_id")
-            review["review_type"] = "customer_to_provider"
         else:
             reviewed_id = contract.get("customer_id")
-            review["review_type"] = "provider_to_customer"
         
         review["reviewed_id"] = reviewed_id
         
-        await db.reviews.insert_one(review)
+        result = await db.reviews.insert_one(review)
+        review["_id"] = str(result.inserted_id)
         
-        # Update user's average rating
         await update_user_rating(db, reviewed_id)
         
-        # Update contract as reviewed
         await db.contracts.update_one(
             {"id": contract_id},
             {"$set": {"reviewed": True, "reviewed_at": str(datetime.utcnow())}}
         )
     
     return {"success": True, "message": "Review submitted!", "review": review}
-
 
 @router.get("/user/{user_id}")
 async def get_user_reviews(user_id: str):
