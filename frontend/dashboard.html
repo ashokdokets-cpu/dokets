@@ -359,6 +359,7 @@
             .mode-btn { flex: 1; text-align: center; }
         }
     </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -954,13 +955,76 @@ function openCreateContract() {
 }
 
 async function createContract() {
-    const title=document.getElementById('ctTitle').value, desc=document.getElementById('ctDesc').value;
-    const phone=document.getElementById('ctPhone').value, amount=parseFloat(document.getElementById('ctAmount').value);
-    const msStr=document.getElementById('ctMS').value;
-    const milestones=msStr.split(',').map((m,i)=>{const p=m.trim().split(':');return {id:`MS-${i+1}`,title:p[0]?.trim()||`MS${i+1}`,amount:parseFloat(p[1])||0,deadline:new Date(Date.now()+(i+1)*3*864e5).toISOString().split('T')[0]};}).filter(m=>m.amount>0);
-    const res=await fetch(`${BASE}/api/v1/contracts/`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title,description:desc,provider_phone:phone,total_amount:amount,currency:'INR',milestones})});
-    const data=await res.json();
-    if(data.success){closeModal();showToast('Contract created!');loadContracts();}else showToast('Failed','error');
+    const title = document.getElementById('ctTitle').value;
+    const desc = document.getElementById('ctDesc').value;
+    const phone = document.getElementById('ctPhone').value;
+    const amount = parseFloat(document.getElementById('ctAmount').value);
+    const msStr = document.getElementById('ctMS').value;
+    const milestones = msStr.split(',').map((m,i) => {
+        const p = m.trim().split(':');
+        return {
+            id: `MS-${i+1}`,
+            title: p[0]?.trim() || `MS${i+1}`,
+            amount: parseFloat(p[1]) || 0,
+            deadline: new Date(Date.now()+(i+1)*3*864e5).toISOString().split('T')[0]
+        };
+    }).filter(m => m.amount > 0);
+    
+    if (!title || !amount) { showToast('Title and amount required', 'error'); return; }
+    
+    // Step 1: Create Razorpay order
+    const payRes = await fetch(`${BASE}/api/v1/payments/create-order`, {
+        method: 'POST',
+        headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
+        body: JSON.stringify({amount: amount, currency: 'INR'})
+    });
+    const payData = await payRes.json();
+    
+    if (!payData.success) { showToast('Payment failed', 'error'); return; }
+    
+    // Step 2: Show Razorpay modal
+    const options = {
+        key: payData.key_id || 'rzp_test_YourKeyHere',
+        amount: payData.amount,
+        currency: payData.currency || 'INR',
+        name: 'Dokets VouchAI',
+        description: title,
+        order_id: payData.order_id,
+        handler: async function(response) {
+            // Step 3: Payment success - create contract
+            const res = await fetch(`${BASE}/api/v1/contracts/`, {
+                method: 'POST',
+                headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    title, description: desc, provider_phone: phone,
+                    total_amount: amount, currency: 'INR', milestones,
+                    payment_id: response.razorpay_payment_id,
+                    order_id: response.razorpay_order_id
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeModal();
+                showToast('✅ Payment secured! Contract created.');
+                loadContracts();
+            } else {
+                showToast('Contract creation failed', 'error');
+            }
+        },
+        modal: {
+            ondismiss: function() {
+                showToast('Payment cancelled', 'error');
+            }
+        },
+        prefill: {
+            email: userData?.email || '',
+            contact: userData?.phone_number || ''
+        },
+        theme: { color: '#6366F1' }
+    };
+    
+    const rzp = new Razorpay(options);
+    rzp.open();
 }
 
 function openAIContract() {
