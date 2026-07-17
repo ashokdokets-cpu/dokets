@@ -544,6 +544,7 @@ function renderHome() {
                     <button class="dropdown-item" onclick="activeTab='ai';renderAITab();hideMoreMenu()">🤖 AI Tools</button>
                     <button class="dropdown-item" onclick="activeTab='advanced';renderAdvancedTab();hideMoreMenu()">⚡ Advanced Features</button>
                     <button class="dropdown-item" onclick="activeTab='providers';renderProvidersTab();hideMoreMenu()">⭐ Top Providers</button>
+                    <button class="dropdown-item" onclick="activeTab='templates';renderTemplatesTab();hideMoreMenu()">📋 Templates</button>
                 </div>
             </div>
         </div>
@@ -861,6 +862,60 @@ async function saveProviderProfile() {
     });
     const data = await res.json();
     if (data.success) { closeModal(); showToast('Profile saved! You are now listed in Marketplace 🎉'); }
+}
+
+// ==================== TEMPLATES ====================
+async function renderTemplatesTab() {
+    const main = document.getElementById('mainContent');
+    main.innerHTML = `<h2>📋 Contract Templates</h2><div id="templatesContent"><div class="empty-state"><div class="icon">⏳</div><p>Loading...</p></div></div>`;
+    const res = await fetch(`${BASE}/api/v1/templates/list`, {headers:{'Authorization':'Bearer '+token}});
+    const data = await res.json();
+    document.getElementById('templatesContent').innerHTML = `
+        <div class="cards-grid animate-in">
+            ${data.templates.map(t => `
+                <div class="feature-card" onclick="useTemplate('${t.id}')">
+                    <div class="card-badge badge-new">TEMPLATE</div>
+                    <div class="card-icon">📋</div>
+                    <div class="card-title">${t.name}</div>
+                    <div class="card-desc">${t.description}<br>💰 ~₹${t.estimated_amount} · ${t.milestones.length} milestones</div>
+                </div>
+            `).join('')}
+        </div>`;
+}
+
+async function useTemplate(tid) {
+    const res = await fetch(`${BASE}/api/v1/templates/${tid}`, {headers:{'Authorization':'Bearer '+token}});
+    const data = await res.json();
+    if (data.success) {
+        const t = data.template;
+        document.getElementById('modalContent').innerHTML = `
+            <h3>📋 ${t.name}</h3>
+            <div class="form-group"><label>Provider Phone</label><input id="tmplPhone" placeholder="+919876543210"></div>
+            <div class="form-group"><label>Total Amount (₹)</label><input type="number" id="tmplAmount" value="${t.estimated_amount}"></div>
+            <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem">Milestones: ${t.milestones.map(m=>m.title+' ('+m.amount_pct+'%)').join(', ')}</p>
+            <button class="btn btn-primary" onclick="createFromTemplate('${tid}')">Create Contract</button>
+            <button class="btn btn-outline" style="margin-top:0.5rem;width:100%" onclick="closeModal()">Cancel</button>`;
+        document.getElementById('modalOverlay').classList.add('show');
+    }
+}
+
+async function createFromTemplate(tid) {
+    const res = await fetch(`${BASE}/api/v1/templates/${tid}`, {headers:{'Authorization':'Bearer '+token}});
+    const data = await res.json();
+    const t = data.template;
+    const total = parseInt(document.getElementById('tmplAmount').value) || t.estimated_amount;
+    const phone = document.getElementById('tmplPhone').value || '+919876543210';
+    const milestones = t.milestones.map((m,i) => ({
+        id: `MS-${i+1}`, title: m.title,
+        amount: Math.round(total * m.amount_pct / 100),
+        deadline: new Date(Date.now()+(i+1)*3*864e5).toISOString().split('T')[0]
+    }));
+    const cres = await fetch(`${BASE}/api/v1/contracts/`, {
+        method:'POST', headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+        body:JSON.stringify({title:t.title, description:t.description, provider_phone:phone, total_amount:total, currency:'INR', milestones})
+    });
+    const cdata = await cres.json();
+    if (cdata.success) { closeModal(); showToast('Contract created from template!'); loadContracts(); }
 }
 
 // ==================== PROVIDERS TAB ====================
