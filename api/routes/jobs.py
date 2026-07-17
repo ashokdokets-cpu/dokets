@@ -84,19 +84,8 @@ async def apply_to_job(job_id: str, data: dict, current_user: dict = Depends(get
             {"id": job_id},
             {"$push": {"applications": application}}
         )
-        
-        # Notify job poster
-        job = await db.jobs.find_one({"id": job_id})
-        if job:
-            from core.messaging.notifications import notifications
-            notifications.send_job_application(
-                job["posted_by"],
-                job["title"],
-                current_user.get("name", "Provider")
-            )
     
     return {"success": True, "message": "Applied successfully!"}
-
 
 @router.get("/categories")
 async def job_categories():
