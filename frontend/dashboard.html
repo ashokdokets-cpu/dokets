@@ -427,7 +427,11 @@ async function init() {
         userData = await res.json();
         currentMode = userData.current_mode || 'customer';
         updateUI();
-        renderHome();
+                renderHome();
+        // Start chat polling
+        setInterval(() => {
+            if (activeTab === 'chat') refreshChat();
+        }, 3000);
     } catch (e) { console.error(e); showLoginModal(); }
 }
 
@@ -616,8 +620,51 @@ async function loadContractCount() {
 // ==================== CONTRACTS TAB ====================
 async function renderContractsTab() {
     const main = document.getElementById('mainContent');
-    main.innerHTML = `<div class="animate-in"><h2 style="margin-bottom:1rem">📄 ${currentMode==='customer'?'My Contracts':'My Jobs'}</h2><div class="contract-list" id="contractList"><div class="empty-state"><div class="icon">⏳</div><p>Loading...</p></div></div></div>`;
+    main.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <h2>📄 ${currentMode==='customer'?'My Contracts':'My Jobs'}</h2>
+            <button class="btn btn-outline btn-sm" style="width:auto" onclick="toggleCalendarView()">📅 Calendar</button>
+        </div>
+        <div id="contractsView"><div class="contract-list" id="contractList"><div class="empty-state"><div class="icon">⏳</div><p>Loading...</p></div></div></div>`;
     await loadContracts();
+}
+
+async function toggleCalendarView() {
+    const container = document.getElementById('contractsView');
+    const res = await fetch(`${BASE}/api/v1/contracts/`, {headers:{'Authorization':'Bearer '+token}});
+    const data = await res.json();
+    const contracts = data.contracts || [];
+    
+    const milestones = [];
+    contracts.forEach(c => {
+        (c.milestones||[]).forEach(ms => {
+            if (ms.deadline) {
+                milestones.push({
+                    contract: c.title,
+                    milestone: ms.title,
+                    deadline: ms.deadline,
+                    status: ms.status,
+                    amount: ms.amount,
+                    currency: c.currency
+                });
+            }
+        });
+    });
+    
+    milestones.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+    
+    container.innerHTML = milestones.length === 0 ? 
+        `<div class="empty-state"><div class="icon">📅</div><p>No milestones with deadlines</p></div>` :
+        `<div style="display:flex;flex-direction:column;gap:0.5rem">${milestones.map(m => `
+            <div class="contract-item">
+                <div><strong>${m.milestone}</strong><br><span style="font-size:0.8rem;color:var(--muted)">${m.contract}</span></div>
+                <div style="text-align:right">
+                    <div>${m.currency} ${m.amount}</div>
+                    <span style="font-size:0.8rem;color:var(--muted)">📅 ${new Date(m.deadline).toLocaleDateString()}</span>
+                    <span class="status-badge status-${m.status||'draft'}">${m.status||'pending'}</span>
+                </div>
+            </div>
+        `).join('')}</div>`;
 }
 
 async function loadContracts() {
@@ -682,6 +729,12 @@ function renderAdvancedTab() {
             <div class="feature-card" onclick="openSupportTicket()"><div class="card-badge badge-new">HELP</div><div class="card-icon">🎫</div><div class="card-title">Support Ticket</div><div class="card-desc">Get human help</div></div>
             <div class="feature-card" onclick="openAgency()"><div class="card-badge badge-premium">PRO</div><div class="card-icon">🏢</div><div class="card-title">White Label Agency</div><div class="card-desc">Your own branded portal</div></div>
             <div class="feature-card" onclick="openLanguages()"><div class="card-badge badge-new">🌍</div><div class="card-icon">🌐</div><div class="card-title">Languages</div><div class="card-desc">6 languages supported</div></div>
+<div class="feature-card" onclick="openReferral()">
+    <div class="card-badge badge-premium">EARN</div>
+    <div class="card-icon">🔗</div>
+    <div class="card-title">Referral Program</div>
+    <div class="card-desc">Invite friends & earn rewards</div>
+</div>
         </div>`;
 }
 
@@ -1292,6 +1345,23 @@ async function createAgency() {
     if(data.success){closeModal();showToast('Agency created!');}
 }
 
+function openReferral() {
+    fetch(`${BASE}/api/v1/referrals/code`, {headers:{'Authorization':'Bearer '+token}})
+    .then(r=>r.json()).then(data=>{
+        document.getElementById('modalContent').innerHTML = `
+            <h3>🔗 Referral Program</h3>
+            <p style="color:var(--muted);margin-bottom:1rem">Invite friends and earn!</p>
+            <div style="background:var(--bg);padding:1rem;border-radius:12px;text-align:center;margin-bottom:1rem">
+                <p style="font-size:0.85rem;color:var(--muted)">Your Referral Code</p>
+                <h2 style="letter-spacing:3px;color:var(--primary)">${data.referral_code}</h2>
+            </div>
+            <div class="form-group"><label>Referral Link</label><input value="${data.referral_link}" readonly onclick="this.select()"></div>
+            <p style="text-align:center;color:var(--success);font-weight:700">💰 Earnings: ₹${data.earnings||0}</p>
+            <button class="btn btn-outline" style="margin-top:1rem;width:100%" onclick="closeModal()">Close</button>`;
+        document.getElementById('modalOverlay').classList.add('show');
+    });
+}
+
 function openLanguages() {
     document.getElementById('modalContent').innerHTML=`<h3>🌐 Supported Languages</h3><div style="display:grid;gap:0.5rem">${['🇬🇧 English','🇮🇳 हिंदी','🇧🇷 Português','🇪🇸 Español','🇫🇷 Français','🇦🇪 العربية'].map(l=>`<div style="padding:0.75rem;background:var(--bg);border-radius:8px">${l}</div>`).join('')}</div><button class="btn btn-outline" style="margin-top:1rem;width:100%" onclick="closeModal()">Close</button>`;
     document.getElementById('modalOverlay').classList.add('show');
@@ -1348,6 +1418,52 @@ async function checkKYCStatus() {
     });
     const data = await res.json();
     alert('KYC Status: ' + data.status + '\nVerified: ' + (data.verified ? 'Yes' : 'No'));
+}
+
+// ==================== REALTIME CHAT ====================
+let currentChatContract = null;
+
+function openChat(contractId) {
+    currentChatContract = contractId;
+    document.getElementById('modalContent').innerHTML = `
+        <h3>💬 Chat</h3>
+        <div id="chatMessagesList" style="max-height:300px;overflow-y:auto;margin-bottom:1rem"></div>
+        <div class="chat-input">
+            <input type="text" id="chatMsgInput" placeholder="Type message..." onkeypress="if(event.key==='Enter')sendChatMsg()">
+            <button class="btn btn-primary btn-sm" style="width:auto" onclick="sendChatMsg()">Send</button>
+        </div>
+        <button class="btn btn-outline" style="margin-top:0.5rem;width:100%" onclick="closeModal()">Close</button>`;
+    document.getElementById('modalOverlay').classList.add('show');
+    refreshChat();
+}
+
+async function refreshChat() {
+    if (!currentChatContract) return;
+    const res = await fetch(`${BASE}/api/v1/chat/${currentChatContract}`, {
+        headers: {'Authorization': 'Bearer ' + token}
+    });
+    const messages = await res.json();
+    const container = document.getElementById('chatMessagesList');
+    if (container) {
+        container.innerHTML = messages.map(m => `
+            <div class="chat-msg ${m.from === userData?.id ? 'user' : 'bot'}">
+                <strong>${m.from === userData?.id ? 'You' : 'Them'}:</strong> ${m.message}
+                <div style="font-size:0.65rem;opacity:0.7">${new Date(m.timestamp).toLocaleTimeString()}</div>
+            </div>
+        `).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
+async function sendChatMsg() {
+    const msg = document.getElementById('chatMsgInput').value;
+    if (!msg || !currentChatContract) return;
+    await fetch(`${BASE}/api/v1/chat/send`, {
+        method: 'POST', headers: {'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+        body: JSON.stringify({contract_id: currentChatContract, message: msg, to: ''})
+    });
+    document.getElementById('chatMsgInput').value = '';
+    refreshChat();
 }
 
 // ==================== CONTRACT ACTIONS ====================

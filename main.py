@@ -39,7 +39,7 @@ is_production = os.getenv("ENVIRONMENT") == "production"
 app = FastAPI(
     title="Dokets VouchAI API",
     version="1.0.0",
-    docs_url=None if is_production else "/docs",
+    docs_url="/docs",
     redoc_url=None,
     lifespan=lifespan
 )
