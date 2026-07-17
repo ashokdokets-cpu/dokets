@@ -6,7 +6,7 @@ from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from core.database.mongodb import mongodb
-from api.routes import users, contracts, ai, payments, admin, kyc, chat, webhooks, disputes, analytics, advanced, providers, reviews, favorites, templates
+from api.routes import users, contracts, ai, payments, admin, kyc, chat, webhooks, disputes, analytics, advanced, providers, reviews, favorites, templates, jobs
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from core.security.limiter import limiter
@@ -85,6 +85,7 @@ app.include_router(providers.router)
 app.include_router(reviews.router)
 app.include_router(favorites.router)
 app.include_router(templates.router)
+app.include_router(jobs.router)
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):

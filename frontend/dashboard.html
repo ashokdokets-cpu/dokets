@@ -539,6 +539,7 @@ function renderHome() {
             <button class="tab ${activeTab==='home'?'active':''}" onclick="activeTab='home';renderHome()">🏠 Home</button>
             <button class="tab ${activeTab==='contracts'?'active':''}" onclick="activeTab='contracts';renderContractsTab()">📄 Contracts <span class="badge-count" id="contractCount">-</span></button>
             <button class="tab ${activeTab==='marketplace'?'active':''}" onclick="activeTab='marketplace';renderMarketplace()">🏪 Marketplace</button>
+            <button class="tab ${activeTab==='jobs'?'active':''}" onclick="activeTab='jobs';renderJobsTab()">💼 Jobs</button>
             <div style="position:relative;margin-left:auto">
                 <button class="tab ${activeTab==='ai'||activeTab==='advanced'||activeTab==='providers'?'active':''}" onclick="toggleMoreMenu()" id="moreBtn">🔧 More ▾</button>
                 <div class="dropdown-menu" id="moreMenu">
@@ -917,6 +918,102 @@ async function createFromTemplate(tid) {
     });
     const cdata = await cres.json();
     if (cdata.success) { closeModal(); showToast('Contract created from template!'); loadContracts(); }
+}
+
+// ==================== JOB BOARD ====================
+async function renderJobsTab() {
+    const main = document.getElementById('mainContent');
+    main.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <h2>💼 Job Board</h2>
+            <button class="btn btn-primary btn-sm" style="width:auto" onclick="openPostJob()">+ Post a Job</button>
+        </div>
+        <div id="jobsList"><div class="empty-state"><div class="icon">⏳</div><p>Loading jobs...</p></div></div>`;
+    await loadJobs();
+}
+
+async function loadJobs() {
+    const container = document.getElementById('jobsList');
+    if (!container) return;
+    const res = await fetch(`${BASE}/api/v1/jobs/list`, {headers:{'Authorization':'Bearer '+token}});
+    const data = await res.json();
+    const jobs = data.jobs || [];
+    
+    if (jobs.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">💼</div><p>No open jobs yet</p><button class="btn btn-primary btn-sm" style="width:auto;margin-top:1rem" onclick="openPostJob()">Post First Job</button></div>`;
+        return;
+    }
+    
+    container.innerHTML = jobs.map(j => `
+        <div class="contract-item" style="flex-direction:column;align-items:flex-start;gap:0.75rem">
+            <div style="display:flex;justify-content:space-between;width:100%">
+                <div>
+                    <h4>${j.title}</h4>
+                    <span style="font-size:0.8rem;color:var(--muted)">${j.location} · ${j.applications?.length||0} applicants</span>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-weight:700">${j.currency} ${j.budget_min}-${j.budget_max}</div>
+                    <span class="status-badge status-active">${j.status}</span>
+                </div>
+            </div>
+            <p style="font-size:0.9rem;color:var(--muted)">${j.description?.substring(0,150)}...</p>
+            <div style="display:flex;gap:0.5rem">
+                ${(j.skills_required||[]).map(s=>`<span style="background:rgba(99,102,241,0.1);color:#a5b4fc;padding:0.2rem 0.6rem;border-radius:50px;font-size:0.75rem">${s}</span>`).join('')}
+            </div>
+            ${currentMode === 'provider' ? `<button class="btn btn-success btn-sm" style="width:auto" onclick="applyToJob('${j.id}')">Apply Now</button>` : ''}
+        </div>
+    `).join('');
+}
+
+function openPostJob() {
+    document.getElementById('modalContent').innerHTML = `
+        <h3>💼 Post a Job</h3>
+        <div class="form-group"><label>Title</label><input id="jobTitle" placeholder="Need a painter for 3BHK house"></div>
+        <div class="form-group"><label>Description</label><textarea id="jobDesc" rows="3" placeholder="Describe the work needed..."></textarea></div>
+        <div class="form-group"><label>Category</label><select id="jobCat">
+            <option value="home">🏠 Home Services</option><option value="tech">💻 Tech & IT</option>
+            <option value="transport">🚗 Transport</option><option value="education">📚 Education</option>
+            <option value="events">🎉 Events</option><option value="health">🏥 Health</option>
+            <option value="business">💼 Business</option><option value="auto">🔧 Auto</option><option value="other">📦 Other</option>
+        </select></div>
+        <div class="form-group"><label>Skills Required (comma separated)</label><input id="jobSkills" placeholder="Painting, Wall Preparation"></div>
+        <div class="form-group" style="display:flex;gap:0.5rem">
+            <div style="flex:1"><label>Min Budget (₹)</label><input type="number" id="jobMin" value="5000"></div>
+            <div style="flex:1"><label>Max Budget (₹)</label><input type="number" id="jobMax" value="15000"></div>
+        </div>
+        <div class="form-group"><label>Location</label><input id="jobLocation" placeholder="Hyderabad / Remote"></div>
+        <button class="btn btn-primary" onclick="postJob()">Post Job</button>
+        <button class="btn btn-outline" style="margin-top:0.5rem;width:100%" onclick="closeModal()">Cancel</button>`;
+    document.getElementById('modalOverlay').classList.add('show');
+}
+
+async function postJob() {
+    const res = await fetch(`${BASE}/api/v1/jobs/post`, {
+        method: 'POST', headers: {'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+        body: JSON.stringify({
+            title: document.getElementById('jobTitle').value,
+            description: document.getElementById('jobDesc').value,
+            category: document.getElementById('jobCat').value,
+            skills_required: document.getElementById('jobSkills').value.split(',').map(s=>s.trim()),
+            budget_min: parseInt(document.getElementById('jobMin').value)||0,
+            budget_max: parseInt(document.getElementById('jobMax').value)||0,
+            location: document.getElementById('jobLocation').value
+        })
+    });
+    const data = await res.json();
+    if (data.success) { closeModal(); showToast('Job posted!'); loadJobs(); }
+}
+
+async function applyToJob(jobId) {
+    const cover = prompt('Write a short cover letter:');
+    if (!cover) return;
+    const bid = prompt('Your bid amount (₹):');
+    const res = await fetch(`${BASE}/api/v1/jobs/${jobId}/apply`, {
+        method: 'POST', headers: {'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+        body: JSON.stringify({cover_letter: cover, bid_amount: parseInt(bid)||0})
+    });
+    const data = await res.json();
+    if (data.success) showToast('Applied! 🎉');
 }
 
 // ==================== PROVIDERS TAB ====================
