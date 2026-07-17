@@ -3,452 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dokets VouchAI - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>Dokets VouchAI — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #06080d;
-            --card: #0d1117;
-            --card-hover: #161b22;
-            --border: #1a1f2b;
-            --text: #e6edf3;
-            --muted: #7d8590;
-            --primary: #6366f1;
-            --primary-hover: #5558e6;
-            --primary-glow: rgba(99,102,241,0.25);
-            --success: #238636;
-            --success-bg: rgba(35,134,54,0.15);
-            --warning: #d2991b;
-            --danger: #da3633;
-            --ai: #8b5cf6;
-            --ai-glow: rgba(139,92,246,0.25);
-            --radius: 12px;
-            --radius-sm: 8px;
-            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg: #080c14; --card: #0f1419; --card-hover: #161c24;
+            --border: #1c2330; --text: #e2e8f0; --muted: #64748b;
+            --primary: #6366f1; --primary-hover: #5558e6; --primary-glow: rgba(99,102,241,0.2);
+            --success: #22c55e; --success-bg: rgba(34,197,94,0.1);
+            --warning: #f59e0b; --danger: #ef4444;
+            --ai: #8b5cf6; --radius: 10px; --radius-sm: 6px;
+            --transition: 0.2s ease;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            line-height: 1.5;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh; line-height: 1.5;
             -webkit-font-smoothing: antialiased;
-            background-image: 
-                radial-gradient(ellipse at 15% 15%, rgba(99,102,241,0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 85% 85%, rgba(139,92,246,0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.02) 0%, transparent 70%);
         }
         body.light-mode {
-            --bg: #f6f8fa;
-            --card: #ffffff;
-            --card-hover: #f0f2f5;
-            --border: #d0d7de;
-            --text: #1f2328;
-            --muted: #656d76;
+            --bg: #f8fafc; --card: #ffffff; --card-hover: #f1f5f9;
+            --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
         }
 
         /* HEADER */
         .header {
-            background: rgba(13,17,23,0.85);
-            border-bottom: 1px solid var(--border);
-            padding: 0.6rem 1.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            background: rgba(15,20,25,0.9); border-bottom: 1px solid var(--border);
+            padding: 0 1.5rem; height: 52px; display:flex; align-items:center;
+            position: sticky; top:0; z-index:100; backdrop-filter: blur(20px);
         }
-        body.light-mode .header { background: rgba(255,255,255,0.85); }
+        body.light-mode .header { background: rgba(255,255,255,0.9); }
         .header-inner {
-            max-width: 1440px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
+            max-width: 1280px; margin:0 auto; width:100%;
+            display:flex; justify-content:space-between; align-items:center;
         }
         .logo {
-            font-size: 1.25rem;
-            font-weight: 800;
+            font-size: 1.1rem; font-weight: 700; color: var(--text);
+            text-decoration: none; display:flex; align-items:center; gap: 0.5rem;
             letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #818cf8, #a78bfa, #34d399);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            cursor: pointer;
-            text-decoration: none;
         }
-        .logo-icon { font-size: 1.5rem; -webkit-text-fill-color: initial; }
-
-        /* MODE SWITCHER */
-        .mode-switcher {
-            display: flex;
-            background: var(--card);
-            border-radius: 50px;
-            padding: 3px;
-            border: 1px solid var(--border);
-            gap: 2px;
-        }
+        .logo-dot { width:8px; height:8px; border-radius:50%; background: var(--primary); }
+        .mode-switcher { display:flex; background:var(--bg); border-radius:50px; padding:2px; border:1px solid var(--border); gap:1px; }
         .mode-btn {
-            padding: 0.45rem 1rem;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.8rem;
-            transition: var(--transition);
-            background: transparent;
-            color: var(--muted);
-            white-space: nowrap;
-            font-family: inherit;
+            padding: 0.35rem 0.9rem; border-radius:50px; border:none; cursor:pointer;
+            font-weight: 500; font-size:0.78rem; transition:var(--transition);
+            background:transparent; color:var(--muted); font-family:inherit;
         }
-        .mode-btn.active {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 2px 12px var(--primary-glow);
-        }
-        .mode-btn:hover:not(.active) { color: var(--text); }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
+        .mode-btn.active { background:var(--primary); color:#fff; }
+        .mode-btn:hover:not(.active) { color:var(--text); }
+        .user-info { display:flex; align-items:center; gap:0.6rem; }
         .user-avatar {
-            width: 34px; height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--ai));
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.85rem; color: #fff;
+            width:30px; height:30px; border-radius:50%; background:var(--primary);
+            display:flex; align-items:center; justify-content:center;
+            font-weight:600; font-size:0.75rem; color:#fff;
         }
-        .mode-badge {
-            font-size: 0.6rem; padding: 0.2rem 0.5rem;
-            border-radius: 50px; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.5px;
+        .badge {
+            font-size:0.6rem; padding:0.15rem 0.45rem; border-radius:50px;
+            font-weight:600; text-transform:uppercase; letter-spacing:0.5px;
         }
-        .badge-customer { background: rgba(88,166,255,0.15); color: #58a6ff; }
-        .badge-provider { background: rgba(168,123,255,0.15); color: #a87bff; }
+        .badge-customer { background:rgba(59,130,246,0.15); color:#60a5fa; }
+        .badge-provider { background:rgba(139,92,246,0.15); color:#a78bfa; }
 
         /* MAIN */
-        .main { max-width: 1440px; margin: 0 auto; padding: 1.25rem 1.5rem 0; }
+        .main { max-width:1280px; margin:0 auto; padding:1.5rem; }
 
         /* TABS */
         .tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 1.25rem;
-            border-bottom: 1px solid var(--border);
-            position: relative;
+            display:flex; gap:0; margin-bottom:1.5rem;
+            border-bottom:1px solid var(--border);
         }
         .tab {
-            padding: 0.55rem 1rem;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.82rem;
-            transition: var(--transition);
-            color: var(--muted);
-            background: transparent;
-            white-space: nowrap;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            font-family: inherit;
-            letter-spacing: -0.01em;
+            padding:0.5rem 1rem; border:none; cursor:pointer; font-weight:500;
+            font-size:0.82rem; color:var(--muted); background:transparent;
+            border-bottom:2px solid transparent; margin-bottom:-1px;
+            font-family:inherit; transition:var(--transition);
         }
-        .tab.active {
-            color: var(--text);
-            border-bottom-color: var(--primary);
-            font-weight: 600;
-        }
-        .tab:hover { color: var(--text); background: rgba(99,102,241,0.04); }
+        .tab.active { color:var(--text); border-bottom-color:var(--primary); font-weight:600; }
+        .tab:hover { color:var(--text); }
         .tab .badge-count {
-            background: var(--primary);
-            color: #fff;
-            padding: 0.1rem 0.4rem;
-            border-radius: 50px;
-            font-size: 0.65rem;
-            margin-left: 0.2rem;
-            font-weight: 600;
+            background:var(--primary); color:#fff; padding:0.1rem 0.4rem;
+            border-radius:50px; font-size:0.65rem; margin-left:0.3rem;
         }
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 0.4rem;
-            z-index: 50;
-            min-width: 200px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-            margin-top: 0.25rem;
-        }
-        .dropdown-menu.show { display: block; animation: fadeIn 0.15s ease; }
-        .dropdown-item {
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.8rem;
-            color: var(--muted);
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            width: 100%;
-            text-align: left;
-            background: transparent;
-            border: none;
-            font-family: inherit;
-        }
-        .dropdown-item:hover { color: var(--text); background: rgba(99,102,241,0.06); }
 
         /* STATS */
         .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1.25rem;
+            display:grid; grid-template-columns:repeat(4,1fr); gap:1rem;
+            margin-bottom:2rem;
         }
         .stat-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1rem 1.25rem;
-            transition: var(--transition);
+            background:var(--card); border:1px solid var(--border);
+            border-radius:var(--radius); padding:1.25rem 1.5rem;
+            transition:var(--transition);
         }
-        .stat-card:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-        .stat-icon { font-size: 1.2rem; margin-bottom: 0.3rem; }
-        .stat-value { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
-        .stat-label { color: var(--muted); font-size: 0.75rem; font-weight: 500; }
+        .stat-card:hover { border-color:var(--primary); }
+        .stat-label { color:var(--muted); font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.35rem; }
+        .stat-value { font-size:1.8rem; font-weight:700; letter-spacing:-0.02em; }
 
         /* GRID */
         .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1.25rem;
+            display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+            gap:0.75rem; margin-bottom:1.5rem;
         }
         .feature-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.25rem;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
+            background:var(--card); border:1px solid var(--border);
+            border-radius:var(--radius); padding:1.25rem; cursor:pointer;
+            transition:var(--transition);
         }
-        .feature-card:hover {
-            border-color: rgba(99,102,241,0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        .feature-card:hover { border-color:rgba(99,102,241,0.4); transform:translateY(-1px); }
+        .feature-card .card-label {
+            font-size:0.55rem; font-weight:700; text-transform:uppercase;
+            letter-spacing:0.5px; color:var(--primary); margin-bottom:0.5rem;
         }
-        .feature-card.ai-card:hover { border-color: rgba(139,92,246,0.4); }
-        .feature-card .card-badge {
-            position: absolute; top: 0.6rem; right: 0.6rem;
-            font-size: 0.55rem; padding: 0.15rem 0.5rem;
-            border-radius: 50px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+        .feature-card .card-title { font-size:0.95rem; font-weight:600; margin-bottom:0.2rem; }
+        .feature-card .card-desc { color:var(--muted); font-size:0.78rem; line-height:1.4; }
+
+        /* SECTION HEADER */
+        .section-header {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:0.75rem;
         }
-        .badge-ai { background: rgba(139,92,246,0.15); color: #a78bfa; }
-        .badge-new { background: var(--success-bg); color: #3fb950; }
-        .badge-premium { background: rgba(210,153,27,0.15); color: #d2991b; }
-        .feature-card .card-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-        .feature-card .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; letter-spacing: -0.01em; }
-        .feature-card .card-desc { color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
+        .section-header h2 { font-size:1rem; font-weight:700; }
+        .section-header a { color:var(--primary); font-size:0.8rem; font-weight:500; text-decoration:none; cursor:pointer; }
+        .section-header a:hover { text-decoration:underline; }
 
         /* CONTRACT LIST */
-        .contract-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .contract-list { display:flex; flex-direction:column; gap:0.4rem; }
         .contract-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0.85rem 1rem; background: var(--card);
-            border-radius: var(--radius-sm); border: 1px solid transparent;
-            transition: var(--transition); cursor: pointer;
+            display:flex; justify-content:space-between; align-items:center;
+            padding:0.75rem 1rem; background:var(--card);
+            border-radius:var(--radius-sm); border:1px solid transparent;
+            transition:var(--transition); cursor:pointer;
         }
-        .contract-item:hover { border-color: var(--border); background: var(--card-hover); }
-        .contract-left { display: flex; align-items: center; gap: 0.75rem; }
+        .contract-item:hover { border-color:var(--border); background:var(--card-hover); }
+        .contract-left { display:flex; align-items:center; gap:0.75rem; }
         .contract-icon {
-            width: 36px; height: 36px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center; font-size: 1rem;
+            width:34px; height:34px; border-radius:6px;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:700; font-size:0.8rem;
         }
-        .contract-info h4 { font-weight: 600; font-size: 0.9rem; }
-        .contract-info span { font-size: 0.7rem; color: var(--muted); }
-        .contract-right { text-align: right; }
-        .contract-amount { font-weight: 700; font-size: 0.9rem; }
+        .contract-info h4 { font-weight:600; font-size:0.85rem; }
+        .contract-info span { font-size:0.7rem; color:var(--muted); }
+        .contract-right { text-align:right; }
+        .contract-amount { font-weight:700; font-size:0.85rem; }
         .status-badge {
-            display: inline-block; padding: 0.15rem 0.5rem;
-            border-radius: 50px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+            display:inline-block; padding:0.12rem 0.45rem; border-radius:50px;
+            font-size:0.6rem; font-weight:600; text-transform:uppercase;
         }
-        .status-draft { background: rgba(125,133,144,0.1); color: #7d8590; }
-        .status-active { background: var(--success-bg); color: #3fb950; }
-        .status-completed { background: rgba(88,166,255,0.1); color: #58a6ff; }
-        .status-disputed { background: rgba(218,54,51,0.1); color: #f85149; }
+        .status-draft { background:rgba(100,116,139,0.1); color:#94a3b8; }
+        .status-active { background:var(--success-bg); color:#22c55e; }
+        .status-completed { background:rgba(59,130,246,0.1); color:#60a5fa; }
 
-        .empty-state { text-align: center; padding: 3rem; color: var(--muted); }
-        .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.6; }
-
-        /* SKELETON */
-        @keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
-        .skeleton {
-            background: linear-gradient(90deg, var(--border) 25%, var(--card-hover) 50%, var(--border) 75%);
-            background-size: 400px 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 4px;
+        .empty-state {
+            text-align:center; padding:3rem 1rem; color:var(--muted);
+            background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
         }
+        .empty-state h3 { font-size:1rem; margin-bottom:0.3rem; color:var(--text); }
+        .empty-state p { font-size:0.8rem; margin-bottom:1rem; }
 
         /* MODAL */
         .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7); z-index: 1000;
-            align-items: center; justify-content: center; backdrop-filter: blur(4px);
+            display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+            background:rgba(0,0,0,0.7); z-index:1000;
+            align-items:center; justify-content:center; backdrop-filter:blur(4px);
         }
-        .modal-overlay.show { display: flex; animation: fadeIn 0.15s ease; }
+        .modal-overlay.show { display:flex; }
         .modal {
-            background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 1.5rem;
-            width: 95%; max-width: 560px; max-height: 82vh;
-            overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            background:var(--card); border:1px solid var(--border);
+            border-radius:var(--radius); padding:1.5rem; width:95%; max-width:520px;
+            max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.5);
         }
-        .modal h3 { font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem; font-weight: 700; }
-        .form-group { margin-bottom: 0.85rem; }
-        .form-group label { display: block; margin-bottom: 0.25rem; font-weight: 600; font-size: 0.8rem; color: var(--muted); }
+        .modal h3 { font-size:1rem; margin-bottom:1rem; font-weight:700; }
+        .form-group { margin-bottom:0.75rem; }
+        .form-group label { display:block; margin-bottom:0.2rem; font-weight:600; font-size:0.75rem; color:var(--muted); }
         .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 0.55rem 0.75rem; background: var(--bg);
-            border: 1px solid var(--border); border-radius: var(--radius-sm);
-            color: var(--text); font-size: 0.85rem; font-family: inherit; transition: var(--transition);
+            width:100%; padding:0.5rem 0.7rem; background:var(--bg);
+            border:1px solid var(--border); border-radius:var(--radius-sm);
+            color:var(--text); font-size:0.82rem; font-family:inherit; transition:var(--transition);
         }
-        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+        .form-group input:focus, .form-group textarea:focus { outline:none; border-color:var(--primary); }
         .btn {
-            padding: 0.55rem 1.25rem; border-radius: var(--radius-sm); border: none;
-            font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: var(--transition); font-family: inherit;
-            letter-spacing: -0.01em;
+            padding:0.5rem 1.25rem; border-radius:var(--radius-sm); border:none;
+            font-weight:600; cursor:pointer; font-size:0.82rem; transition:var(--transition);
+            font-family:inherit; letter-spacing:-0.01em;
         }
-        .btn-primary { background: var(--primary); color: #fff; width: 100%; }
-        .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 16px var(--primary-glow); }
-        .btn-ai { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: #fff; }
-        .btn-success { background: var(--success); color: #fff; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-        .btn-outline:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.15); }
-        .btn-sm { padding: 0.3rem 0.7rem; font-size: 0.75rem; }
-        .btn-xs { padding: 0.2rem 0.5rem; font-size: 0.7rem; }
-        .btn-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .btn-primary { background:var(--primary); color:#fff; width:100%; }
+        .btn-primary:hover { background:var(--primary-hover); }
+        .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+        .btn-outline:hover { background:rgba(255,255,255,0.03); }
+        .btn-sm { padding:0.3rem 0.7rem; font-size:0.75rem; }
+        .btn-xs { padding:0.2rem 0.5rem; font-size:0.68rem; }
+        .btn-success { background:var(--success); color:#fff; }
 
         /* TOAST */
         .toast {
-            position: fixed; top: 1rem; right: 1rem;
-            background: var(--card); color: var(--text);
-            padding: 0.7rem 1.25rem; border-radius: var(--radius-sm);
-            font-weight: 600; font-size: 0.85rem; z-index: 2000;
-            animation: slideIn 0.25s ease;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            border: 1px solid var(--border);
+            position:fixed; top:1rem; right:1rem; background:var(--card);
+            color:var(--text); padding:0.65rem 1.25rem; border-radius:var(--radius-sm);
+            font-weight:600; font-size:0.8rem; z-index:2000;
+            box-shadow:0 8px 24px rgba(0,0,0,0.5); border:1px solid var(--border);
         }
-        .toast.error { border-color: var(--danger); border-left: 3px solid var(--danger); }
-        .toast.success { border-left: 3px solid #3fb950; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: slideUp 0.3s ease forwards; }
-
-        /* CHATBOT */
-        .chatbot-widget { position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 500; }
-        .chatbot-btn {
-            width: 48px; height: 48px; border-radius: 50%;
-            background: linear-gradient(135deg, #8b5cf6, #6366f1);
-            border: none; cursor: pointer; font-size: 1.2rem;
-            box-shadow: 0 4px 20px var(--ai-glow); transition: var(--transition);
-        }
-        .chatbot-btn:hover { transform: scale(1.08); }
-        .chatbot-panel {
-            display: none; position: absolute; bottom: 60px; right: 0;
-            width: 320px; background: var(--card); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 0.85rem; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-        .chatbot-panel.open { display: block; }
-        .chat-messages { max-height: 260px; overflow-y: auto; margin-bottom: 0.5rem; font-size: 0.8rem; }
-        .chat-msg { padding: 0.4rem 0.6rem; border-radius: var(--radius-sm); margin-bottom: 0.3rem; }
-        .chat-msg.bot { background: rgba(139,92,246,0.08); color: #c4b5fd; }
-        .chat-msg.user { background: rgba(99,102,241,0.08); color: #a5b4fc; text-align: right; }
-        .chat-input { display: flex; gap: 0.4rem; }
-        .chat-input input { flex: 1; }
+        .toast.error { border-left:3px solid var(--danger); }
+        .toast.success { border-left:3px solid var(--success); }
 
         /* FOOTER */
         .dash-footer {
-            text-align: center;
-            padding: 1.5rem;
-            color: var(--muted);
-            font-size: 0.72rem;
-            border-top: 1px solid var(--border);
-            margin-top: 2rem;
-            letter-spacing: -0.01em;
+            text-align:center; padding:1.25rem; color:var(--muted);
+            font-size:0.7rem; border-top:1px solid var(--border); margin-top:2rem;
         }
-        .dash-footer a { color: var(--muted); text-decoration: none; transition: var(--transition); }
-        .dash-footer a:hover { color: var(--text); }
+        .dash-footer a { color:var(--muted); text-decoration:none; }
+        .dash-footer a:hover { color:var(--text); }
 
-        @media (max-width: 768px) {
-            .header-inner { flex-wrap: wrap; }
-            .cards-grid { grid-template-columns: 1fr; }
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
-            .tabs { overflow-x: auto; }
+        /* SKELETON */
+        @keyframes shimmer { 0%{background-position:-200px 0} 100%{background-position:200px 0} }
+        .skeleton {
+            background:linear-gradient(90deg,var(--border) 25%,var(--card-hover) 50%,var(--border) 75%);
+            background-size:400px 100%; animation:shimmer 1.5s infinite; border-radius:4px;
         }
-        @media (max-width: 480px) {
-            .stats-row { grid-template-columns: 1fr; }
-            .mode-switcher { width: 100%; }
-            .mode-btn { flex: 1; text-align: center; }
+
+        @media (max-width:768px) {
+            .stats-row { grid-template-columns:repeat(2,1fr); }
+            .cards-grid { grid-template-columns:1fr; }
+            .tabs { overflow-x:auto; }
+        }
+        @media (max-width:480px) {
+            .stats-row { grid-template-columns:1fr; }
         }
     </style>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
 <header class="header">
     <div class="header-inner">
-        <a href="/" class="logo"><span class="logo-icon">🛡️</span> Dokets</a>
-        <div class="mode-switcher" id="modeSwitcher">
-            <button class="mode-btn active" data-mode="customer" onclick="switchMode('customer')">🏠 Hire</button>
-            <button class="mode-btn" data-mode="provider" onclick="switchMode('provider')">🔧 Earn</button>
+        <a href="/" class="logo"><span class="logo-dot"></span> Dokets</a>
+        <div class="mode-switcher">
+            <button class="mode-btn active" data-mode="customer" onclick="switchMode('customer')">Hire</button>
+            <button class="mode-btn" data-mode="provider" onclick="switchMode('provider')">Earn</button>
         </div>
         <div class="user-info">
-            <button class="btn btn-outline btn-xs" style="position:relative" onclick="showNotifications()" title="Notifications">🔔<span id="notifBadge" style="position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;border-radius:50%;width:16px;height:16px;font-size:0.6rem;display:none;align-items:center;justify-content:center;font-weight:700">0</span></button>
             <div style="text-align:right;line-height:1.2">
-                <div style="font-weight:600;font-size:0.8rem" id="userName">User</div>
-                <div style="font-size:0.65rem;color:var(--muted)" id="userEmail">email</div>
+                <div style="font-weight:600;font-size:0.75rem" id="userName">User</div>
+                <div style="font-size:0.6rem;color:var(--muted)" id="userEmail">email</div>
             </div>
             <div class="user-avatar" id="userAvatar">U</div>
-            <span class="mode-badge badge-customer" id="modeBadge">CUSTOMER</span>
-            <select id="langSwitcher" onchange="switchLanguage(this.value)" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.25rem 0.4rem;border-radius:6px;font-size:0.72rem;cursor:pointer">
-                <option value="en">🇬🇧</option><option value="hi">🇮🇳</option><option value="es">🇪🇸</option><option value="pt">🇧🇷</option><option value="fr">🇫🇷</option><option value="ar">🇦🇪</option><option value="id">🇮🇩</option><option value="bn">🇧🇩</option><option value="zh">🇨🇳</option><option value="de">🇩🇪</option>
+            <span class="badge badge-customer" id="modeBadge">CUSTOMER</span>
+            <select id="langSwitcher" onchange="switchLanguage(this.value)" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.2rem 0.3rem;border-radius:4px;font-size:0.65rem">
+                <option value="en">EN</option><option value="hi">HI</option><option value="es">ES</option><option value="pt">PT</option><option value="fr">FR</option><option value="ar">AR</option>
             </select>
-            <button class="btn btn-outline btn-xs" onclick="toggleTheme()" title="Theme">🌓</button>
-            <button class="btn btn-outline btn-xs" onclick="logout()">🚪</button>
+            <button class="btn btn-outline btn-xs" onclick="logout()" style="font-size:0.7rem">Log out</button>
         </div>
     </div>
 </header>
 
 <main class="main" id="mainContent"></main>
 
-<footer class="dash-footer" id="dashFooter">
-    <p>© 2026 <strong>Dokets VouchAI</strong> · Trust in Every Deal</p>
-    <p style="margin-top:0.3rem"><a href="/about">About</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/cookies">Cookies</a> · <a href="/contact">Contact</a> · <a href="/docs" target="_blank">API</a></p>
-</footer>
-
 <div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
-
-<div class="chatbot-widget">
-    <div class="chatbot-panel" id="chatbotPanel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
-            <strong style="font-size:0.85rem">🤖 AI Assistant</strong>
-            <button class="btn btn-outline btn-xs" onclick="toggleChatbot()">✕</button>
-        </div>
-        <div class="chat-messages" id="chatMessages"><div class="chat-msg bot">Hi! Ask me anything about contracts, verification, or payments.</div></div>
-        <div class="chat-input"><input type="text" id="chatInput" placeholder="Ask me..." onkeypress="if(event.key==='Enter')sendChat()"><button class="btn btn-ai btn-xs" onclick="sendChat()">→</button></div>
-    </div>
-    <button class="chatbot-btn" onclick="toggleChatbot()">💬</button>
-</div>
 
 <script>
 const BASE = 'https://dokets.com';
@@ -456,260 +264,200 @@ let token = localStorage.getItem('dokets_token');
 let currentMode = 'customer';
 let userData = null;
 let activeTab = window.location.hash.replace('#','') || 'home';
-// Handle browser back/forward buttons
-window.addEventListener('hashchange', function() {
-    const tab = window.location.hash.replace('#','') || 'home';
-    if (tab !== activeTab) {
-        activeTab = tab;
-        navigateToTab(tab);
-    }
-});
+window.addEventListener('hashchange',function(){const t=window.location.hash.replace('#','')||'home';if(t!==activeTab){activeTab=t;navigateToTab(t);}});
 
-// ==================== INIT ====================
-async function init() {
-    if (!token) { showLoginModal(); return; }
-    try {
-        const res = await fetch(`${BASE}/api/v1/users/me`, {headers: {'Authorization': 'Bearer ' + token}});
-        if (!res.ok) { localStorage.removeItem('dokets_token'); showLoginModal(); return; }
-        userData = await res.json();
-        currentMode = userData.current_mode || 'customer';
-        document.getElementById('langSwitcher').value = localStorage.getItem('dokets_lang') || 'en';
-        updateUI();
-        renderHome();
-        setInterval(() => { if (activeTab === 'chat') refreshChat(); }, 3000);
-    } catch (e) { showLoginModal(); }
+async function init(){
+    if(!token){showLoginModal();return;}
+    try{
+        const r=await fetch(`${BASE}/api/v1/users/me`,{headers:{'Authorization':'Bearer '+token}});
+        if(!r.ok){localStorage.removeItem('dokets_token');showLoginModal();return;}
+        userData=await r.json();currentMode=userData.current_mode||'customer';
+        updateUI();navigateToTab(activeTab);
+    }catch(e){showLoginModal();}
 }
 
-// ==================== AUTH ====================
-function showLoginModal() {
-    document.getElementById('mainContent').innerHTML = `
-        <div style="max-width:420px;margin:5rem auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center">
-        <a href="/" style="color:var(--muted);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:1rem">← Back to Home</a>
-            <div style="font-size:3rem;margin-bottom:0.75rem">🛡️</div>
-            <h2 style="margin-bottom:0.25rem;font-weight:800">Welcome to Dokets</h2>
+function showLoginModal(){
+    document.getElementById('mainContent').innerHTML=`
+        <div style="max-width:400px;margin:6rem auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center">
+            <a href="/" style="color:var(--muted);text-decoration:none;font-size:0.8rem;display:block;margin-bottom:1.25rem;text-align:left">&larr; Back to Home</a>
+            <div style="font-size:2rem;margin-bottom:0.5rem;font-weight:700">Dokets</div>
             <p style="color:var(--muted);margin-bottom:1.25rem;font-size:0.85rem">Trust in Every Deal</p>
             <div class="form-group"><input type="email" id="loginEmail" placeholder="Email"></div>
             <div class="form-group"><input type="password" id="loginPassword" placeholder="Password"></div>
-            <div class="form-group"><select id="loginMode"><option value="customer">🏠 I need a service</option><option value="provider">🔧 I provide a service</option></select></div>
+            <div class="form-group"><select id="loginMode"><option value="customer">I need a service</option><option value="provider">I provide a service</option></select></div>
             <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
             <button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="doRegister()">Create Account</button>
         </div>`;
 }
-async function doLogin() {
+async function doLogin(){
     const e=document.getElementById('loginEmail').value,p=document.getElementById('loginPassword').value,m=document.getElementById('loginMode').value;
     const r=await fetch(`${BASE}/api/v1/users/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,mode:m})});
     const d=await r.json();
-    if(d.access_token){localStorage.setItem('dokets_token',d.access_token);token=d.access_token;currentMode=m;userData=d.user;updateUI();renderHome();}
+    if(d.access_token){localStorage.setItem('dokets_token',d.access_token);token=d.access_token;currentMode=m;userData=d.user;updateUI();navigateToTab('home');}
     else showToast(d.detail||'Login failed','error');
 }
-async function doRegister() {
+async function doRegister(){
     const e=document.getElementById('loginEmail').value,p=document.getElementById('loginPassword').value;
     if(!e||!p){showToast('Fill all fields','error');return;}
     const r=await fetch(`${BASE}/api/v1/users/register`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p,phone_number:'+919100014859',full_name:e.split('@')[0]})});
-    const d=await r.json();
-    if(d.success){showToast('Registered!');doLogin();}else showToast(d.detail||'Failed','error');
+    const d=await r.json();if(d.success){showToast('Registered!');doLogin();}else showToast(d.detail||'Failed','error');
 }
-function updateUI() {
+function updateUI(){
     if(!userData)return;
     document.getElementById('userName').textContent=userData.full_name||'User';
     document.getElementById('userEmail').textContent=userData.email||'';
     document.getElementById('userAvatar').textContent=(userData.full_name||'U')[0].toUpperCase();
     document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===currentMode));
-    const b=document.getElementById('modeBadge');b.textContent=currentMode==='customer'?'CUSTOMER':'PROVIDER';b.className=`mode-badge badge-${currentMode}`;
+    const b=document.getElementById('modeBadge');b.textContent=currentMode==='customer'?'CUSTOMER':'PROVIDER';b.className=`badge badge-${currentMode}`;
 }
-async function switchMode(mode) {
+async function switchMode(mode){
     if(mode===currentMode)return;
     const r=await fetch(`${BASE}/api/v1/users/switch-mode`,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({mode})});
     const d=await r.json();
-    if(d.success){token=d.access_token;localStorage.setItem('dokets_token',token);currentMode=mode;updateUI();renderHome();}
+    if(d.success){token=d.access_token;localStorage.setItem('dokets_token',token);currentMode=mode;updateUI();navigateToTab('home');}
 }
 function logout(){localStorage.removeItem('dokets_token');token=null;userData=null;showLoginModal();}
-function toggleTheme(){document.body.classList.toggle('light-mode');localStorage.setItem('dokets_theme',document.body.classList.contains('light-mode')?'light':'dark');}
 
-// ==================== LANGUAGE ====================
-function switchLanguage(lang){localStorage.setItem('dokets_lang',lang);updateUILanguage(lang);}
-async function updateUILanguage(lang){try{const r=await fetch(`${BASE}/api/v1/translations/${lang}`);window._translations=await r.json();if(activeTab==='home')renderHome();else if(activeTab==='contracts')renderContractsTab();else if(activeTab==='marketplace')renderMarketplace();else if(activeTab==='jobs')renderJobsTab();}catch(e){}}
-function t(key){return(window._translations&&window._translations[key])||key;}
-
-// ==================== DROPDOWN ====================
-function toggleMoreMenu(){document.getElementById('moreMenu').classList.toggle('show');}
-function hideMoreMenu(){document.getElementById('moreMenu').classList.remove('show');}
-function navigateToTab(tab) {
-    activeTab = tab;
-    window.location.hash = tab;
-    if (tab === 'home') renderHome();
-    else if (tab === 'contracts') renderContractsTab();
-    else if (tab === 'marketplace') renderMarketplace();
-    else if (tab === 'jobs') renderJobsTab();
-    else if (tab === 'ai') renderAITab();
-    else if (tab === 'advanced') renderAdvancedTab();
-    else if (tab === 'templates') renderTemplatesTab();
-    else if (tab === 'providers') renderProvidersTab();
+function navigateToTab(tab){
+    activeTab=tab;window.location.hash=tab;
+    if(tab==='home')renderHome();
+    else if(tab==='contracts')renderContractsTab();
+    else if(tab==='marketplace')renderMarketplace();
+    else if(tab==='jobs')renderJobsTab();
+    else if(tab==='ai')renderAITab();
+    else if(tab==='advanced')renderAdvancedTab();
+    else if(tab==='templates')renderTemplatesTab();
+    else if(tab==='providers')renderProvidersTab();
 }
-document.addEventListener('click',function(e){if(!e.target.closest('#moreBtn')&&!e.target.closest('#moreMenu'))document.getElementById('moreMenu').classList.remove('show');});
 
 // ==================== HOME ====================
-function renderHome() {
-    const stats = currentMode==='customer'?[
-        {icon:'📋',value:userData.total_contracts||0,label:'Contracts'},{icon:'✅',value:userData.completed_as_customer||0,label:'Completed'},{icon:'💰',value:`₹${userData.total_spent||0}`,label:'Spent'},{icon:'⭐',value:userData.vouch_score||100,label:'Vouch Score'}
+function renderHome(){
+    const stats=currentMode==='customer'?[
+        {label:'Contracts',value:userData.total_contracts||0},{label:'Completed',value:userData.completed_as_customer||0},{label:'Spent',value:'\u20B9'+(userData.total_spent||0)},{label:'Vouch Score',value:userData.vouch_score||100}
     ]:[
-        {icon:'📋',value:userData.total_contracts||0,label:'Jobs'},{icon:'✅',value:userData.completed_as_provider||0,label:'Completed'},{icon:'💵',value:`₹${userData.total_earned||0}`,label:'Earned'},{icon:'⭐',value:userData.vouch_score||100,label:'Vouch Score'}
+        {label:'Jobs',value:userData.total_contracts||0},{label:'Completed',value:userData.completed_as_provider||0},{label:'Earned',value:'\u20B9'+(userData.total_earned||0)},{label:'Vouch Score',value:userData.vouch_score||100}
     ];
     document.getElementById('mainContent').innerHTML=`
         <div class="tabs">
-            <button class="tab ${activeTab==='home'?'active':''}" onclick="navigateToTab('home')">🏠 Home</button>
-            <button class="tab ${activeTab==='contracts'?'active':''}" onclick="navigateToTab('contracts')">📄 Contracts <span class="badge-count" id="contractCount">-</span></button>
-            <button class="tab ${activeTab==='marketplace'?'active':''}" onclick="navigateToTab('marketplace')">🏪 Marketplace</button>
-            <button class="tab ${activeTab==='jobs'?'active':''}" onclick="navigateToTab('jobs')">💼 Jobs</button>
-            <div style="position:relative;margin-left:auto">
-                <button class="tab ${activeTab==='ai'||activeTab==='advanced'||activeTab==='providers'||activeTab==='templates'?'active':''}" onclick="toggleMoreMenu()" id="moreBtn">🔧 More ▾</button>
-                <div class="dropdown-menu" id="moreMenu">
-                    <button class="dropdown-item" onclick="navigateToTab('ai');hideMoreMenu()">🤖 AI Tools</button>
-                    <button class="dropdown-item" onclick="navigateToTab('advanced');hideMoreMenu()">⚡ Advanced</button>
-                    <button class="dropdown-item" onclick="navigateToTab('templates');hideMoreMenu()">📋 Templates</button>
-                    <button class="dropdown-item" onclick="navigateToTab('providers');hideMoreMenu()">⭐ Top Providers</button>
-                </div>
-            </div>
+            <button class="tab ${activeTab==='home'?'active':''}" onclick="navigateToTab('home')">Home</button>
+            <button class="tab ${activeTab==='contracts'?'active':''}" onclick="navigateToTab('contracts')">Contracts <span class="badge-count" id="contractCount">-</span></button>
+            <button class="tab ${activeTab==='marketplace'?'active':''}" onclick="navigateToTab('marketplace')">Marketplace</button>
+            <button class="tab ${activeTab==='jobs'?'active':''}" onclick="navigateToTab('jobs')">Jobs</button>
+            <span style="margin-left:auto;display:flex;gap:0">
+                <button class="tab" onclick="navigateToTab('ai')">AI</button>
+                <button class="tab" onclick="navigateToTab('advanced')">Tools</button>
+            </span>
         </div>
-        <div class="stats-row animate-in">${stats.map(s=>`<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('')}</div>
-        <div class="cards-grid animate-in">
+        <div class="stats-row">${stats.map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value">${s.value}</div></div>`).join('')}</div>
+        <div class="section-header"><h2>Quick Actions</h2></div>
+        <div class="cards-grid">
             ${currentMode==='customer'?`
-            <div class="feature-card" onclick="openCreateContract()"><div class="card-badge badge-new">FORM</div><div class="card-icon">📝</div><div class="card-title">Create Contract</div><div class="card-desc">Fill form, set milestones, secure with escrow</div></div>
-            <div class="feature-card ai-card" onclick="openAIContract()"><div class="card-badge badge-ai">AI</div><div class="card-icon">🤖</div><div class="card-title">AI Smart Contract</div><div class="card-desc">Describe naturally. AI builds everything.</div></div>
+            <div class="feature-card" onclick="openCreateContract()"><div class="card-label">Contract</div><div class="card-title">Create Contract</div><div class="card-desc">Set milestones, secure with escrow</div></div>
+            <div class="feature-card" onclick="openAIContract()"><div class="card-label" style="color:var(--ai)">AI Powered</div><div class="card-title">Smart Contract</div><div class="card-desc">Describe work, AI builds it</div></div>
             `:`
-            <div class="feature-card" onclick="navigateToTab('contracts')"><div class="card-badge badge-new">JOBS</div><div class="card-icon">📋</div><div class="card-title">Available Jobs</div><div class="card-desc">Accept contracts waiting for you</div></div>
-            <div class="feature-card" onclick="openProviderProfile()"><div class="card-badge badge-premium">PROFILE</div><div class="card-icon">🎯</div><div class="card-title">My Service Profile</div><div class="card-desc">Add skills, set rates, get hired</div></div>
-            <div class="feature-card" onclick="openPayoutRequest()"><div class="card-badge badge-premium">EARN</div><div class="card-icon">💵</div><div class="card-title">Request Payout</div><div class="card-desc">Withdraw earnings via UPI/Bank</div></div>
+            <div class="feature-card" onclick="navigateToTab('contracts')"><div class="card-label">Jobs</div><div class="card-title">Available Work</div><div class="card-desc">Accept contracts waiting for you</div></div>
+            <div class="feature-card" onclick="openProviderProfile()"><div class="card-label">Profile</div><div class="card-title">Service Profile</div><div class="card-desc">Add skills, rates, portfolio</div></div>
+            <div class="feature-card" onclick="openPayoutRequest()"><div class="card-label">Earn</div><div class="card-title">Request Payout</div><div class="card-desc">Withdraw via UPI or Bank</div></div>
             `}
-            <div class="feature-card ai-card" onclick="openAIVerify()"><div class="card-badge badge-ai">AI</div><div class="card-icon">🔍</div><div class="card-title">AI Verification</div><div class="card-desc">AI analyzes proof & auto-approves</div></div>
-            <div class="feature-card" onclick="openVideoCall()"><div class="card-badge badge-new">LIVE</div><div class="card-icon">📹</div><div class="card-title">Video Call</div><div class="card-desc">Secure meeting with your party</div></div>
-            <div class="feature-card" onclick="openDisputeMediation()"><div class="card-badge badge-premium">AI</div><div class="card-icon">⚖️</div><div class="card-title">Dispute Resolution</div><div class="card-desc">AI mediates conflicts fairly</div></div>
-            <div class="feature-card" onclick="openRecurringContract()"><div class="card-badge badge-new">AUTO</div><div class="card-icon">🔄</div><div class="card-title">Recurring Contract</div><div class="card-desc">Auto-renew monthly/weekly</div></div>
-            <div class="feature-card" onclick="openInvoice()"><div class="card-badge badge-new">TAX</div><div class="card-icon">🧾</div><div class="card-title">Invoice</div><div class="card-desc">Download GST-compliant invoice</div></div>
-            <div class="feature-card" onclick="openBackgroundCheck()"><div class="card-badge badge-premium">TRUST</div><div class="card-icon">🔐</div><div class="card-title">Background Check</div><div class="card-desc">Verify identity & credentials</div></div>
-        </div>`;
+            <div class="feature-card" onclick="openAIVerify()"><div class="card-label" style="color:var(--ai)">AI</div><div class="card-title">Work Verification</div><div class="card-desc">AI analyzes proof of work</div></div>
+            <div class="feature-card" onclick="openVideoCall()"><div class="card-label">Live</div><div class="card-title">Video Call</div><div class="card-desc">Secure meeting with party</div></div>
+            <div class="feature-card" onclick="openDisputeMediation()"><div class="card-label" style="color:var(--ai)">AI</div><div class="card-title">Dispute Resolution</div><div class="card-desc">AI mediates conflicts</div></div>
+            <div class="feature-card" onclick="openRecurringContract()"><div class="card-label">Auto</div><div class="card-title">Recurring Contract</div><div class="card-desc">Auto-renew monthly/weekly</div></div>
+        </div>
+        <footer class="dash-footer"><p>&copy; 2026 <strong>Dokets VouchAI</strong> &middot; Trust in Every Deal</p><p style="margin-top:0.3rem"><a href="/about">About</a> &middot; <a href="/privacy">Privacy</a> &middot; <a href="/terms">Terms</a> &middot; <a href="/contact">Contact</a></p></footer>`;
     loadContractCount();
 }
-
 async function loadContractCount(){try{const r=await fetch(`${BASE}/api/v1/contracts/`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const el=document.getElementById('contractCount');if(el)el.textContent=d.total||0;}catch(e){}}
 
 // ==================== CONTRACTS ====================
-async function renderContractsTab(){document.getElementById('mainContent').innerHTML=`<div class="animate-in"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h2 style="font-weight:700">📄 ${currentMode==='customer'?'My Contracts':'My Jobs'}</h2><button class="btn btn-outline btn-sm" style="width:auto" onclick="toggleCalendarView()">📅 Calendar</button></div><div id="contractsView"><div class="contract-list" id="contractList">${showSkeleton(3)}</div></div></div>`;await loadContracts();}
+async function renderContractsTab(){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button><button class="tab active" onclick="navigateToTab('contracts')">Contracts <span class="badge-count" id="contractCount">-</span></button><button class="tab" onclick="navigateToTab('marketplace')">Marketplace</button><button class="tab" onclick="navigateToTab('jobs')">Jobs</button></div><div class="section-header"><h2>${currentMode==='customer'?'My Contracts':'My Jobs'}</h2><button class="btn btn-outline btn-sm" style="width:auto" onclick="toggleCalendarView()">Calendar View</button></div><div id="contractsView"><div class="contract-list" id="contractList">${showSkeleton(3)}</div></div>`;await loadContracts();loadContractCount();}
 async function loadContracts(){
     const c=document.getElementById('contractList');if(!c)return;
     try{const r=await fetch(`${BASE}/api/v1/contracts/`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const contracts=d.contracts||[];
-    if(contracts.length===0){c.innerHTML=`<div class="empty-state"><div class="icon">📭</div><p>No contracts yet</p></div>`;return;}
-    c.innerHTML=contracts.map(ct=>{const isPending=currentMode==='provider'&&ct.status==='draft';return`<div class="contract-item" onclick="viewContract('${ct.id}')"><div class="contract-left"><div class="contract-icon" style="background:${ct.status==='completed'?'rgba(35,134,54,0.15)':ct.status==='active'?'rgba(88,166,255,0.1)':'rgba(210,153,27,0.1)'}">${ct.status==='completed'?'✅':ct.status==='active'?'🔧':'📝'}</div><div class="contract-info"><h4>${ct.title||'Untitled'}</h4><span>${ct.id} · ${ct.milestones?.length||0} milestones</span></div></div><div class="contract-right"><div class="contract-amount">${ct.currency||'INR'} ${ct.total_amount||0}</div><span class="status-badge status-${ct.status||'draft'}">${ct.status||'draft'}</span>${isPending?`<div style="margin-top:0.3rem"><button class="btn btn-success btn-xs" onclick="event.stopPropagation();acceptContract('${ct.id}')">Accept</button><button class="btn btn-outline btn-xs" onclick="event.stopPropagation();rejectContract('${ct.id}')">Reject</button></div>`:''}</div></div>`;}).join('');}catch(e){c.innerHTML='<div class="empty-state"><p>Error loading contracts</p></div>';}
+    if(contracts.length===0){c.innerHTML=`<div class="empty-state"><h3>No contracts yet</h3><p>Create your first contract to get started.</p><button class="btn btn-primary btn-sm" style="width:auto" onclick="openCreateContract()">Create Contract</button></div>`;return;}
+    c.innerHTML=contracts.map(ct=>{const isPending=currentMode==='provider'&&ct.status==='draft';return`<div class="contract-item" onclick="viewContract('${ct.id}')"><div class="contract-left"><div class="contract-icon" style="background:${ct.status==='completed'?'rgba(34,197,94,0.1)':ct.status==='active'?'rgba(59,130,246,0.1)':'rgba(245,158,11,0.1)'};color:${ct.status==='completed'?'#22c55e':ct.status==='active'?'#60a5fa':'#f59e0b'}">${ct.status==='completed'?'C':ct.status==='active'?'A':'D'}</div><div class="contract-info"><h4>${ct.title||'Untitled'}</h4><span>${ct.id} &middot; ${ct.milestones?.length||0} milestones</span></div></div><div class="contract-right"><div class="contract-amount">${ct.currency||'INR'} ${ct.total_amount||0}</div><span class="status-badge status-${ct.status||'draft'}">${ct.status||'draft'}</span>${isPending?`<div style="margin-top:0.3rem"><button class="btn btn-success btn-xs" onclick="event.stopPropagation();acceptContract('${ct.id}')">Accept</button><button class="btn btn-outline btn-xs" onclick="event.stopPropagation();rejectContract('${ct.id}')">Decline</button></div>`:''}</div></div>`;}).join('');}catch(e){c.innerHTML='<div class="empty-state"><p>Error loading contracts</p></div>';}
 }
 async function toggleCalendarView(){
     const c=document.getElementById('contractsView');
     const r=await fetch(`${BASE}/api/v1/contracts/`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const contracts=d.contracts||[];
     const milestones=[];contracts.forEach(ct=>{(ct.milestones||[]).forEach(ms=>{if(ms.deadline)milestones.push({contract:ct.title,milestone:ms.title,deadline:ms.deadline,status:ms.status,amount:ms.amount,currency:ct.currency});});});
     milestones.sort((a,b)=>new Date(a.deadline)-new Date(b.deadline));
-    c.innerHTML=milestones.length===0?`<div class="empty-state"><div class="icon">📅</div><p>No milestones with deadlines</p></div>`:`<div style="display:flex;flex-direction:column;gap:0.4rem">${milestones.map(m=>`<div class="contract-item"><div><strong>${m.milestone}</strong><br><span style="font-size:0.75rem;color:var(--muted)">${m.contract}</span></div><div style="text-align:right"><div>${m.currency} ${m.amount}</div><span style="font-size:0.75rem;color:var(--muted)">📅 ${new Date(m.deadline).toLocaleDateString()}</span><span class="status-badge status-${m.status||'draft'}">${m.status||'pending'}</span></div></div>`).join('')}</div>`;
+    c.innerHTML=milestones.length===0?`<div class="empty-state"><h3>No milestones</h3><p>No upcoming deadlines found.</p></div>`:`<div style="display:flex;flex-direction:column;gap:0.4rem">${milestones.map(m=>`<div class="contract-item"><div><strong>${m.milestone}</strong><br><span style="font-size:0.7rem;color:var(--muted)">${m.contract}</span></div><div style="text-align:right"><div>${m.currency} ${m.amount}</div><span style="font-size:0.7rem;color:var(--muted)">${new Date(m.deadline).toLocaleDateString()}</span><span class="status-badge status-${m.status||'draft'}">${m.status||'pending'}</span></div></div>`).join('')}</div>`;
 }
 
 // ==================== AI TAB ====================
-function renderAITab(){document.getElementById('mainContent').innerHTML=`<h2 style="font-weight:700;margin-bottom:1rem">🤖 AI-Powered Tools</h2><div class="cards-grid animate-in"><div class="feature-card ai-card" onclick="openAIContract()"><div class="card-badge badge-ai">GPT-4</div><div class="card-icon">📝</div><div class="card-title">AI Smart Contract</div><div class="card-desc">Describe → AI creates contract</div></div><div class="feature-card ai-card" onclick="openAIVerify()"><div class="card-badge badge-ai">VISION</div><div class="card-icon">🔍</div><div class="card-title">AI Verification</div><div class="card-desc">Before/after image analysis</div></div><div class="feature-card ai-card" onclick="openDisputeMediation()"><div class="card-badge badge-ai">MEDIATOR</div><div class="card-icon">⚖️</div><div class="card-title">AI Dispute Resolution</div><div class="card-desc">Fair conflict resolution</div></div><div class="feature-card ai-card" onclick="openExtractContract()"><div class="card-badge badge-ai">EXTRACT</div><div class="card-icon">📋</div><div class="card-title">Extract from Text</div><div class="card-desc">Paste → AI extracts terms</div></div><div class="feature-card ai-card" onclick="toggleChatbot()"><div class="card-badge badge-ai">CHAT</div><div class="card-icon">💬</div><div class="card-title">AI Assistant</div><div class="card-desc">24/7 help & support</div></div></div>`;}
+function renderAITab(){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button><button class="tab" onclick="navigateToTab('contracts')">Contracts</button><button class="tab" onclick="navigateToTab('marketplace')">Marketplace</button><button class="tab" onclick="navigateToTab('jobs')">Jobs</button></div><div class="section-header"><h2>AI Tools</h2></div><div class="cards-grid"><div class="feature-card" onclick="openAIContract()"><div class="card-label" style="color:var(--ai)">GPT-4</div><div class="card-title">Smart Contract</div><div class="card-desc">Describe work, AI creates contract</div></div><div class="feature-card" onclick="openAIVerify()"><div class="card-label" style="color:var(--ai)">Vision</div><div class="card-title">Work Verification</div><div class="card-desc">Before/after image analysis</div></div><div class="feature-card" onclick="openDisputeMediation()"><div class="card-label" style="color:var(--ai)">Mediator</div><div class="card-title">Dispute Resolution</div><div class="card-desc">Fair conflict resolution</div></div><div class="feature-card" onclick="openExtractContract()"><div class="card-label" style="color:var(--ai)">Extract</div><div class="card-title">Text to Contract</div><div class="card-desc">Paste text, AI extracts terms</div></div></div>`;}
 
 // ==================== ADVANCED TAB ====================
-function renderAdvancedTab(){document.getElementById('mainContent').innerHTML=`<h2 style="font-weight:700;margin-bottom:1rem">⚡ Advanced Features</h2><div class="cards-grid animate-in"><div class="feature-card" onclick="openPayoutRequest()"><div class="card-badge badge-premium">PAYOUT</div><div class="card-icon">💵</div><div class="card-title">Request Payout</div><div class="card-desc">UPI / Bank transfer</div></div><div class="feature-card" onclick="openRecurringContract()"><div class="card-badge badge-new">AUTO</div><div class="card-icon">🔄</div><div class="card-title">Recurring Contracts</div><div class="card-desc">Auto-renew monthly/weekly</div></div><div class="feature-card" onclick="openInvoice()"><div class="card-badge badge-new">GST</div><div class="card-icon">🧾</div><div class="card-title">Generate Invoice</div><div class="card-desc">Tax-compliant invoices</div></div><div class="feature-card" onclick="openVideoCall()"><div class="card-badge badge-new">LIVE</div><div class="card-icon">📹</div><div class="card-title">Video Call</div><div class="card-desc">Jitsi secure meeting</div></div><div class="feature-card" onclick="openBackgroundCheck()"><div class="card-badge badge-premium">KYC</div><div class="card-icon">🔐</div><div class="card-title">Background Check</div><div class="card-desc">Identity verification</div></div><div class="feature-card" onclick="openKYC()"><div class="card-badge badge-premium">KYC</div><div class="card-icon">🔐</div><div class="card-title">KYC Verification</div><div class="card-desc">Aadhaar/PAN/Passport</div></div><div class="feature-card" onclick="openSupportTicket()"><div class="card-badge badge-new">HELP</div><div class="card-icon">🎫</div><div class="card-title">Support Ticket</div><div class="card-desc">Get human help</div></div><div class="feature-card" onclick="openAgency()"><div class="card-badge badge-premium">PRO</div><div class="card-icon">🏢</div><div class="card-title">White Label Agency</div><div class="card-desc">Your own branded portal</div></div><div class="feature-card" onclick="openReferral()"><div class="card-badge badge-premium">EARN</div><div class="card-icon">🔗</div><div class="card-title">Referral Program</div><div class="card-desc">Invite friends & earn</div></div></div>`;}
-
-// ==================== SKELETON ====================
-function showSkeleton(n=3){return Array(n).fill(`<div class="contract-item"><div style="display:flex;align-items:center;gap:0.75rem;width:100%"><div class="skeleton" style="width:36px;height:36px;border-radius:8px"></div><div style="flex:1"><div class="skeleton" style="height:12px;width:55%;margin-bottom:6px"></div><div class="skeleton" style="height:8px;width:30%"></div></div><div style="text-align:right"><div class="skeleton" style="height:12px;width:50px;margin-bottom:6px"></div><div class="skeleton" style="height:8px;width:35px"></div></div></div></div>`).join('');}
-
-// ==================== ALL MODAL FUNCTIONS (condensed but complete) ====================
-function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
-document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
-
-function openCreateContract(){document.getElementById('modalContent').innerHTML=`<h3>📝 Create Contract</h3><div class="form-group"><label>Title</label><input id="ctTitle" placeholder="House Painting"></div><div class="form-group"><label>Description</label><textarea id="ctDesc" rows="2"></textarea></div><div class="form-group"><label>Provider Phone</label><input id="ctPhone" placeholder="+919876543210"></div><div class="form-group"><label>Amount</label><input type="number" id="ctAmount" placeholder="Enter amount"></div><div class="form-group"><label>Milestones (Title:Amount, ...)</label><input id="ctMS" placeholder="Prep:3000, Paint:8000, Final:4000"></div><button class="btn btn-primary" onclick="createContract()">Create & Secure with Escrow</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
-
-async function createContract(){const title=document.getElementById('ctTitle').value,desc=document.getElementById('ctDesc').value,phone=document.getElementById('ctPhone').value,amount=parseFloat(document.getElementById('ctAmount').value),msStr=document.getElementById('ctMS').value;const milestones=msStr.split(',').map((m,i)=>{const p=m.trim().split(':');return{id:`MS-${i+1}`,title:p[0]?.trim()||`MS${i+1}`,amount:parseFloat(p[1])||0,deadline:new Date(Date.now()+(i+1)*3*864e5).toISOString().split('T')[0]};}).filter(m=>m.amount>0);if(!title||!amount){showToast('Title and amount required','error');return;}const currency=userData?.currency||'INR';const payRes=await fetch(`${BASE}/api/v1/payments/create-order`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({amount,currency})});const payData=await payRes.json();if(!payData.success){showToast('Payment failed','error');return;}const rzp=new Razorpay({key:payData.key_id||'rzp_test_YourKeyHere',amount:payData.amount,currency:payData.currency||currency,name:'Dokets VouchAI',description:title,order_id:payData.order_id,handler:async function(r){const res=await fetch(`${BASE}/api/v1/contracts/`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title,description:desc,provider_phone:phone,total_amount:amount,currency,milestones,payment_id:r.razorpay_payment_id,order_id:r.razorpay_order_id})});const d=await res.json();if(d.success){closeModal();showToast('✅ Payment secured! Contract created.');loadContracts();}else showToast('Failed','error');},modal:{ondismiss:function(){showToast('Payment cancelled','error');}},prefill:{email:userData?.email||'',contact:userData?.phone_number||''},theme:{color:'#6366F1'}});rzp.open();}
-
-function openAIContract(){document.getElementById('modalContent').innerHTML=`<h3>🤖 AI Smart Contract</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.85rem">Describe work naturally. AI builds everything.</p><div class="form-group"><label>Describe the work</label><textarea id="aiText" rows="4" placeholder="Paint my 3BHK house white by Friday for ₹15000. First prep, then paint, then cleanup."></textarea></div><div class="form-group"><label>Provider Phone</label><input id="aiPhone" placeholder="+919876543210"></div><button class="btn btn-ai" onclick="createAIContract()">🤖 Generate</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="aiResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
-async function createAIContract(){const text=document.getElementById('aiText').value,phone=document.getElementById('aiPhone').value;if(!text){showToast('Describe the work','error');return;}const r=await fetch(`${BASE}/api/v1/ai/smart-contract`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text,provider_phone:phone||'+919876543210'})});const d=await r.json();if(d.success){document.getElementById('aiResult').innerHTML=`<div style="background:var(--success-bg);padding:0.75rem;border-radius:8px;border:1px solid rgba(35,134,54,0.3);font-size:0.85rem">✅ Created: ${d.data.contract_id}<br>${d.data.extracted_details.title}<br>${d.data.extracted_details.currency} ${d.data.extracted_details.total_amount}</div>`;setTimeout(()=>{closeModal();loadContracts();},2000);}}
-
-function openAIVerify(){document.getElementById('modalContent').innerHTML=`<h3>🔍 AI Work Verification</h3><div class="form-group"><label>Work Description</label><textarea id="vDesc" rows="2"></textarea></div><div class="form-group"><label>Proof Description</label><textarea id="vProof" rows="2"></textarea></div><button class="btn btn-ai" onclick="verifyWork()">Verify with AI</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="vResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
-async function verifyWork(){const d=document.getElementById('vDesc').value,p=document.getElementById('vProof').value;const r=await fetch(`${BASE}/api/v1/ai/verify-work`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({description:d,proof_text:p})});const data=await r.json();document.getElementById('vResult').innerHTML=`<pre style="background:var(--bg);padding:0.75rem;border-radius:8px;font-size:0.8rem;overflow-x:auto">${JSON.stringify(data.data,null,2)}</pre>`;}
-
-function openVideoCall(){const cid=prompt('Contract ID:');if(!cid)return;fetch(`${BASE}/api/v1/video/create`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({contract_id:cid,topic:'Discussion'})}).then(r=>r.json()).then(d=>{if(d.success)window.open(d.join_url,'_blank');});}
-function openDisputeMediation(){document.getElementById('modalContent').innerHTML=`<h3>⚖️ AI Dispute Mediation</h3><div class="form-group"><label>Dispute Description</label><textarea id="dispText" rows="3"></textarea></div><button class="btn btn-ai" onclick="mediateDispute()">Resolve with AI</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="dispResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
-async function mediateDispute(){const t=document.getElementById('dispText').value;const r=await fetch(`${BASE}/api/v1/ai/mediate-dispute`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({dispute_text:t})});const d=await r.json();document.getElementById('dispResult').innerHTML=`<pre style="background:var(--bg);padding:0.75rem;border-radius:8px;font-size:0.8rem">${JSON.stringify(d.data,null,2)}</pre>`;}
-function openExtractContract(){document.getElementById('modalContent').innerHTML=`<h3>📋 Extract Contract from Text</h3><div class="form-group"><label>Paste text</label><textarea id="extText" rows="4" placeholder="I agree to pay ₹5000 for cleaning service by Monday..."></textarea></div><button class="btn btn-ai" onclick="extractContract()">Extract</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="extResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
-async function extractContract(){const t=document.getElementById('extText').value;const r=await fetch(`${BASE}/api/v1/ai/extract-contract`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text:t})});const d=await r.json();document.getElementById('extResult').innerHTML=`<pre style="background:var(--bg);padding:0.75rem;border-radius:8px;font-size:0.8rem">${JSON.stringify(d.data,null,2)}</pre>`;}
-
-// ==================== ADVANCED MODALS ====================
-function openPayoutRequest(){document.getElementById('modalContent').innerHTML=`<h3>💵 Request Payout</h3><div class="form-group"><label>Amount</label><input type="number" id="poAmount"></div><div class="form-group"><label>Method</label><select id="poMethod"><option value="upi">UPI</option><option value="bank">Bank Transfer</option></select></div><div class="form-group"><label>UPI ID / Account</label><input id="poDetail"></div><button class="btn btn-primary" onclick="requestPayout()">Request Payout</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
-async function requestPayout(){const a=document.getElementById('poAmount').value,m=document.getElementById('poMethod').value,d=document.getElementById('poDetail').value;const r=await fetch(`${BASE}/api/v1/payouts/request`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({amount:parseFloat(a),method,[m==='upi'?'upi_id':'bank_account']:d})});const data=await r.json();if(data.success){closeModal();showToast('Payout requested!');}}
-function openRecurringContract(){document.getElementById('modalContent').innerHTML=`<h3>🔄 Recurring Contract</h3><div class="form-group"><label>Title</label><input id="recTitle" placeholder="Monthly Cleaning"></div><div class="form-group"><label>Amount</label><input type="number" id="recAmount"></div><div class="form-group"><label>Frequency</label><select id="recFreq"><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option></select></div><div class="form-group"><label>Provider Phone</label><input id="recPhone"></div><button class="btn btn-primary" onclick="createRecurring()">Create</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
-async function createRecurring(){const t=document.getElementById('recTitle').value,a=document.getElementById('recAmount').value,f=document.getElementById('recFreq').value,p=document.getElementById('recPhone').value;const r=await fetch(`${BASE}/api/v1/recurring/create`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title:t,amount:parseFloat(a),frequency:f,provider_phone:p})});const d=await r.json();if(d.success){closeModal();showToast('Recurring contract created!');}}
-function openInvoice(){const cid=prompt('Contract ID:');if(!cid)return;fetch(`${BASE}/api/v1/invoice/${cid}`,{headers:{'Authorization':'Bearer '+token}}).then(r=>r.json()).then(d=>{document.getElementById('modalContent').innerHTML=`<h3>🧾 Invoice</h3><div style="background:var(--bg);padding:0.75rem;border-radius:8px;max-height:350px;overflow-y:auto;font-size:0.8rem">${d.html||'<pre>'+JSON.stringify(d.invoice,null,2)+'</pre>'}</div><button class="btn btn-outline" style="margin-top:0.75rem;width:100%" onclick="closeModal()">Close</button>`;document.getElementById('modalOverlay').classList.add('show');});}
-function openBackgroundCheck(){document.getElementById('modalContent').innerHTML=`<h3>🔐 Background Check</h3><p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.75rem">Request identity verification</p><button class="btn btn-primary" onclick="requestBgCheck()">Request Check</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="bgResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
-async function requestBgCheck(){const r=await fetch(`${BASE}/api/v1/background/request`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({})});const d=await r.json();document.getElementById('bgResult').innerHTML=`<div style="background:var(--success-bg);padding:0.75rem;border-radius:8px;font-size:0.85rem">✅ Check requested</div>`;}
-function openSupportTicket(){document.getElementById('modalContent').innerHTML=`<h3>🎫 Support Ticket</h3><div class="form-group"><label>Subject</label><input id="supSubject"></div><div class="form-group"><label>Message</label><textarea id="supMessage" rows="3"></textarea></div><button class="btn btn-primary" onclick="createTicket()">Submit</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
-async function createTicket(){const s=document.getElementById('supSubject').value,m=document.getElementById('supMessage').value;const r=await fetch(`${BASE}/api/v1/support/tickets`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({subject:s,message:m})});const d=await r.json();if(d.success){closeModal();showToast('Ticket submitted!');}}
-function openAgency(){document.getElementById('modalContent').innerHTML=`<h3>🏢 White Label Agency</h3><div class="form-group"><label>Agency Name</label><input id="agName"></div><div class="form-group"><label>Domain</label><input id="agDomain" placeholder="myagency.com"></div><button class="btn btn-primary" onclick="createAgency()">Create Agency</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
-async function createAgency(){const n=document.getElementById('agName').value,d=document.getElementById('agDomain').value;const r=await fetch(`${BASE}/api/v1/agency/create`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({name:n,domain:d})});const data=await r.json();if(data.success){closeModal();showToast('Agency created!');}}
-function openReferral(){fetch(`${BASE}/api/v1/referrals/code`,{headers:{'Authorization':'Bearer '+token}}).then(r=>r.json()).then(d=>{document.getElementById('modalContent').innerHTML=`<h3>🔗 Referral Program</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.85rem">Invite friends and earn!</p><div style="background:var(--bg);padding:0.75rem;border-radius:8px;text-align:center;margin-bottom:0.75rem"><p style="font-size:0.75rem;color:var(--muted)">Your Referral Code</p><h2 style="letter-spacing:3px;color:var(--primary);font-size:1.4rem">${d.referral_code}</h2></div><div class="form-group"><label>Referral Link</label><input value="${d.referral_link}" readonly onclick="this.select()" style="font-size:0.75rem"></div><p style="text-align:center;color:#3fb950;font-weight:700;font-size:0.85rem">💰 Earnings: ₹${d.earnings||0}</p><button class="btn btn-outline" style="margin-top:0.75rem;width:100%" onclick="closeModal()">Close</button>`;document.getElementById('modalOverlay').classList.add('show');});}
-
-// ==================== KYC ====================
-function openKYC(){document.getElementById('modalContent').innerHTML=`<h3>🔐 KYC Verification</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.85rem">Verify your identity to build trust</p><div class="form-group"><label>Full Name</label><input id="kycName" placeholder="As per ID"></div><div class="form-group"><label>ID Type</label><select id="kycType"><option value="aadhaar">Aadhaar Card</option><option value="pan">PAN Card</option><option value="passport">Passport</option><option value="dl">Driving License</option><option value="voter">Voter ID</option></select></div><div class="form-group"><label>ID Number</label><input id="kycNumber"></div><button class="btn btn-primary" onclick="submitKYC()">Submit KYC</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="kycResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
-async function submitKYC(){const n=document.getElementById('kycName').value,t=document.getElementById('kycType').value,i=document.getElementById('kycNumber').value;const r=await fetch(`${BASE}/api/v1/kyc/submit`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({name:n,id_type:t,id_number:i})});const d=await r.json();if(d.success)document.getElementById('kycResult').innerHTML='<div style="background:var(--success-bg);padding:0.75rem;border-radius:8px;font-size:0.85rem">✅ KYC Submitted! Pending verification.</div>';}
+function renderAdvancedTab(){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button><button class="tab" onclick="navigateToTab('contracts')">Contracts</button><button class="tab" onclick="navigateToTab('marketplace')">Marketplace</button><button class="tab" onclick="navigateToTab('jobs')">Jobs</button></div><div class="section-header"><h2>Tools & Settings</h2></div><div class="cards-grid"><div class="feature-card" onclick="openPayoutRequest()"><div class="card-label">Payout</div><div class="card-title">Request Payout</div><div class="card-desc">UPI / Bank transfer</div></div><div class="feature-card" onclick="openRecurringContract()"><div class="card-label">Auto</div><div class="card-title">Recurring Contracts</div><div class="card-desc">Auto-renew monthly/weekly</div></div><div class="feature-card" onclick="openInvoice()"><div class="card-label">Tax</div><div class="card-title">Generate Invoice</div><div class="card-desc">GST-compliant invoices</div></div><div class="feature-card" onclick="openVideoCall()"><div class="card-label">Live</div><div class="card-title">Video Call</div><div class="card-desc">Jitsi secure meeting</div></div><div class="feature-card" onclick="openKYC()"><div class="card-label">Verify</div><div class="card-title">KYC Verification</div><div class="card-desc">Identity verification</div></div><div class="feature-card" onclick="openSupportTicket()"><div class="card-label">Help</div><div class="card-title">Support Ticket</div><div class="card-desc">Get human help</div></div><div class="feature-card" onclick="openAgency()"><div class="card-label">Pro</div><div class="card-title">White Label Agency</div><div class="card-desc">Your own branded portal</div></div><div class="feature-card" onclick="openReferral()"><div class="card-label">Earn</div><div class="card-title">Referral Program</div><div class="card-desc">Invite friends & earn</div></div></div>`;}
 
 // ==================== MARKETPLACE ====================
-async function renderMarketplace(){document.getElementById('mainContent').innerHTML=`<h2 style="font-weight:700;margin-bottom:1rem">🏪 Service Marketplace</h2><div style="margin-bottom:0.75rem"><input type="text" id="skillSearch" placeholder="🔍 Search by skill (e.g., Painting, Plumbing)..." style="width:100%;padding:0.55rem 0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.85rem" onkeypress="if(event.key==='Enter')searchBySkill()"></div><div id="marketplaceContent">${showSkeleton(4)}</div>`;try{const r=await fetch(`${BASE}/api/v1/providers/categories`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();document.getElementById('marketplaceContent').innerHTML=`<div class="cards-grid animate-in">${(d.categories||[]).map(c=>`<div class="feature-card" onclick="browseCategory('${c.id}')"><div class="card-icon">${c.icon}</div><div class="card-title">${c.name}</div><div class="card-desc">${c.skills.slice(0,4).join(', ')}...</div></div>`).join('')}</div>`;}catch(e){}}
-async function searchBySkill(){const s=document.getElementById('skillSearch').value;if(!s)return;document.getElementById('mainContent').innerHTML=`<h2>🔍 Results for "${s}"</h2><div id="skillResults">${showSkeleton(3)}</div><button class="btn btn-outline btn-sm" style="margin-top:0.75rem" onclick="renderMarketplace()">← Back</button>`;const r=await fetch(`${BASE}/api/v1/providers/by-skill/${encodeURIComponent(s)}`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const p=d.providers||[];document.getElementById('skillResults').innerHTML=p.length===0?`<div class="empty-state"><div class="icon">🔍</div><p>No providers found</p></div>`:`<div class="cards-grid">${p.map(x=>providerCard(x)).join('')}</div>`;}
-async function browseCategory(cid){document.getElementById('mainContent').innerHTML=`<h2>🔍 Providers</h2><div id="catProviders">${showSkeleton(3)}</div><button class="btn btn-outline btn-sm" style="margin-top:0.75rem" onclick="renderMarketplace()">← Back</button>`;const r=await fetch(`${BASE}/api/v1/providers/by-category/${cid}`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const p=d.providers||[];document.getElementById('catProviders').innerHTML=p.length===0?`<div class="empty-state"><div class="icon">🔍</div><p>No providers in this category</p></div>`:`<div class="cards-grid">${p.map(x=>providerCard(x)).join('')}</div>`;}
-function providerCard(p){return`<div class="feature-card"><div class="card-badge" style="background:rgba(35,134,54,0.12);color:#3fb950">⭐ ${p.vouch_score}</div><div class="card-icon">👤</div><div class="card-title">${p.name} <span onclick="event.stopPropagation();toggleFavorite('${p.id}')" id="fav-${p.id}" style="cursor:pointer;float:right;font-size:1.1rem">🤍</span></div><div class="card-desc">${(p.skills||[]).join(' · ')}<br>💰 ₹${p.hourly_rate}/hr · 📅 ${p.experience_years}yr<br>${p.availability==='available'?'🟢 Available':'🟡 Busy'}</div><button class="btn btn-primary btn-xs" style="margin-top:0.4rem;width:100%" onclick="event.stopPropagation();hireProvider('${p.id}','${p.name}')">📝 Hire</button></div>`;}
-function hireProvider(pid,name){document.getElementById('modalContent').innerHTML=`<h3>📝 Hire ${name}</h3><div class="form-group"><label>Title</label><input id="ctTitle" placeholder="What work do you need?"></div><div class="form-group"><label>Amount</label><input type="number" id="ctAmount" placeholder="Enter amount"></div><button class="btn btn-primary" onclick="quickHire('${pid}')">Send Contract</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
-async function toggleFavorite(pid){const c=await fetch(`${BASE}/api/v1/favorites/check/${pid}`,{headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());if(c.saved){await fetch(`${BASE}/api/v1/favorites/remove/${pid}`,{method:'DELETE',headers:{'Authorization':'Bearer '+token}});document.getElementById('fav-'+pid).textContent='🤍';showToast('Removed');}else{await fetch(`${BASE}/api/v1/favorites/add/${pid}`,{method:'POST',headers:{'Authorization':'Bearer '+token}});document.getElementById('fav-'+pid).textContent='❤️';showToast('Saved!');}}
+async function renderMarketplace(){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button><button class="tab" onclick="navigateToTab('contracts')">Contracts</button><button class="tab active" onclick="navigateToTab('marketplace')">Marketplace</button><button class="tab" onclick="navigateToTab('jobs')">Jobs</button></div><div class="section-header"><h2>Service Marketplace</h2></div><div style="margin-bottom:1rem"><input type="text" id="skillSearch" placeholder="Search by skill (e.g., Painting, Plumbing)..." style="width:100%;padding:0.5rem 0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:0.82rem" onkeypress="if(event.key==='Enter')searchBySkill()"></div><div id="marketplaceContent">${showSkeleton(6)}</div>`;try{const r=await fetch(`${BASE}/api/v1/providers/categories`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();document.getElementById('marketplaceContent').innerHTML=`<div class="cards-grid">${(d.categories||[]).map(c=>`<div class="feature-card" onclick="browseCategory('${c.id}')"><div class="card-label">${c.id}</div><div class="card-title">${c.name}</div><div class="card-desc">${c.skills.slice(0,3).join(', ')}</div></div>`).join('')}</div>`;}catch(e){}}
+async function searchBySkill(){const s=document.getElementById('skillSearch').value;if(!s)return;document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button><button class="tab" onclick="navigateToTab('marketplace')">Marketplace</button></div><h2>Results: "${s}"</h2><div id="skillResults">${showSkeleton(3)}</div><button class="btn btn-outline btn-sm" style="margin-top:0.75rem" onclick="navigateToTab('marketplace')">&larr; Back</button>`;const r=await fetch(`${BASE}/api/v1/providers/by-skill/${encodeURIComponent(s)}`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const p=d.providers||[];document.getElementById('skillResults').innerHTML=p.length===0?`<div class="empty-state"><p>No providers found</p></div>`:`<div class="cards-grid">${p.map(x=>providerCard(x)).join('')}</div>`;}
+async function browseCategory(cid){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button><button class="tab" onclick="navigateToTab('marketplace')">Marketplace</button></div><h2>Providers</h2><div id="catProviders">${showSkeleton(3)}</div><button class="btn btn-outline btn-sm" style="margin-top:0.75rem" onclick="navigateToTab('marketplace')">&larr; Back</button>`;const r=await fetch(`${BASE}/api/v1/providers/by-category/${cid}`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const p=d.providers||[];document.getElementById('catProviders').innerHTML=p.length===0?`<div class="empty-state"><p>No providers in this category</p></div>`:`<div class="cards-grid">${p.map(x=>providerCard(x)).join('')}</div>`;}
+function providerCard(p){return`<div class="feature-card"><div style="display:flex;justify-content:space-between;align-items:start"><div class="card-title">${p.name}</div><span style="font-size:0.75rem;color:#22c55e;font-weight:600">${p.vouch_score}</span></div><div class="card-desc">${(p.skills||[]).join(' \u00B7 ')}<br>\u20B9${p.hourly_rate}/hr \u00B7 ${p.experience_years}yr</div><button class="btn btn-primary btn-xs" style="margin-top:0.4rem;width:100%" onclick="event.stopPropagation();hireProvider('${p.id}','${p.name}')">Hire</button></div>`;}
+function hireProvider(pid,name){document.getElementById('modalContent').innerHTML=`<h3>Hire ${name}</h3><div class="form-group"><label>Title</label><input id="ctTitle" placeholder="What work do you need?"></div><div class="form-group"><label>Amount</label><input type="number" id="ctAmount" placeholder="Enter amount"></div><button class="btn btn-primary" onclick="quickHire('${pid}')">Send Contract</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
+async function toggleFavorite(pid){const c=await fetch(`${BASE}/api/v1/favorites/check/${pid}`,{headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());if(c.saved){await fetch(`${BASE}/api/v1/favorites/remove/${pid}`,{method:'DELETE',headers:{'Authorization':'Bearer '+token}});showToast('Removed');}else{await fetch(`${BASE}/api/v1/favorites/add/${pid}`,{method:'POST',headers:{'Authorization':'Bearer '+token}});showToast('Saved!');}}
 async function quickHire(pid){const t=document.getElementById('ctTitle').value,a=document.getElementById('ctAmount').value;const r=await fetch(`${BASE}/api/v1/contracts/`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title:t,total_amount:parseFloat(a),currency:userData?.currency||'INR',provider_phone:'+919876543210',milestones:[{id:'MS-1',title:'Complete Work',amount:parseFloat(a),deadline:new Date(Date.now()+7*864e5).toISOString().split('T')[0]}]})});const d=await r.json();if(d.success){closeModal();showToast('Contract sent!');loadContracts();}}
 
-// ==================== PROVIDER PROFILE ====================
-function openProviderProfile(){document.getElementById('modalContent').innerHTML=`<h3>🎯 My Service Profile</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.85rem">Showcase your skills to get hired!</p><div class="form-group"><label>Skills (comma separated)</label><input id="ppSkills" placeholder="Painting, Plumbing, Electrical"></div><div class="form-group"><label>Categories</label><select id="ppCategories" multiple style="height:100px"><option value="home">🏠 Home Services</option><option value="tech">💻 Tech & IT</option><option value="transport">🚗 Transport</option><option value="education">📚 Education</option><option value="events">🎉 Events</option><option value="health">🏥 Health</option><option value="business">💼 Business</option><option value="auto">🔧 Auto</option><option value="beauty">💅 Beauty</option><option value="realestate">🏠 Real Estate</option></select></div><div class="form-group"><label>Experience (years)</label><input type="number" id="ppExp" value="0"></div><div class="form-group"><label>Hourly Rate (₹)</label><input type="number" id="ppRate" value="500"></div><div class="form-group"><label>Bio</label><textarea id="ppBio" rows="2" placeholder="Tell customers about yourself..."></textarea></div><div class="form-group"><label>Portfolio Images (URLs)</label><input id="ppPortfolio" placeholder="https://imgur.com/abc.jpg"></div><div class="form-group"><label>Service Cities</label><input id="ppCities" placeholder="Hyderabad, Mumbai"></div><div style="border-top:1px solid var(--border);padding-top:0.75rem;margin-top:0.75rem"><label style="font-weight:700;color:var(--text);margin-bottom:0.5rem;display:block">📦 Service Packages</label><div class="form-group"><label>Basic (₹)</label><input type="number" id="ppBasicPrice" value="500"></div><div class="form-group"><label>Standard (₹)</label><input type="number" id="ppStdPrice" value="1500"></div><div class="form-group"><label>Premium (₹)</label><input type="number" id="ppPremPrice" value="3000"></div></div><button class="btn btn-primary" onclick="saveProviderProfile()">💾 Save Profile</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');loadMyProfile();}
-async function loadMyProfile(){const r=await fetch(`${BASE}/api/v1/providers/my-profile`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d.success&&d.profile){const p=d.profile;document.getElementById('ppSkills').value=(p.skills||[]).join(', ');document.getElementById('ppExp').value=p.experience_years||0;document.getElementById('ppRate').value=p.hourly_rate||500;document.getElementById('ppBio').value=p.bio||'';document.getElementById('ppCities').value=(p.service_cities||[]).join(', ');}}
-async function saveProviderProfile(){const s=document.getElementById('ppSkills').value.split(',').map(x=>x.trim()).filter(x=>x);const c=Array.from(document.getElementById('ppCategories').selectedOptions).map(o=>o.value);const r=await fetch(`${BASE}/api/v1/providers/profile`,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({skills:s,categories:c,experience_years:parseInt(document.getElementById('ppExp').value)||0,hourly_rate:parseInt(document.getElementById('ppRate').value)||500,bio:document.getElementById('ppBio').value,portfolio:document.getElementById('ppPortfolio')?.value.split(',').map(x=>x.trim()).filter(x=>x)||[],service_cities:document.getElementById('ppCities').value.split(',').map(x=>x.trim()).filter(x=>x),packages:{basic:{name:"Basic",price:parseInt(document.getElementById('ppBasicPrice')?.value)||500,description:"Basic",delivery_days:1},standard:{name:"Standard",price:parseInt(document.getElementById('ppStdPrice')?.value)||1500,description:"Standard",delivery_days:3},premium:{name:"Premium",price:parseInt(document.getElementById('ppPremPrice')?.value)||3000,description:"Premium",delivery_days:7}}})});const d=await r.json();if(d.success){closeModal();showToast('Profile saved! 🎉');}}
+// ==================== JOBS ====================
+async function renderJobsTab(){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button><button class="tab" onclick="navigateToTab('contracts')">Contracts</button><button class="tab" onclick="navigateToTab('marketplace')">Marketplace</button><button class="tab active" onclick="navigateToTab('jobs')">Jobs</button></div><div class="section-header"><h2>Job Board</h2><button class="btn btn-primary btn-sm" style="width:auto" onclick="openPostJob()">+ Post a Job</button></div><div id="jobsList">${showSkeleton(3)}</div>`;await loadJobs();}
+async function loadJobs(){const c=document.getElementById('jobsList');if(!c)return;const r=await fetch(`${BASE}/api/v1/jobs/list`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const jobs=d.jobs||[];if(jobs.length===0){c.innerHTML=`<div class="empty-state"><h3>No open jobs</h3><p>Be the first to post a job.</p><button class="btn btn-primary btn-sm" style="width:auto" onclick="openPostJob()">Post Job</button></div>`;return;}c.innerHTML=jobs.map(j=>`<div class="contract-item" style="flex-direction:column;align-items:flex-start;gap:0.5rem"><div style="display:flex;justify-content:space-between;width:100%"><div><h4>${j.title}</h4><span style="font-size:0.7rem;color:var(--muted)">${j.location} \u00B7 ${j.applications?.length||0} applicants</span></div><div style="text-align:right"><div style="font-weight:700">${j.currency} ${j.budget_min}-${j.budget_max}</div><span class="status-badge status-active">${j.status}</span></div></div><div style="display:flex;gap:0.3rem;flex-wrap:wrap">${(j.skills_required||[]).map(s=>`<span style="background:rgba(99,102,241,0.08);color:#a5b4fc;padding:0.1rem 0.4rem;border-radius:50px;font-size:0.65rem">${s}</span>`).join('')}</div>${currentMode==='provider'?`<button class="btn btn-success btn-xs" style="width:auto" onclick="applyToJob('${j.id}')">Apply</button>`:''}</div>`).join('');}
+function openPostJob(){document.getElementById('modalContent').innerHTML=`<h3>Post a Job</h3><div class="form-group"><label>Title</label><input id="jobTitle" placeholder="Need a painter for 3BHK house"></div><div class="form-group"><label>Description</label><textarea id="jobDesc" rows="3"></textarea></div><div class="form-group"><label>Category</label><select id="jobCat"><option value="home">Home</option><option value="tech">Tech</option><option value="transport">Transport</option><option value="education">Education</option><option value="events">Events</option><option value="health">Health</option><option value="business">Business</option><option value="auto">Auto</option><option value="other">Other</option></select></div><div class="form-group"><label>Skills Required</label><input id="jobSkills" placeholder="Painting, Wall Preparation"></div><div style="display:flex;gap:0.4rem"><div class="form-group" style="flex:1"><label>Min Budget</label><input type="number" id="jobMin" value="5000"></div><div class="form-group" style="flex:1"><label>Max Budget</label><input type="number" id="jobMax" value="15000"></div></div><div class="form-group"><label>Location</label><input id="jobLocation" placeholder="Hyderabad / Remote"></div><button class="btn btn-primary" onclick="postJob()">Post Job</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
+async function postJob(){const r=await fetch(`${BASE}/api/v1/jobs/post`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title:document.getElementById('jobTitle').value,description:document.getElementById('jobDesc').value,category:document.getElementById('jobCat').value,skills_required:document.getElementById('jobSkills').value.split(',').map(s=>s.trim()),budget_min:parseInt(document.getElementById('jobMin').value)||0,budget_max:parseInt(document.getElementById('jobMax').value)||0,location:document.getElementById('jobLocation').value})});const d=await r.json();if(d.success){closeModal();showToast('Job posted!');loadJobs();}}
+async function applyToJob(jid){const c=prompt('Cover letter:');if(!c)return;const b=prompt('Your bid:');const r=await fetch(`${BASE}/api/v1/jobs/${jid}/apply`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({cover_letter:c,bid_amount:parseInt(b)||0})});const d=await r.json();if(d.success)showToast('Applied!');}
 
-// ==================== TEMPLATES ====================
-async function renderTemplatesTab(){document.getElementById('mainContent').innerHTML=`<h2 style="font-weight:700;margin-bottom:1rem">📋 Contract Templates</h2><div id="templatesContent">${showSkeleton(4)}</div>`;const r=await fetch(`${BASE}/api/v1/templates/list`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();document.getElementById('templatesContent').innerHTML=`<div class="cards-grid animate-in">${d.templates.map(t=>`<div class="feature-card" onclick="useTemplate('${t.id}')"><div class="card-badge badge-new">TEMPLATE</div><div class="card-icon">📋</div><div class="card-title">${t.name}</div><div class="card-desc">${t.description}<br>💰 ~₹${t.estimated_amount} · ${t.milestones.length} milestones</div></div>`).join('')}</div>`;}
-async function useTemplate(tid){const r=await fetch(`${BASE}/api/v1/templates/${tid}`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d.success){const t=d.template;document.getElementById('modalContent').innerHTML=`<h3>📋 ${t.name}</h3><div class="form-group"><label>Provider Phone</label><input id="tmplPhone" placeholder="+919876543210"></div><div class="form-group"><label>Total Amount</label><input type="number" id="tmplAmount" value="${t.estimated_amount}"></div><p style="color:var(--muted);font-size:0.8rem;margin-bottom:0.75rem">Milestones: ${t.milestones.map(m=>m.title+' ('+m.amount_pct+'%)').join(', ')}</p><button class="btn btn-primary" onclick="createFromTemplate('${tid}')">Create Contract</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}}
+// ==================== PROVIDERS / TEMPLATES ====================
+async function renderProvidersTab(){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button></div><h2>Top Providers</h2><div id="providersList">${showSkeleton(3)}</div>`;try{const r=await fetch(`${BASE}/api/v1/providers/top-rated`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const p=d.top_providers||[];document.getElementById('providersList').innerHTML=p.length===0?`<div class="empty-state"><p>No providers yet</p></div>`:`<div class="cards-grid">${p.map(x=>`<div class="feature-card"><div class="card-label">${x.badge}</div><div class="card-title">${x.name}</div><div class="card-desc">${x.vouch_score} score \u00B7 ${x.total_done||0} jobs</div></div>`).join('')}</div>`;}catch(e){}}
+async function renderTemplatesTab(){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button></div><h2>Contract Templates</h2><div id="templatesContent">${showSkeleton(4)}</div>`;const r=await fetch(`${BASE}/api/v1/templates/list`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();document.getElementById('templatesContent').innerHTML=`<div class="cards-grid">${d.templates.map(t=>`<div class="feature-card" onclick="useTemplate('${t.id}')"><div class="card-label">Template</div><div class="card-title">${t.name}</div><div class="card-desc">${t.description}<br>~${t.currency||'INR'} ${t.estimated_amount}</div></div>`).join('')}</div>`;}
+async function useTemplate(tid){const r=await fetch(`${BASE}/api/v1/templates/${tid}`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d.success){const t=d.template;document.getElementById('modalContent').innerHTML=`<h3>${t.name}</h3><div class="form-group"><label>Provider Phone</label><input id="tmplPhone" placeholder="+919876543210"></div><div class="form-group"><label>Total Amount</label><input type="number" id="tmplAmount" value="${t.estimated_amount}"></div><p style="color:var(--muted);font-size:0.75rem;margin-bottom:0.75rem">Milestones: ${t.milestones.map(m=>m.title+' ('+m.amount_pct+'%)').join(', ')}</p><button class="btn btn-primary" onclick="createFromTemplate('${tid}')">Create Contract</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}}
 async function createFromTemplate(tid){const r=await fetch(`${BASE}/api/v1/templates/${tid}`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const t=d.template;const total=parseInt(document.getElementById('tmplAmount').value)||t.estimated_amount;const phone=document.getElementById('tmplPhone').value||'+919876543210';const milestones=t.milestones.map((m,i)=>({id:`MS-${i+1}`,title:m.title,amount:Math.round(total*m.amount_pct/100),deadline:new Date(Date.now()+(i+1)*3*864e5).toISOString().split('T')[0]}));const cr=await fetch(`${BASE}/api/v1/contracts/`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title:t.title,description:t.description,provider_phone:phone,total_amount:total,currency:userData?.currency||'INR',milestones})});const cd=await cr.json();if(cd.success){closeModal();showToast('Contract created!');loadContracts();}}
 
-// ==================== JOB BOARD ====================
-async function renderJobsTab(){document.getElementById('mainContent').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem"><h2 style="font-weight:700">💼 Job Board</h2><button class="btn btn-primary btn-sm" style="width:auto" onclick="openPostJob()">+ Post a Job</button></div><div id="jobsList">${showSkeleton(3)}</div>`;await loadJobs();}
-async function loadJobs(){const c=document.getElementById('jobsList');if(!c)return;const r=await fetch(`${BASE}/api/v1/jobs/list`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const jobs=d.jobs||[];if(jobs.length===0){c.innerHTML=`<div class="empty-state"><div class="icon">💼</div><p>No open jobs yet</p><button class="btn btn-primary btn-sm" style="width:auto;margin-top:0.75rem" onclick="openPostJob()">Post First Job</button></div>`;return;}c.innerHTML=jobs.map(j=>`<div class="contract-item" style="flex-direction:column;align-items:flex-start;gap:0.5rem"><div style="display:flex;justify-content:space-between;width:100%"><div><h4>${j.title}</h4><span style="font-size:0.75rem;color:var(--muted)">${j.location} · ${j.applications?.length||0} applicants</span></div><div style="text-align:right"><div style="font-weight:700">${j.currency} ${j.budget_min}-${j.budget_max}</div><span class="status-badge status-active">${j.status}</span></div></div><p style="font-size:0.8rem;color:var(--muted)">${j.description?.substring(0,120)}...</p><div style="display:flex;gap:0.3rem;flex-wrap:wrap">${(j.skills_required||[]).map(s=>`<span style="background:rgba(99,102,241,0.08);color:#a5b4fc;padding:0.15rem 0.5rem;border-radius:50px;font-size:0.7rem">${s}</span>`).join('')}</div>${currentMode==='provider'?`<button class="btn btn-success btn-xs" style="width:auto" onclick="applyToJob('${j.id}')">Apply</button>`:''}</div>`).join('');}
-function openPostJob(){document.getElementById('modalContent').innerHTML=`<h3>💼 Post a Job</h3><div class="form-group"><label>Title</label><input id="jobTitle" placeholder="Need a painter for 3BHK house"></div><div class="form-group"><label>Description</label><textarea id="jobDesc" rows="3"></textarea></div><div class="form-group"><label>Category</label><select id="jobCat"><option value="home">🏠 Home</option><option value="tech">💻 Tech</option><option value="transport">🚗 Transport</option><option value="education">📚 Education</option><option value="events">🎉 Events</option><option value="health">🏥 Health</option><option value="business">💼 Business</option><option value="auto">🔧 Auto</option><option value="other">📦 Other</option></select></div><div class="form-group"><label>Skills Required</label><input id="jobSkills" placeholder="Painting, Wall Preparation"></div><div style="display:flex;gap:0.4rem"><div class="form-group" style="flex:1"><label>Min Budget</label><input type="number" id="jobMin" value="5000"></div><div class="form-group" style="flex:1"><label>Max Budget</label><input type="number" id="jobMax" value="15000"></div></div><div class="form-group"><label>Location</label><input id="jobLocation" placeholder="Hyderabad / Remote"></div><button class="btn btn-primary" onclick="postJob()">Post Job</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
-async function postJob(){const r=await fetch(`${BASE}/api/v1/jobs/post`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title:document.getElementById('jobTitle').value,description:document.getElementById('jobDesc').value,category:document.getElementById('jobCat').value,skills_required:document.getElementById('jobSkills').value.split(',').map(s=>s.trim()),budget_min:parseInt(document.getElementById('jobMin').value)||0,budget_max:parseInt(document.getElementById('jobMax').value)||0,location:document.getElementById('jobLocation').value})});const d=await r.json();if(d.success){closeModal();showToast('Job posted!');loadJobs();}}
-async function applyToJob(jid){const c=prompt('Cover letter:');if(!c)return;const b=prompt('Your bid (₹):');const r=await fetch(`${BASE}/api/v1/jobs/${jid}/apply`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({cover_letter:c,bid_amount:parseInt(b)||0})});const d=await r.json();if(d.success)showToast('Applied! 🎉');}
+// ==================== MODALS ====================
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+function showSkeleton(n=3){return Array(n).fill(`<div class="contract-item"><div style="display:flex;align-items:center;gap:0.75rem;width:100%"><div class="skeleton" style="width:34px;height:34px;border-radius:6px"></div><div style="flex:1"><div class="skeleton" style="height:12px;width:55%;margin-bottom:6px"></div><div class="skeleton" style="height:8px;width:30%"></div></div></div></div>`).join('');}
 
-// ==================== PROVIDERS TAB ====================
-async function renderProvidersTab(){document.getElementById('mainContent').innerHTML=`<h2 style="font-weight:700;margin-bottom:1rem">⭐ Top Providers</h2><div id="providersList">${showSkeleton(3)}</div>`;try{const r=await fetch(`${BASE}/api/v1/providers/top-rated`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const p=d.top_providers||[];document.getElementById('providersList').innerHTML=p.length===0?`<div class="empty-state"><div class="icon">⭐</div><p>No providers yet</p></div>`:`<div class="cards-grid">${p.map(x=>`<div class="feature-card"><div class="card-badge" style="background:rgba(210,153,27,0.12);color:#d2991b">${x.badge}</div><div class="card-icon">👤</div><div class="card-title">${x.name}</div><div class="card-desc">⭐ ${x.vouch_score} · ${x.total_done||0} jobs · ${x.rehire_rate||'95%'} rehire</div></div>`).join('')}</div>`;}catch(e){}}
+function openCreateContract(){document.getElementById('modalContent').innerHTML=`<h3>Create Contract</h3><div class="form-group"><label>Title</label><input id="ctTitle" placeholder="House Painting"></div><div class="form-group"><label>Description</label><textarea id="ctDesc" rows="2"></textarea></div><div class="form-group"><label>Provider Phone</label><input id="ctPhone" placeholder="+919876543210"></div><div class="form-group"><label>Amount</label><input type="number" id="ctAmount" placeholder="Enter amount"></div><div class="form-group"><label>Milestones (Title:Amount, ...)</label><input id="ctMS" placeholder="Prep:3000, Paint:8000, Final:4000"></div><button class="btn btn-primary" onclick="createContract()">Create & Secure with Escrow</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
+async function createContract(){const title=document.getElementById('ctTitle').value,desc=document.getElementById('ctDesc').value,phone=document.getElementById('ctPhone').value,amount=parseFloat(document.getElementById('ctAmount').value),msStr=document.getElementById('ctMS').value;const milestones=msStr.split(',').map((m,i)=>{const p=m.trim().split(':');return{id:`MS-${i+1}`,title:p[0]?.trim()||`MS${i+1}`,amount:parseFloat(p[1])||0,deadline:new Date(Date.now()+(i+1)*3*864e5).toISOString().split('T')[0]};}).filter(m=>m.amount>0);if(!title||!amount){showToast('Title and amount required','error');return;}const currency=userData?.currency||'INR';const payRes=await fetch(`${BASE}/api/v1/payments/create-order`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({amount,currency})});const payData=await payRes.json();if(!payData.success){showToast('Payment failed','error');return;}const rzp=new Razorpay({key:payData.key_id||'rzp_test_YourKeyHere',amount:payData.amount,currency:payData.currency||currency,name:'Dokets VouchAI',description:title,order_id:payData.order_id,handler:async function(r){const res=await fetch(`${BASE}/api/v1/contracts/`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title,description:desc,provider_phone:phone,total_amount:amount,currency,milestones,payment_id:r.razorpay_payment_id,order_id:r.razorpay_order_id})});const d=await res.json();if(d.success){closeModal();showToast('Payment secured! Contract created.');loadContracts();}else showToast('Failed','error');},modal:{ondismiss:function(){showToast('Payment cancelled','error');}},prefill:{email:userData?.email||'',contact:userData?.phone_number||''},theme:{color:'#6366F1'}});rzp.open();}
+function openAIContract(){document.getElementById('modalContent').innerHTML=`<h3>AI Smart Contract</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.8rem">Describe work naturally. AI builds everything.</p><div class="form-group"><label>Describe the work</label><textarea id="aiText" rows="4" placeholder="Paint my 3BHK house white by Friday for \u20B915000. First prep, then paint, then cleanup."></textarea></div><div class="form-group"><label>Provider Phone</label><input id="aiPhone" placeholder="+919876543210"></div><button class="btn btn-primary" onclick="createAIContract()" style="background:var(--ai)">Generate</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="aiResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
+async function createAIContract(){const text=document.getElementById('aiText').value,phone=document.getElementById('aiPhone').value;if(!text){showToast('Describe the work','error');return;}const r=await fetch(`${BASE}/api/v1/ai/smart-contract`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text,provider_phone:phone||'+919876543210'})});const d=await r.json();if(d.success){document.getElementById('aiResult').innerHTML=`<div style="background:var(--success-bg);padding:0.75rem;border-radius:var(--radius-sm);font-size:0.8rem">Created: ${d.data.contract_id}<br>${d.data.extracted_details.title}<br>${d.data.extracted_details.currency} ${d.data.extracted_details.total_amount}</div>`;setTimeout(()=>{closeModal();loadContracts();},2000);}}
+function openAIVerify(){document.getElementById('modalContent').innerHTML=`<h3>AI Work Verification</h3><div class="form-group"><label>Work Description</label><textarea id="vDesc" rows="2"></textarea></div><div class="form-group"><label>Proof Description</label><textarea id="vProof" rows="2"></textarea></div><button class="btn btn-primary" onclick="verifyWork()" style="background:var(--ai)">Verify with AI</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="vResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
+async function verifyWork(){const d=document.getElementById('vDesc').value,p=document.getElementById('vProof').value;const r=await fetch(`${BASE}/api/v1/ai/verify-work`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({description:d,proof_text:p})});const data=await r.json();document.getElementById('vResult').innerHTML=`<pre style="background:var(--bg);padding:0.75rem;border-radius:var(--radius-sm);font-size:0.75rem;overflow-x:auto">${JSON.stringify(data.data,null,2)}</pre>`;}
+function openVideoCall(){const cid=prompt('Contract ID:');if(!cid)return;fetch(`${BASE}/api/v1/video/create`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({contract_id:cid,topic:'Discussion'})}).then(r=>r.json()).then(d=>{if(d.success)window.open(d.join_url,'_blank');});}
+function openDisputeMediation(){document.getElementById('modalContent').innerHTML=`<h3>AI Dispute Mediation</h3><div class="form-group"><label>Dispute Description</label><textarea id="dispText" rows="3"></textarea></div><button class="btn btn-primary" onclick="mediateDispute()" style="background:var(--ai)">Resolve with AI</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="dispResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
+async function mediateDispute(){const t=document.getElementById('dispText').value;const r=await fetch(`${BASE}/api/v1/ai/mediate-dispute`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({dispute_text:t})});const d=await r.json();document.getElementById('dispResult').innerHTML=`<pre style="background:var(--bg);padding:0.75rem;border-radius:var(--radius-sm);font-size:0.75rem">${JSON.stringify(d.data,null,2)}</pre>`;}
+function openExtractContract(){document.getElementById('modalContent').innerHTML=`<h3>Extract Contract from Text</h3><div class="form-group"><label>Paste text</label><textarea id="extText" rows="4" placeholder="I agree to pay \u20B95000 for cleaning service by Monday..."></textarea></div><button class="btn btn-primary" onclick="extractContract()" style="background:var(--ai)">Extract</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="extResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
+async function extractContract(){const t=document.getElementById('extText').value;const r=await fetch(`${BASE}/api/v1/ai/extract-contract`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text:t})});const d=await r.json();document.getElementById('extResult').innerHTML=`<pre style="background:var(--bg);padding:0.75rem;border-radius:var(--radius-sm);font-size:0.75rem">${JSON.stringify(d.data,null,2)}</pre>`;}
+function openPayoutRequest(){document.getElementById('modalContent').innerHTML=`<h3>Request Payout</h3><div class="form-group"><label>Amount</label><input type="number" id="poAmount"></div><div class="form-group"><label>Method</label><select id="poMethod"><option value="upi">UPI</option><option value="bank">Bank Transfer</option></select></div><div class="form-group"><label>UPI ID / Account</label><input id="poDetail"></div><button class="btn btn-primary" onclick="requestPayout()">Request Payout</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
+async function requestPayout(){const a=document.getElementById('poAmount').value,m=document.getElementById('poMethod').value,d=document.getElementById('poDetail').value;const r=await fetch(`${BASE}/api/v1/payouts/request`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({amount:parseFloat(a),method,[m==='upi'?'upi_id':'bank_account']:d})});const data=await r.json();if(data.success){closeModal();showToast('Payout requested!');}}
+function openRecurringContract(){document.getElementById('modalContent').innerHTML=`<h3>Recurring Contract</h3><div class="form-group"><label>Title</label><input id="recTitle" placeholder="Monthly Cleaning"></div><div class="form-group"><label>Amount</label><input type="number" id="recAmount"></div><div class="form-group"><label>Frequency</label><select id="recFreq"><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option></select></div><div class="form-group"><label>Provider Phone</label><input id="recPhone"></div><button class="btn btn-primary" onclick="createRecurring()">Create</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
+async function createRecurring(){const t=document.getElementById('recTitle').value,a=document.getElementById('recAmount').value,f=document.getElementById('recFreq').value,p=document.getElementById('recPhone').value;const r=await fetch(`${BASE}/api/v1/recurring/create`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title:t,amount:parseFloat(a),frequency:f,provider_phone:p})});const d=await r.json();if(d.success){closeModal();showToast('Recurring contract created!');}}
+function openInvoice(){const cid=prompt('Contract ID:');if(!cid)return;fetch(`${BASE}/api/v1/invoice/${cid}`,{headers:{'Authorization':'Bearer '+token}}).then(r=>r.json()).then(d=>{document.getElementById('modalContent').innerHTML=`<h3>Invoice</h3><div style="background:var(--bg);padding:0.75rem;border-radius:var(--radius-sm);max-height:350px;overflow-y:auto;font-size:0.75rem">${d.html||'<pre>'+JSON.stringify(d.invoice,null,2)+'</pre>'}</div><button class="btn btn-outline" style="margin-top:0.75rem;width:100%" onclick="closeModal()">Close</button>`;document.getElementById('modalOverlay').classList.add('show');});}
+function openBackgroundCheck(){document.getElementById('modalContent').innerHTML=`<h3>Background Check</h3><p style="color:var(--muted);font-size:0.8rem;margin-bottom:0.75rem">Request identity verification</p><button class="btn btn-primary" onclick="requestBgCheck()">Request Check</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
+async function requestBgCheck(){const r=await fetch(`${BASE}/api/v1/background/request`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({})});const d=await r.json();document.getElementById('bgResult')&&(document.getElementById('bgResult').innerHTML=`<div style="background:var(--success-bg);padding:0.75rem;border-radius:var(--radius-sm);font-size:0.8rem">Check requested</div>`);}
+function openSupportTicket(){document.getElementById('modalContent').innerHTML=`<h3>Support Ticket</h3><div class="form-group"><label>Subject</label><input id="supSubject"></div><div class="form-group"><label>Message</label><textarea id="supMessage" rows="3"></textarea></div><button class="btn btn-primary" onclick="createTicket()">Submit</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
+async function createTicket(){const s=document.getElementById('supSubject').value,m=document.getElementById('supMessage').value;const r=await fetch(`${BASE}/api/v1/support/tickets`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({subject:s,message:m})});const d=await r.json();if(d.success){closeModal();showToast('Ticket submitted!');}}
+function openAgency(){document.getElementById('modalContent').innerHTML=`<h3>White Label Agency</h3><div class="form-group"><label>Agency Name</label><input id="agName"></div><div class="form-group"><label>Domain</label><input id="agDomain" placeholder="myagency.com"></div><button class="btn btn-primary" onclick="createAgency()">Create Agency</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
+async function createAgency(){const n=document.getElementById('agName').value,d=document.getElementById('agDomain').value;const r=await fetch(`${BASE}/api/v1/agency/create`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({name:n,domain:d})});const data=await r.json();if(data.success){closeModal();showToast('Agency created!');}}
+function openReferral(){fetch(`${BASE}/api/v1/referrals/code`,{headers:{'Authorization':'Bearer '+token}}).then(r=>r.json()).then(d=>{document.getElementById('modalContent').innerHTML=`<h3>Referral Program</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.8rem">Invite friends and earn!</p><div style="background:var(--bg);padding:0.75rem;border-radius:var(--radius-sm);text-align:center;margin-bottom:0.75rem"><p style="font-size:0.7rem;color:var(--muted)">Your Referral Code</p><h2 style="letter-spacing:3px;color:var(--primary);font-size:1.4rem">${d.referral_code}</h2></div><div class="form-group"><label>Referral Link</label><input value="${d.referral_link}" readonly onclick="this.select()" style="font-size:0.7rem"></div><p style="text-align:center;color:#22c55e;font-weight:700;font-size:0.8rem">Earnings: \u20B9${d.earnings||0}</p><button class="btn btn-outline" style="margin-top:0.75rem;width:100%" onclick="closeModal()">Close</button>`;document.getElementById('modalOverlay').classList.add('show');});}
+function openKYC(){document.getElementById('modalContent').innerHTML=`<h3>KYC Verification</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.8rem">Verify your identity to build trust</p><div class="form-group"><label>Full Name</label><input id="kycName" placeholder="As per ID"></div><div class="form-group"><label>ID Type</label><select id="kycType"><option value="passport">Passport</option><option value="national_id">National ID</option><option value="driving_license">Driving License</option><option value="aadhaar">Aadhaar Card</option><option value="pan">PAN Card</option><option value="ssn">SSN (US)</option></select></div><div class="form-group"><label>ID Number</label><input id="kycNumber"></div><button class="btn btn-primary" onclick="submitKYC()">Submit KYC</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button><div id="kycResult" style="margin-top:0.75rem"></div>`;document.getElementById('modalOverlay').classList.add('show');}
+async function submitKYC(){const n=document.getElementById('kycName').value,t=document.getElementById('kycType').value,i=document.getElementById('kycNumber').value;const r=await fetch(`${BASE}/api/v1/kyc/submit`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({name:n,id_type:t,id_number:i})});const d=await r.json();if(d.success)document.getElementById('kycResult').innerHTML='<div style="background:var(--success-bg);padding:0.75rem;border-radius:var(--radius-sm);font-size:0.8rem">KYC Submitted! Pending verification.</div>';}
+function openProviderProfile(){document.getElementById('modalContent').innerHTML=`<h3>My Service Profile</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.8rem">Showcase your skills to get hired</p><div class="form-group"><label>Skills (comma separated)</label><input id="ppSkills" placeholder="Painting, Plumbing, Electrical"></div><div class="form-group"><label>Categories</label><select id="ppCategories" multiple style="height:100px"><option value="home">Home Services</option><option value="tech">Tech & IT</option><option value="transport">Transport</option><option value="education">Education</option><option value="events">Events</option><option value="health">Health</option><option value="business">Business</option><option value="auto">Auto</option></select></div><div class="form-group"><label>Experience (years)</label><input type="number" id="ppExp" value="0"></div><div class="form-group"><label>Hourly Rate</label><input type="number" id="ppRate" value="500"></div><div class="form-group"><label>Bio</label><textarea id="ppBio" rows="2" placeholder="Tell customers about yourself..."></textarea></div><div class="form-group"><label>Portfolio Images (URLs)</label><input id="ppPortfolio" placeholder="https://imgur.com/abc.jpg"></div><div class="form-group"><label>Service Cities</label><input id="ppCities" placeholder="Hyderabad, Mumbai"></div><div style="border-top:1px solid var(--border);padding-top:0.75rem;margin-top:0.75rem"><label style="font-weight:700;color:var(--text);margin-bottom:0.5rem;display:block">Service Packages</label><div class="form-group"><label>Basic</label><input type="number" id="ppBasicPrice" value="500"></div><div class="form-group"><label>Standard</label><input type="number" id="ppStdPrice" value="1500"></div><div class="form-group"><label>Premium</label><input type="number" id="ppPremPrice" value="3000"></div></div><button class="btn btn-primary" onclick="saveProviderProfile()">Save Profile</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');loadMyProfile();}
+async function loadMyProfile(){const r=await fetch(`${BASE}/api/v1/providers/my-profile`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d.success&&d.profile){const p=d.profile;document.getElementById('ppSkills').value=(p.skills||[]).join(', ');document.getElementById('ppExp').value=p.experience_years||0;document.getElementById('ppRate').value=p.hourly_rate||500;document.getElementById('ppBio').value=p.bio||'';document.getElementById('ppCities').value=(p.service_cities||[]).join(', ');}}
+async function saveProviderProfile(){const s=document.getElementById('ppSkills').value.split(',').map(x=>x.trim()).filter(x=>x);const c=Array.from(document.getElementById('ppCategories').selectedOptions).map(o=>o.value);const r=await fetch(`${BASE}/api/v1/providers/profile`,{method:'PUT',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({skills:s,categories:c,experience_years:parseInt(document.getElementById('ppExp').value)||0,hourly_rate:parseInt(document.getElementById('ppRate').value)||500,bio:document.getElementById('ppBio').value,portfolio:document.getElementById('ppPortfolio')?.value.split(',').map(x=>x.trim()).filter(x=>x)||[],service_cities:document.getElementById('ppCities').value.split(',').map(x=>x.trim()).filter(x=>x),packages:{basic:{name:"Basic",price:parseInt(document.getElementById('ppBasicPrice')?.value)||500,description:"Basic",delivery_days:1},standard:{name:"Standard",price:parseInt(document.getElementById('ppStdPrice')?.value)||1500,description:"Standard",delivery_days:3},premium:{name:"Premium",price:parseInt(document.getElementById('ppPremPrice')?.value)||3000,description:"Premium",delivery_days:7}}})});const d=await r.json();if(d.success){closeModal();showToast('Profile saved!');}}
 
 // ==================== CONTRACT ACTIONS ====================
 async function acceptContract(cid){const r=await fetch(`${BASE}/api/v1/contracts/${cid}/accept`,{method:'PUT',headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d.success){showToast('Accepted!');loadContracts();}else showToast(d.detail||'Failed','error');}
-async function rejectContract(cid){const r=await fetch(`${BASE}/api/v1/contracts/${cid}/reject`,{method:'PUT',headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d.success){showToast('Rejected');loadContracts();}}
+async function rejectContract(cid){const r=await fetch(`${BASE}/api/v1/contracts/${cid}/reject`,{method:'PUT',headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d.success){showToast('Declined');loadContracts();}}
 function viewContract(cid){window.open(`/contract-view/${cid}`,'_blank');}
-
-// ==================== REVIEWS ====================
-function openReview(cid){document.getElementById('modalContent').innerHTML=`<h3>⭐ Leave a Review</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.85rem">How was your experience?</p><div style="text-align:center;font-size:2rem;margin-bottom:0.75rem" id="starRating">${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" id="star${i}" style="cursor:pointer;opacity:0.3;transition:var(--transition)">⭐</span>`).join('')}</div><div class="form-group"><label>Your Review</label><textarea id="reviewText" rows="3" placeholder="Share your experience..."></textarea></div><button class="btn btn-primary" onclick="submitReview('${cid}')">Submit Review</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');window._reviewRating=5;}
+function openReview(cid){document.getElementById('modalContent').innerHTML=`<h3>Leave a Review</h3><p style="color:var(--muted);margin-bottom:0.75rem;font-size:0.8rem">How was your experience?</p><div style="text-align:center;font-size:1.8rem;margin-bottom:0.75rem" id="starRating">${[1,2,3,4,5].map(i=>`<span onclick="setRating(${i})" id="star${i}" style="cursor:pointer;opacity:0.3;transition:var(--transition)">&#9733;</span>`).join('')}</div><div class="form-group"><label>Your Review</label><textarea id="reviewText" rows="3" placeholder="Share your experience..."></textarea></div><button class="btn btn-primary" onclick="submitReview('${cid}')">Submit Review</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');window._reviewRating=5;}
 function setRating(r){window._reviewRating=r;for(let i=1;i<=5;i++)document.getElementById('star'+i).style.opacity=i<=r?'1':'0.3';}
-async function submitReview(cid){const r=await fetch(`${BASE}/api/v1/reviews/submit`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({contract_id:cid,rating:window._reviewRating,review:document.getElementById('reviewText').value})});const d=await r.json();if(d.success){closeModal();showToast('⭐ Review submitted!');}}
-
-// ==================== CHAT ====================
-let currentChatContract=null;
-function openChat(cid){currentChatContract=cid;document.getElementById('modalContent').innerHTML=`<h3>💬 Chat</h3><div id="chatMessagesList" style="max-height:280px;overflow-y:auto;margin-bottom:0.5rem"></div><div class="chat-input"><input type="text" id="chatMsgInput" placeholder="Type message..." onkeypress="if(event.key==='Enter')sendChatMsg()"><button class="btn btn-primary btn-xs" style="width:auto" onclick="sendChatMsg()">Send</button></div><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Close</button>`;document.getElementById('modalOverlay').classList.add('show');refreshChat();}
-async function refreshChat(){if(!currentChatContract)return;const r=await fetch(`${BASE}/api/v1/chat/${currentChatContract}`,{headers:{'Authorization':'Bearer '+token}});const msgs=await r.json();const c=document.getElementById('chatMessagesList');if(c){c.innerHTML=msgs.map(m=>`<div class="chat-msg ${m.from===userData?.id?'user':'bot'}"><strong>${m.from===userData?.id?'You':'Them'}:</strong> ${m.message}<div style="font-size:0.6rem;opacity:0.6">${new Date(m.timestamp).toLocaleTimeString()}</div></div>`).join('');c.scrollTop=c.scrollHeight;}}
-async function sendChatMsg(){const m=document.getElementById('chatMsgInput').value;if(!m||!currentChatContract)return;await fetch(`${BASE}/api/v1/chat/send`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({contract_id:currentChatContract,message:m,to:''})});document.getElementById('chatMsgInput').value='';refreshChat();}
-
-// ==================== CHATBOT ====================
-function toggleChatbot(){document.getElementById('chatbotPanel').classList.toggle('open');}
-async function sendChat(){const i=document.getElementById('chatInput'),m=i.value.trim();if(!m)return;const msgs=document.getElementById('chatMessages');msgs.innerHTML+=`<div class="chat-msg user">${m}</div>`;i.value='';try{const r=await fetch(`${BASE}/api/v1/chatbot/ask`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:m})});const d=await r.json();msgs.innerHTML+=`<div class="chat-msg bot">${d.response||d.answer||'I can help!'}</div>`;}catch(e){msgs.innerHTML+=`<div class="chat-msg bot">Sorry, try again!</div>`;}msgs.scrollTop=msgs.scrollHeight;}
+async function submitReview(cid){const r=await fetch(`${BASE}/api/v1/reviews/submit`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({contract_id:cid,rating:window._reviewRating,review:document.getElementById('reviewText').value})});const d=await r.json();if(d.success){closeModal();showToast('Review submitted!');}}
 
 // ==================== TOAST ====================
 function showToast(msg,type='success'){const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
-
-// ==================== NOTIFICATIONS ====================
-function showNotifications(){showToast('🔔 No new notifications');}
+function switchLanguage(lang){localStorage.setItem('dokets_lang',lang);}
 
 // ==================== START ====================
 init();
