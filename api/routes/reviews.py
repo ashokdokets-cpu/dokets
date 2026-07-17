@@ -7,6 +7,7 @@ from core.security.auth import get_current_user
 from core.database.mongodb import mongodb
 from bson import ObjectId
 
+
 router = APIRouter(prefix="/api/v1/reviews", tags=["Reviews"])
 
 @router.post("/submit")
@@ -92,15 +93,13 @@ async def get_contract_review(contract_id: str, current_user: dict = Depends(get
 
 async def update_user_rating(db, user_id: str):
     """Update user's average rating"""
-    from bson import ObjectId
     reviews = await db.reviews.find({"reviewed_id": user_id}).to_list(length=100)
     if reviews:
         avg = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
-from bson import ObjectId
-try:
-        await db.users.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$set": {"rating": avg, "total_reviews": len(reviews)}}
-        )
-except:
-    pass
+        try:
+            await db.users.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$set": {"rating": avg, "total_reviews": len(reviews)}}
+            )
+        except:
+            pass
