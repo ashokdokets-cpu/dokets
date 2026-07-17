@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime
 from core.security.auth import get_current_user
 from core.database.mongodb import mongodb
+from bson import ObjectId
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["Reviews"])
 
@@ -101,7 +102,11 @@ async def update_user_rating(db, user_id: str):
     reviews = await db.reviews.find({"reviewed_id": user_id}).to_list(length=100)
     if reviews:
         avg = round(sum(r["rating"] for r in reviews) / len(reviews), 1)
+from bson import ObjectId
+try:
         await db.users.update_one(
             {"_id": ObjectId(user_id)},
             {"$set": {"rating": avg, "total_reviews": len(reviews)}}
         )
+except:
+    pass
