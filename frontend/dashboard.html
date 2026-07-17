@@ -455,7 +455,15 @@ const BASE = 'https://dokets.com';
 let token = localStorage.getItem('dokets_token');
 let currentMode = 'customer';
 let userData = null;
-let activeTab = 'home';
+let activeTab = window.location.hash.replace('#','') || 'home';
+// Handle browser back/forward buttons
+window.addEventListener('hashchange', function() {
+    const tab = window.location.hash.replace('#','') || 'home';
+    if (tab !== activeTab) {
+        activeTab = tab;
+        navigateToTab(tab);
+    }
+});
 
 // ==================== INIT ====================
 async function init() {
@@ -476,6 +484,7 @@ async function init() {
 function showLoginModal() {
     document.getElementById('mainContent').innerHTML = `
         <div style="max-width:420px;margin:5rem auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center">
+        <a href="/" style="color:var(--muted);text-decoration:none;font-size:0.85rem;display:block;margin-bottom:1rem">← Back to Home</a>
             <div style="font-size:3rem;margin-bottom:0.75rem">🛡️</div>
             <h2 style="margin-bottom:0.25rem;font-weight:800">Welcome to Dokets</h2>
             <p style="color:var(--muted);margin-bottom:1.25rem;font-size:0.85rem">Trust in Every Deal</p>
@@ -525,6 +534,18 @@ function t(key){return(window._translations&&window._translations[key])||key;}
 // ==================== DROPDOWN ====================
 function toggleMoreMenu(){document.getElementById('moreMenu').classList.toggle('show');}
 function hideMoreMenu(){document.getElementById('moreMenu').classList.remove('show');}
+function navigateToTab(tab) {
+    activeTab = tab;
+    window.location.hash = tab;
+    if (tab === 'home') renderHome();
+    else if (tab === 'contracts') renderContractsTab();
+    else if (tab === 'marketplace') renderMarketplace();
+    else if (tab === 'jobs') renderJobsTab();
+    else if (tab === 'ai') renderAITab();
+    else if (tab === 'advanced') renderAdvancedTab();
+    else if (tab === 'templates') renderTemplatesTab();
+    else if (tab === 'providers') renderProvidersTab();
+}
 document.addEventListener('click',function(e){if(!e.target.closest('#moreBtn')&&!e.target.closest('#moreMenu'))document.getElementById('moreMenu').classList.remove('show');});
 
 // ==================== HOME ====================
@@ -536,17 +557,17 @@ function renderHome() {
     ];
     document.getElementById('mainContent').innerHTML=`
         <div class="tabs">
-            <button class="tab ${activeTab==='home'?'active':''}" onclick="activeTab='home';renderHome()">🏠 Home</button>
-            <button class="tab ${activeTab==='contracts'?'active':''}" onclick="activeTab='contracts';renderContractsTab()">📄 Contracts <span class="badge-count" id="contractCount">-</span></button>
-            <button class="tab ${activeTab==='marketplace'?'active':''}" onclick="activeTab='marketplace';renderMarketplace()">🏪 Marketplace</button>
-            <button class="tab ${activeTab==='jobs'?'active':''}" onclick="activeTab='jobs';renderJobsTab()">💼 Jobs</button>
+            <button class="tab ${activeTab==='home'?'active':''}" onclick="navigateToTab('home')">🏠 Home</button>
+            <button class="tab ${activeTab==='contracts'?'active':''}" onclick="navigateToTab('contracts')">📄 Contracts <span class="badge-count" id="contractCount">-</span></button>
+            <button class="tab ${activeTab==='marketplace'?'active':''}" onclick="navigateToTab('marketplace')">🏪 Marketplace</button>
+            <button class="tab ${activeTab==='jobs'?'active':''}" onclick="navigateToTab('jobs')">💼 Jobs</button>
             <div style="position:relative;margin-left:auto">
                 <button class="tab ${activeTab==='ai'||activeTab==='advanced'||activeTab==='providers'||activeTab==='templates'?'active':''}" onclick="toggleMoreMenu()" id="moreBtn">🔧 More ▾</button>
                 <div class="dropdown-menu" id="moreMenu">
-                    <button class="dropdown-item" onclick="activeTab='ai';renderAITab();hideMoreMenu()">🤖 AI Tools</button>
-                    <button class="dropdown-item" onclick="activeTab='advanced';renderAdvancedTab();hideMoreMenu()">⚡ Advanced</button>
-                    <button class="dropdown-item" onclick="activeTab='templates';renderTemplatesTab();hideMoreMenu()">📋 Templates</button>
-                    <button class="dropdown-item" onclick="activeTab='providers';renderProvidersTab();hideMoreMenu()">⭐ Top Providers</button>
+                    <button class="dropdown-item" onclick="navigateToTab('ai');hideMoreMenu()">🤖 AI Tools</button>
+                    <button class="dropdown-item" onclick="navigateToTab('advanced');hideMoreMenu()">⚡ Advanced</button>
+                    <button class="dropdown-item" onclick="navigateToTab('templates');hideMoreMenu()">📋 Templates</button>
+                    <button class="dropdown-item" onclick="navigateToTab('providers');hideMoreMenu()">⭐ Top Providers</button>
                 </div>
             </div>
         </div>
@@ -556,7 +577,7 @@ function renderHome() {
             <div class="feature-card" onclick="openCreateContract()"><div class="card-badge badge-new">FORM</div><div class="card-icon">📝</div><div class="card-title">Create Contract</div><div class="card-desc">Fill form, set milestones, secure with escrow</div></div>
             <div class="feature-card ai-card" onclick="openAIContract()"><div class="card-badge badge-ai">AI</div><div class="card-icon">🤖</div><div class="card-title">AI Smart Contract</div><div class="card-desc">Describe naturally. AI builds everything.</div></div>
             `:`
-            <div class="feature-card" onclick="activeTab='contracts';renderContractsTab()"><div class="card-badge badge-new">JOBS</div><div class="card-icon">📋</div><div class="card-title">Available Jobs</div><div class="card-desc">Accept contracts waiting for you</div></div>
+            <div class="feature-card" onclick="navigateToTab('contracts')"><div class="card-badge badge-new">JOBS</div><div class="card-icon">📋</div><div class="card-title">Available Jobs</div><div class="card-desc">Accept contracts waiting for you</div></div>
             <div class="feature-card" onclick="openProviderProfile()"><div class="card-badge badge-premium">PROFILE</div><div class="card-icon">🎯</div><div class="card-title">My Service Profile</div><div class="card-desc">Add skills, set rates, get hired</div></div>
             <div class="feature-card" onclick="openPayoutRequest()"><div class="card-badge badge-premium">EARN</div><div class="card-icon">💵</div><div class="card-title">Request Payout</div><div class="card-desc">Withdraw earnings via UPI/Bank</div></div>
             `}
