@@ -30,9 +30,9 @@ async def post_job(data: dict, current_user: dict = Depends(get_current_user)):
         "created_at": str(datetime.utcnow()),
         "deadline": data.get("deadline", "")
     }
-    
     if db is not None:
-        await db.jobs.insert_one(job)
+        result = await db.jobs.insert_one(job)
+        job["_id"] = str(result.inserted_id)
     
     return {"success": True, "message": "Job posted!", "job": job}
 
