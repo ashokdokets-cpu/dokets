@@ -285,6 +285,7 @@ function showLoginModal(){
             <p style="color:var(--muted);margin-bottom:1.25rem;font-size:0.85rem">Trust in Every Deal</p>
             <div class="form-group"><input type="email" id="loginEmail" placeholder="Email"></div>
             <div class="form-group"><input type="password" id="loginPassword" placeholder="Password"></div>
+            <a href="#" onclick="showForgotPassword()" style="color:var(--muted);font-size:0.75rem;text-decoration:none;display:block;text-align:right;margin-top:-0.5rem;margin-bottom:0.5rem">Forgot password?</a>
             <div class="form-group"><select id="loginMode"><option value="customer">I need a service</option><option value="provider">I provide a service</option></select></div>
             <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
             <button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="doRegister()">Create Account</button>
@@ -475,6 +476,45 @@ async function submitReview(cid){const r=await fetch(`${BASE}/api/v1/reviews/sub
 // ==================== TOAST ====================
 function showToast(msg,type='success'){const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
 function switchLanguage(lang){localStorage.setItem('dokets_lang',lang);}
+
+function showForgotPassword(){
+    document.getElementById('mainContent').innerHTML=`
+        <div style="max-width:400px;margin:6rem auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center">
+            <a href="#" onclick="showLoginModal()" style="color:var(--muted);text-decoration:none;font-size:0.8rem;display:block;margin-bottom:1.25rem;text-align:left">&larr; Back to Login</a>
+            <h3 style="margin-bottom:1rem">Reset Password</h3>
+            <div class="form-group"><input type="email" id="resetEmail" placeholder="Your email"></div>
+            <button class="btn btn-primary" onclick="sendResetCode()">Send Reset Code</button>
+            <div id="resetResult" style="margin-top:1rem"></div>
+        </div>`;
+}
+
+async function sendResetCode(){
+    const email = document.getElementById('resetEmail').value;
+    const r = await fetch(BASE+'/api/v1/users/forgot-password', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email})
+    });
+    const d = await r.json();
+    document.getElementById('resetResult').innerHTML = `
+        <p style="color:#22c55e;margin-bottom:1rem">Reset code sent to your phone via WhatsApp</p>
+        <div class="form-group"><input type="text" id="resetCode" placeholder="Enter 6-digit code"></div>
+        <div class="form-group"><input type="password" id="newPassword" placeholder="New password (8+ chars)"></div>
+        <button class="btn btn-primary" onclick="doResetPassword()">Reset Password</button>
+    `;
+}
+
+async function doResetPassword(){
+    const email = document.getElementById('resetEmail').value;
+    const code = document.getElementById('resetCode').value;
+    const pass = document.getElementById('newPassword').value;
+    const r = await fetch(BASE+'/api/v1/users/reset-password', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email, code, new_password:pass})
+    });
+    const d = await r.json();
+    if(d.success){showToast('Password reset! Please login.');showLoginModal();}
+    else showToast(d.detail||'Failed','error');
+}
 
 // ==================== START ====================
 init();

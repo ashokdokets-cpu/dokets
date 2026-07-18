@@ -7,6 +7,7 @@ from core.security.auth import (
 from core.database.mongodb import mongodb
 from core.security.limiter import limiter
 from core.security.validator import security as validator
+from datetime import timedelta
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
@@ -179,5 +180,87 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
             pass
 
     raise HTTPException(status_code=404, detail="User not found")
+
+@router.post("/forgot-password")
+@limiter.limit("3/minute")
+async def forgot_password(request: Request, data: dict):
+    """Send password reset code via email or phone"""
+    email = data.get("email", "")
+    phone = data.get("phone", "")
+    
+    users = await get_users_collection()
+    user = None
+    
+    if users is not None:
+        if email:
+            user = await users.find_one({"email": email})
+        elif phone:
+            user = await users.find_one({"phone_number": phone})
+    
+    if not user:
+        return {"success": True, "message": "If account exists, reset code sent"}
+    
+    # Generate 6-digit reset code
+    import random
+    reset_code = str(random.randint(100000, 999999))
+    
+    # Store code in database with expiry (15 min)
+    if users is not None:
+        from bson import ObjectId
+        await users.update_one(
+            {"_id": user["_id"]},
+            {"$set": {
+                "reset_code": reset_code,
+                "reset_code_expiry": str(datetime.utcnow() + timedelta(minutes=15))
+            }}
+        )
+    
+    # Send via WhatsApp
+    from core.messaging.whatsapp_bot import whatsapp_bot
+    phone_num = user.get("phone_number", "")
+    if phone_num:
+        whatsapp_bot.send_message(
+            phone_num,
+            f"Dokets Password Reset Code: {reset_code}\nValid for 15 minutes."
+        )
+    
+    return {"success": True, "message": "If account exists, reset code sent"}
+
+
+@router.post("/reset-password")
+@limiter.limit("3/minute")
+async def reset_password(request: Request, data: dict):
+    """Reset password using code"""
+    email = data.get("email", "")
+    code = data.get("code", "")
+    new_password = data.get("new_password", "")
+    
+    if len(new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    
+    users = await get_users_collection()
+    if users is not None:
+        user = await users.find_one({"email": email, "reset_code": code})
+        if not user:
+            raise HTTPException(status_code=400, detail="Invalid reset code")
+        
+        # Check expiry
+        from datetime import timedelta
+        expiry = user.get("reset_code_expiry")
+        if expiry and datetime.utcnow() > datetime.fromisoformat(expiry):
+            raise HTTPException(status_code=400, detail="Reset code expired")
+        
+        # Update password
+        from bson import ObjectId
+        await users.update_one(
+            {"_id": user["_id"]},
+            {"$set": {
+                "hashed_password": hash_password(new_password),
+                "reset_code": None,
+                "reset_code_expiry": None
+            }}
+        )
+    
+    return {"success": True, "message": "Password reset successful! You can now login."}
 
 _fallback_users = []
