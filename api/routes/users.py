@@ -226,20 +226,18 @@ async def forgot_password(request: Request, data: dict):
             )
             sent_via = "WhatsApp"
     
-    # Send via Email
+        # Send via Email
     if method == "email" or (method == "whatsapp" and not sent_via):
-        from core.messaging.email_notifications import email_notifier
-        email_notifier.send_email(
-            user["email"],
-            "Dokets - Password Reset Code",
-            f"""
-            <h2>Password Reset</h2>
-            <p>Your reset code is: <strong>{reset_code}</strong></p>
-            <p>Valid for 15 minutes.</p>
-            <p>If you didn't request this, ignore this email.</p>
-            """
-        )
-        sent_via = "Email"
+        try:
+            from core.messaging.email_notifications import email_notifier
+            email_notifier.send_email(
+                user["email"],
+                "Dokets - Password Reset Code",
+                f"<h2>Password Reset</h2><p>Your reset code is: <strong>{reset_code}</strong></p><p>Valid for 15 minutes.</p>"
+            )
+            sent_via = "Email"
+        except Exception as e:
+            sent_via = "WhatsApp (email failed)"
     
     return {"success": True, "message": f"Reset code sent via {sent_via}", "sent_via": sent_via}
 
