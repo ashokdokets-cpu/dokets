@@ -46,3 +46,18 @@ async def clean_contracts(current_user: dict = Depends(get_current_user)):
             pass
     
     return {"success": True, "message": f"Deleted {count} contracts"}
+
+@router.delete("/jobs/clean")
+async def clean_jobs(current_user: dict = Depends(get_current_user)):
+    """Admin: Delete all jobs"""
+    if current_user.get("email") not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    db = mongodb.get_db()
+    if db is not None:
+        try:
+            await db.jobs.delete_many({})
+        except:
+            pass
+    
+    return {"success": True, "message": "All jobs deleted"}
