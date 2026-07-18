@@ -184,7 +184,36 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
 @limiter.limit("3/minute")
 async def forgot_password(request: Request, data: dict):
     """Send password reset code via email OR WhatsApp"""
-    return {"success": True, "message": "Reset code sent via test", "sent_via": "test"}
+    email = data.get("email", "")
+    phone = data.get("phone", "")
+    method = data.get("method", "whatsapp")
+    
+    users = await get_users_collection()
+    user = None
+    
+    if users is not None:
+        if email:
+            user = await users.find_one({"email": email})
+        elif phone:
+            user = await users.find_one({"phone_number": phone})
+    
+    if not user:
+        return {"success": True, "message": "If account exists, reset instructions sent"}
+    
+    import random
+    reset_code = str(random.randint(100000, 999999))
+    
+    if users is not None:
+        from bson import ObjectId
+        await users.update_one(
+            {"_id": user["_id"]},
+            {"$set": {
+                "reset_code": reset_code,
+                "reset_code_expiry": str(datetime.utcnow() + timedelta(minutes=15))
+            }}
+        )
+    
+    return {"success": True, "message": f"Reset code: {reset_code}", "sent_via": "test"}
 
 @router.post("/reset-password")
 @limiter.limit("3/minute")
