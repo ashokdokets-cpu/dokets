@@ -58,4 +58,9 @@ class EmailNotifier:
         return self.send_email(to_email, f"⭐ New Review: {stars}",
             f"<h2>{stars}</h2><p>{review}</p>")
 
-email_notifier = EmailNotifier()
+try:
+    email_notifier = EmailNotifier()
+except Exception as e:
+    import logging
+    logging.getLogger("dokets.email").warning(f"Email notifier init failed: {e}")
+    email_notifier = None
