@@ -31,10 +31,14 @@ class EmailNotifier:
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'html'))
 
-            with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
+                        if self.smtp_port == 465:
+                server = smtplib.SMTP_SSL(self.smtp_host, self.smtp_port)
+            else:
+                server = smtplib.SMTP(self.smtp_host, self.smtp_port)
                 server.starttls()
-                server.login(self.smtp_user, self.smtp_pass)
-                server.send_message(msg)
+            server.login(self.smtp_user, self.smtp_pass)
+            server.send_message(msg)
+            server.quit()
             
             return {"success": True, "sent": True}
         except Exception as e:
