@@ -30,11 +30,11 @@ class RazorpayPayments:
                     "receipt": receipt or f"rcpt_{amount}",
                     "payment_capture": 1
                 })
-                return {"success": True, "order_id": order["id"], "amount": amount_in_paise, "currency": currency}
+                return {"success": True, "order_id": order["id"], "amount": amount_in_paise, "currency": currency, "key_id": settings.RAZORPAY_KEY_ID}
             except Exception as e:
                 logger.error(f"Razorpay error: {e}")
         import uuid
-        return {"success": True, "order_id": f"order_test_{uuid.uuid4().hex[:12]}", "amount": amount_in_paise, "currency": currency, "test_mode": True}
+        return {"success": True, "order_id": f"order_test_{uuid.uuid4().hex[:12]}", "amount": amount_in_paise, "currency": currency, "test_mode": True, "key_id": settings.RAZORPAY_KEY_ID}
     
     def verify_payment(self, payment_id, order_id, signature):
         return True

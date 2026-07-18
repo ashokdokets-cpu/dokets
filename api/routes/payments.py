@@ -61,11 +61,12 @@ async def create_payment_order(data: dict, current_user: dict = Depends(get_curr
             "paypal": f"https://dokets.com/pay-paypal?order={order['order_id']}&amount={amount}&currency={currency}"
         }
     
-    return {
+        return {
         "success": True,
         "data": {
             "order": order,
             "currency": currency,
+            "key_id": settings.RAZORPAY_KEY_ID,
             "payment_links": payment_links,
             "supported_methods": list(payment_links.keys()),
             "instructions": f"Choose payment method. Payment held in escrow in {currency} until work verified.",
