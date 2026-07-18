@@ -482,21 +482,30 @@ function showForgotPassword(){
         <div style="max-width:400px;margin:6rem auto;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center">
             <a href="#" onclick="showLoginModal()" style="color:var(--muted);text-decoration:none;font-size:0.8rem;display:block;margin-bottom:1.25rem;text-align:left">&larr; Back to Login</a>
             <h3 style="margin-bottom:1rem">Reset Password</h3>
+            <p style="color:var(--muted);font-size:0.8rem;margin-bottom:1rem">Choose how to receive your reset code</p>
             <div class="form-group"><input type="email" id="resetEmail" placeholder="Your email"></div>
+            <div class="form-group">
+                <select id="resetMethod">
+                    <option value="whatsapp">Send via WhatsApp</option>
+                    <option value="email">Send via Email</option>
+                </select>
+            </div>
             <button class="btn btn-primary" onclick="sendResetCode()">Send Reset Code</button>
+            <p style="color:var(--muted);font-size:0.7rem;margin-top:0.5rem">If WhatsApp fails, code will be sent via Email automatically</p>
             <div id="resetResult" style="margin-top:1rem"></div>
         </div>`;
 }
 
 async function sendResetCode(){
     const email = document.getElementById('resetEmail').value;
+    const method = document.getElementById('resetMethod').value;
     const r = await fetch(BASE+'/api/v1/users/forgot-password', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({email})
+        body:JSON.stringify({email, method})
     });
     const d = await r.json();
     document.getElementById('resetResult').innerHTML = `
-        <p style="color:#22c55e;margin-bottom:1rem">Reset code sent to your phone via WhatsApp</p>
+        <p style="color:#22c55e;margin-bottom:1rem">Reset code sent via ${d.sent_via || 'message'}!</p>
         <div class="form-group"><input type="text" id="resetCode" placeholder="Enter 6-digit code"></div>
         <div class="form-group"><input type="password" id="newPassword" placeholder="New password (8+ chars)"></div>
         <button class="btn btn-primary" onclick="doResetPassword()">Reset Password</button>

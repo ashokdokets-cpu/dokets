@@ -184,9 +184,10 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
 @router.post("/forgot-password")
 @limiter.limit("3/minute")
 async def forgot_password(request: Request, data: dict):
-    """Send password reset code via email or phone"""
+    """Send password reset code via email OR WhatsApp"""
     email = data.get("email", "")
     phone = data.get("phone", "")
+    method = data.get("method", "whatsapp")  # "whatsapp" or "email"
     
     users = await get_users_collection()
     user = None
@@ -198,13 +199,11 @@ async def forgot_password(request: Request, data: dict):
             user = await users.find_one({"phone_number": phone})
     
     if not user:
-        return {"success": True, "message": "If account exists, reset code sent"}
+        return {"success": True, "message": "If account exists, reset instructions sent"}
     
-    # Generate 6-digit reset code
     import random
     reset_code = str(random.randint(100000, 999999))
     
-    # Store code in database with expiry (15 min)
     if users is not None:
         from bson import ObjectId
         await users.update_one(
@@ -215,16 +214,35 @@ async def forgot_password(request: Request, data: dict):
             }}
         )
     
-    # Send via WhatsApp
-    from core.messaging.whatsapp_bot import whatsapp_bot
-    phone_num = user.get("phone_number", "")
-    if phone_num:
-        whatsapp_bot.send_message(
-            phone_num,
-            f"Dokets Password Reset Code: {reset_code}\nValid for 15 minutes."
-        )
+    sent_via = ""
     
-    return {"success": True, "message": "If account exists, reset code sent"}
+    # Send via WhatsApp
+    if method == "whatsapp":
+        phone_num = user.get("phone_number", "")
+        if phone_num:
+            from core.messaging.whatsapp_bot import whatsapp_bot
+            whatsapp_bot.send_message(
+                phone_num,
+                f"Dokets Password Reset Code: {reset_code}\nValid for 15 minutes."
+            )
+            sent_via = "WhatsApp"
+    
+    # Send via Email
+    if method == "email" or (method == "whatsapp" and not sent_via):
+        from core.messaging.email_notifications import email_notifier
+        email_notifier.send_email(
+            user["email"],
+            "Dokets - Password Reset Code",
+            f"""
+            <h2>Password Reset</h2>
+            <p>Your reset code is: <strong>{reset_code}</strong></p>
+            <p>Valid for 15 minutes.</p>
+            <p>If you didn't request this, ignore this email.</p>
+            """
+        )
+        sent_via = "Email"
+    
+    return {"success": True, "message": f"Reset code sent via {sent_via}", "sent_via": sent_via}
 
 
 @router.post("/reset-password")
