@@ -51,7 +51,7 @@ async def create_payment_order(data: dict, current_user: dict = Depends(get_curr
             "paypal": f"https://www.paypal.com/checkoutnow?token={order['order_id']}&amount={amount}&currency=GBP",
             "stripe": f"https://checkout.stripe.com/pay/{order['order_id']}"
         }
-    elif currency in ["BRL", "IDR", "NGN", "PHP", "MXN", "AED", "SAR", "BDT", "PKR"]:
+        elif currency in ["BRL", "IDR", "NGN", "PHP", "MXN", "AED", "SAR", "BDT", "PKR"]:
         payment_links = {
             "paypal": f"https://www.paypal.com/checkoutnow?token={order['order_id']}&amount={amount}&currency={currency}",
             "razorpay": f"https://checkout.razorpay.com/v1/payment/authorize?order_id={order['order_id']}&amount={order['amount']}&key={order.get('razorpay_key', '')}"
@@ -60,8 +60,8 @@ async def create_payment_order(data: dict, current_user: dict = Depends(get_curr
         payment_links = {
             "paypal": f"https://dokets.com/pay-paypal?order={order['order_id']}&amount={amount}&currency={currency}"
         }
-    
-        return {
+
+    return {
         "success": True,
         "data": {
             "order": order,
