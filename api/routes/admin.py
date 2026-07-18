@@ -84,3 +84,20 @@ async def update_contract_phone(contract_id: str, data: dict, current_user: dict
             c["provider_phone"] = new_phone
     
     return {"success": True, "message": f"Contract {contract_id} updated to phone {new_phone}"}
+
+@router.post("/contracts/sync")
+async def sync_contracts(current_user: dict = Depends(get_current_user)):
+    """Admin: Sync MongoDB contracts to in-memory"""
+    if current_user.get("email") not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    from api.routes.contracts import _contracts
+    db = mongodb.get_db()
+    if db is not None:
+        mongo_contracts = await db.contracts.find({}).to_list(length=200)
+        _contracts.clear()
+        for c in mongo_contracts:
+            c["_id"] = str(c["_id"])
+            _contracts.append(c)
+    
+    return {"success": True, "message": f"Synced {len(_contracts)} contracts from MongoDB"}
