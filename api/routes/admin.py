@@ -61,3 +61,26 @@ async def clean_jobs(current_user: dict = Depends(get_current_user)):
             pass
     
     return {"success": True, "message": "All jobs deleted"}
+
+@router.put("/contracts/{contract_id}/update-phone")
+async def update_contract_phone(contract_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    """Admin: Update contract provider phone"""
+    if current_user.get("email") not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    new_phone = data.get("phone", "")
+    db = mongodb.get_db()
+    
+    if db is not None:
+        await db.contracts.update_one(
+            {"id": contract_id},
+            {"$set": {"provider_phone": new_phone}}
+        )
+    
+    # Also update in-memory
+    from api.routes.contracts import _contracts
+    for c in _contracts:
+        if c.get("id") == contract_id:
+            c["provider_phone"] = new_phone
+    
+    return {"success": True, "message": f"Contract {contract_id} updated to phone {new_phone}"}
