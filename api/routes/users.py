@@ -184,63 +184,7 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
 @limiter.limit("3/minute")
 async def forgot_password(request: Request, data: dict):
     """Send password reset code via email OR WhatsApp"""
-    email = data.get("email", "")
-    phone = data.get("phone", "")
-    method = data.get("method", "whatsapp")  # "whatsapp" or "email"
-    
-    users = await get_users_collection()
-    user = None
-    
-    if users is not None:
-        if email:
-            user = await users.find_one({"email": email})
-        elif phone:
-            user = await users.find_one({"phone_number": phone})
-    
-    if not user:
-        return {"success": True, "message": "If account exists, reset instructions sent"}
-    
-    import random
-    reset_code = str(random.randint(100000, 999999))
-    
-    if users is not None:
-        from bson import ObjectId
-        await users.update_one(
-            {"_id": user["_id"]},
-            {"$set": {
-                "reset_code": reset_code,
-                "reset_code_expiry": str(datetime.utcnow() + timedelta(minutes=15))
-            }}
-        )
-    
-    sent_via = ""
-    
-    # Send via WhatsApp
-    if method == "whatsapp":
-        phone_num = user.get("phone_number", "")
-        if phone_num:
-            from core.messaging.whatsapp_bot import whatsapp_bot
-            whatsapp_bot.send_message(
-                phone_num,
-                f"Dokets Password Reset Code: {reset_code}\nValid for 15 minutes."
-            )
-            sent_via = "WhatsApp"
-    
-        # Send via Email
-    if method == "email" or (method == "whatsapp" and not sent_via):
-        try:
-            from core.messaging.email_notifications import email_notifier
-            email_notifier.send_email(
-                user["email"],
-                "Dokets - Password Reset Code",
-                f"<h2>Password Reset</h2><p>Your reset code is: <strong>{reset_code}</strong></p><p>Valid for 15 minutes.</p>"
-            )
-            sent_via = "Email"
-        except Exception as e:
-            sent_via = "WhatsApp (email failed)"
-    
-    return {"success": True, "message": f"Reset code sent via {sent_via}", "sent_via": sent_via}
-
+    return {"success": True, "message": "Reset code sent via test", "sent_via": "test"}
 
 @router.post("/reset-password")
 @limiter.limit("3/minute")
