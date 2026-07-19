@@ -408,7 +408,8 @@ async function quickHire(pid){const t=document.getElementById('ctTitle').value,a
 
 // ==================== JOBS ====================
 async function renderJobsTab(){document.getElementById('mainContent').innerHTML=`<div class="tabs"><button class="tab" onclick="navigateToTab('home')">Home</button><button class="tab" onclick="navigateToTab('contracts')">Contracts</button><button class="tab" onclick="navigateToTab('marketplace')">Marketplace</button><button class="tab active" onclick="navigateToTab('jobs')">Jobs</button></div><div class="section-header"><h2>Job Board</h2><button class="btn btn-primary btn-sm" style="width:auto" onclick="openPostJob()">+ Post a Job</button></div><div id="jobsList">${showSkeleton(3)}</div>`;await loadJobs();}
-async function loadJobs(){const c=document.getElementById('jobsList');if(!c)return;const r=await fetch(`${BASE}/api/v1/jobs/list`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const jobs=d.jobs||[];if(jobs.length===0){c.innerHTML=`<div class="empty-state"><h3>No open jobs</h3><p>Be the first to post a job.</p><button class="btn btn-primary btn-sm" style="width:auto" onclick="openPostJob()">Post Job</button></div>`;return;}c.innerHTML=jobs.map(j=>`<div class="contract-item" style="flex-direction:column;align-items:flex-start;gap:0.5rem"><div style="display:flex;justify-content:space-between;width:100%"><div><h4>${j.title}</h4><span style="font-size:0.7rem;color:var(--muted)">${j.location} \u00B7 ${j.applications?.length||0} applicants</span></div><div style="text-align:right"><div style="font-weight:700">${j.currency} ${j.budget_min}-${j.budget_max}</div><span class="status-badge status-active">${j.status}</span></div></div><div style="display:flex;gap:0.3rem;flex-wrap:wrap">${(j.skills_required||[]).map(s=>`<span style="background:rgba(99,102,241,0.08);color:#a5b4fc;padding:0.1rem 0.4rem;border-radius:50px;font-size:0.65rem">${s}</span>`).join('')}</div>${currentMode==='provider'?`<button class="btn btn-success btn-xs" style="width:auto" onclick="applyToJob('${j.id}')">Apply</button>`:''}</div>`).join('');}
+async function loadJobs(){const c=document.getElementById('jobsList');if(!c)return;const r=await fetch(`${BASE}/api/v1/jobs/list`,{headers:{'Authorization':'Bearer '+token}});const d=await r.json();const jobs=d.jobs||[];if(jobs.length===0){c.innerHTML=`<div class="empty-state"><h3>No open jobs</h3><p>Be the first to post a job.</p><button class="btn btn-primary btn-sm" style="width:auto" onclick="openPostJob()">Post Job</button></div>`;return;}c.innerHTML=jobs.map(j=>`<div class="contract-item" style="flex-direction:column;align-items:flex-start;gap:0.5rem"><div style="display:flex;justify-content:space-between;width:100%"><div><h4>${j.title}</h4><span style="font-size:0.7rem;color:var(--muted)">${j.location} \u00B7 ${j.applications?.length||0} applicants</span></div><div style="text-align:right"><div style="font-weight:700">${j.currency} ${j.budget_min}-${j.budget_max}</div><span class="status-badge status-active">${j.status}</span></div></div><div style="display:flex;gap:0.3rem;flex-wrap:wrap">${(j.skills_required||[]).map(s=>`<span style="background:rgba(99,102,241,0.08);color:#a5b4fc;padding:0.1rem 0.4rem;border-radius:50px;font-size:0.65rem">${s}</span>`).join('')}</div>${currentMode==='provider'?`<button class="btn btn-success btn-xs" style="width:auto;margin-right:0.25rem" onclick="applyToJob('${j.id}')">Apply</button>`:''}
+<button class="btn btn-outline btn-xs" style="width:auto" onclick="event.stopPropagation();viewJobDetails('${j.id}')">View</button></div>`).join('');}
 function openPostJob(){document.getElementById('modalContent').innerHTML=`<h3>Post a Job</h3><div class="form-group"><label>Title</label><input id="jobTitle" placeholder="Need a painter for 3BHK house"></div><div class="form-group"><label>Description</label><textarea id="jobDesc" rows="3"></textarea></div><div class="form-group"><label>Category</label><select id="jobCat"><option value="home">Home</option><option value="tech">Tech</option><option value="transport">Transport</option><option value="education">Education</option><option value="events">Events</option><option value="health">Health</option><option value="business">Business</option><option value="auto">Auto</option><option value="other">Other</option></select></div><div class="form-group"><label>Skills Required</label><input id="jobSkills" placeholder="Painting, Wall Preparation"></div><div style="display:flex;gap:0.4rem"><div class="form-group" style="flex:1"><label>Min Budget</label><input type="number" id="jobMin" value="5000"></div><div class="form-group" style="flex:1"><label>Max Budget</label><input type="number" id="jobMax" value="15000"></div></div><div class="form-group"><label>Location</label><input id="jobLocation" placeholder="Hyderabad / Remote"></div><button class="btn btn-primary" onclick="postJob()">Post Job</button><button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>`;document.getElementById('modalOverlay').classList.add('show');}
 async function postJob(){const r=await fetch(`${BASE}/api/v1/jobs/post`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({title:document.getElementById('jobTitle').value,description:document.getElementById('jobDesc').value,category:document.getElementById('jobCat').value,skills_required:document.getElementById('jobSkills').value.split(',').map(s=>s.trim()),budget_min:parseInt(document.getElementById('jobMin').value)||0,budget_max:parseInt(document.getElementById('jobMax').value)||0,location:document.getElementById('jobLocation').value})});const d=await r.json();if(d.success){closeModal();showToast('Job posted!');loadJobs();}}
 async function applyToJob(jid){const c=prompt('Cover letter:');if(!c)return;const b=prompt('Your bid:');const r=await fetch(`${BASE}/api/v1/jobs/${jid}/apply`,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({cover_letter:c,bid_amount:parseInt(b)||0})});const d=await r.json();if(d.success)showToast('Applied!');}
@@ -630,6 +631,44 @@ function getCurrencySymbol(currency) {
         'NGN':'₦','PHP':'₱','MXN':'MX$','AED':'د.إ','SAR':'﷼','BDT':'৳','PKR':'Rs'
     };
     return symbols[currency] || currency || '₹';
+}
+
+async function viewJobDetails(jid){
+    const r = await fetch(BASE+'/api/v1/jobs/list', {headers:{'Authorization':'Bearer '+token}});
+    const d = await r.json();
+    const job = d.jobs?.find(j=>j.id===jid);
+    
+    if(!job){showToast('Job not found','error');return;}
+    
+    let html = `<h3>${job.title}</h3>
+        <div style="background:var(--bg);padding:1rem;border-radius:var(--radius-sm);margin-bottom:1rem">
+            <p><strong>Budget:</strong> ${job.currency} ${job.budget_min} - ${job.budget_max}</p>
+            <p><strong>Location:</strong> ${job.location}</p>
+            <p><strong>Status:</strong> ${job.status}</p>
+            <p><strong>Skills:</strong> ${(job.skills_required||[]).join(', ')}</p>
+            <p><strong>Description:</strong> ${job.description}</p>
+            <p><strong>Posted by:</strong> ${job.poster_name}</p>
+        </div>
+        <h4>Applicants (${job.applications?.length||0})</h4>`;
+    
+    if(job.applications&&job.applications.length>0){
+        html += '<div style="display:flex;flex-direction:column;gap:0.4rem;max-height:200px;overflow-y:auto">';
+        job.applications.forEach((a,i)=>{
+            html += `<div style="background:var(--bg);padding:0.75rem;border-radius:var(--radius-sm);border-left:3px solid #6366f1">
+                <strong>#${i+1}: ${a.provider_name}</strong>
+                <p style="font-size:0.8rem;color:var(--muted)">Bid: ${job.currency} ${a.bid_amount}</p>
+                <p style="font-size:0.8rem;color:var(--muted)">${a.cover_letter}</p>
+                <p style="font-size:0.65rem;color:var(--muted)">Applied: ${new Date(a.applied_at).toLocaleDateString()}</p>
+            </div>`;
+        });
+        html += '</div>';
+    } else {
+        html += '<p style="color:var(--muted)">No applicants yet</p>';
+    }
+    
+    html += '<button class="btn btn-outline" style="margin-top:0.75rem;width:100%" onclick="closeModal()">Close</button>';
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('show');
 }
 
 // ==================== START ====================
