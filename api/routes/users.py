@@ -205,45 +205,50 @@ async def forgot_password(request: Request, data: dict):
     
     if users is not None:
         from bson import ObjectId
+        uid = user["_id"]
         await users.update_one(
-            {"_id": ObjectId(user["_id"])} if isinstance(user["_id"], str) else {"_id": user["_id"]},
+            {"_id": ObjectId(uid) if isinstance(uid, str) else uid},
             {"$set": {
                 "reset_code": reset_code,
                 "reset_code_expiry": str(datetime.utcnow() + timedelta(minutes=15))
-                        }}
+            }}
         )
     
-    sent_via = ""          # ← 4 spaces, OUTSIDE the if block
+    sent_via = ""
     
-    # Send via WhatsApp
     if method == "whatsapp":
         phone_num = user.get("phone_number", "")
         if phone_num:
-            from core.messaging.whatsapp_bot import whatsapp_bot
-            whatsapp_bot.send_message(
-                phone_num,
-                f"Dokets Password Reset Code: {reset_code}\nValid for 15 minutes."
-            )
-            sent_via = "WhatsApp"
+            try:
+                from core.messaging.whatsapp_bot import whatsapp_bot
+                whatsapp_bot.send_message(
+                    phone_num,
+                    f"Dokets Password Reset Code: {reset_code}\nValid for 15 minutes."
+                )
+                sent_via = "WhatsApp"
+            except:
+                pass
     
-    # Send via Email (safe)
-        if method == "email" or (method == "whatsapp" and not sent_via):
+    if method == "email" or (method == "whatsapp" and not sent_via):
         try:
             from core.messaging.email_notifications import email_notifier
             if email_notifier:
-                email_notifier.send_email(
+                result = email_notifier.send_email(
                     user["email"],
                     "Dokets - Password Reset Code",
                     f"<h2>Password Reset</h2><p>Your code: <strong>{reset_code}</strong></p>"
                 )
-                sent_via = "Email" if not sent_via else sent_via + " + Email"
+                if result.get("success"):
+                    sent_via = "Email" if not sent_via else sent_via + " + Email"
+                else:
+                    sent_via = "Email failed: " + str(result.get("error", ""))[:80]
             else:
-                sent_via = "WhatsApp (email not configured)"
+                sent_via = "Email not configured"
         except Exception as e:
-            sent_via = "Email error: " + str(e)[:100]
+            sent_via = "Email error: " + str(e)[:80]
     
     if not sent_via:
-        sent_via = "No delivery method available. Code: " + reset_code
+        sent_via = "No delivery. Code: " + reset_code
     
     return {"success": True, "message": f"Reset code sent via {sent_via}", "sent_via": sent_via}
 
