@@ -359,6 +359,7 @@ function renderHome(){
             `:`
             <div class="feature-card" onclick="navigateToTab('contracts')"><div class="card-label">Jobs</div><div class="card-title">Available Work</div><div class="card-desc">Accept contracts waiting for you</div></div>
             <div class="feature-card" onclick="openProviderProfile()"><div class="card-label">Profile</div><div class="card-title">Service Profile</div><div class="card-desc">Add skills, rates, portfolio</div></div>
+            <div class="feature-card" onclick="viewMyProfile()"><div class="card-label">View</div><div class="card-title">My Public Profile</div><div class="card-desc">See how customers view you</div></div>
             <div class="feature-card" onclick="openPayoutRequest()"><div class="card-label">Earn</div><div class="card-title">Request Payout</div><div class="card-desc">Withdraw via UPI or Bank</div></div>
             `}
             <div class="feature-card" onclick="openAIVerify()"><div class="card-label" style="color:var(--ai)">AI</div><div class="card-title">Work Verification</div><div class="card-desc">AI analyzes proof of work</div></div>
@@ -536,6 +537,30 @@ async function doResetPassword(){
     const d = await r.json();
     if(d.success){showToast('Password reset! Please login.');showLoginModal();}
     else showToast(d.detail||'Failed','error');
+}
+
+async function viewMyProfile(){
+    const r = await fetch(BASE+'/api/v1/providers/my-profile', {headers:{'Authorization':'Bearer '+token}});
+    const d = await r.json();
+    if(d.success && d.profile){
+        const p = d.profile;
+        document.getElementById('modalContent').innerHTML = `
+            <h3>My Public Profile</h3>
+            <div style="background:var(--bg);padding:1rem;border-radius:var(--radius-sm);margin-bottom:0.5rem">
+                <p><strong>Skills:</strong> ${(p.skills||[]).join(', ') || 'Not set'}</p>
+                <p><strong>Categories:</strong> ${(p.categories||[]).join(', ') || 'Not set'}</p>
+                <p><strong>Experience:</strong> ${p.experience_years||0} years</p>
+                <p><strong>Rate:</strong> ${p.hourly_rate||'Not set'} /hr</p>
+                <p><strong>Bio:</strong> ${p.bio||'Not set'}</p>
+                <p><strong>Cities:</strong> ${(p.service_cities||[]).join(', ') || 'Not set'}</p>
+                ${p.packages ? `<p><strong>Packages:</strong> Basic: ${p.packages.basic?.price||'-'}, Standard: ${p.packages.standard?.price||'-'}, Premium: ${p.packages.premium?.price||'-'}</p>` : ''}
+            </div>
+            <button class="btn btn-outline" style="width:100%" onclick="closeModal()">Close</button>
+        `;
+        document.getElementById('modalOverlay').classList.add('show');
+    } else {
+        showToast('Profile not found. Create one first!');
+    }
 }
 
 // ==================== START ====================
