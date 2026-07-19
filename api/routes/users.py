@@ -8,7 +8,6 @@ from core.database.mongodb import mongodb
 from core.security.limiter import limiter
 from core.security.validator import security as validator
 from core.messaging.whatsapp_bot import whatsapp_bot
-from core.messaging.email_notifications import email_notifier
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
@@ -218,24 +217,16 @@ async def forgot_password(request: Request, data: dict):
     sent_via = ""
     
     # Try WhatsApp
-    if method in ("whatsapp", "email"):
-        phone_num = user.get("phone_number", "")
-        if phone_num:
-            try:
-                whatsapp_bot.send_message(phone_num, f"Dokets Reset Code: {reset_code}")
-                sent_via = "WhatsApp"
-            except:
-                pass
-    
-    # Try Email
-    if method == "email" or not sent_via:
+    phone_num = user.get("phone_number", "")
+    if phone_num:
         try:
-            if email_notifier:
-                email_notifier.send_email(user["email"], "Dokets Reset Code", f"<p>Your code: <strong>{reset_code}</strong></p>")
-                sent_via = sent_via + "+Email" if sent_via else "Email"
+            from core.messaging.whatsapp_bot import whatsapp_bot
+            whatsapp_bot.send_message(phone_num, f"Dokets Reset Code: {reset_code}")
+            sent_via = "WhatsApp"
         except:
             pass
     
+    # If WhatsApp failed and user wants email, or no phone
     if not sent_via:
         sent_via = "Code: " + reset_code
     
