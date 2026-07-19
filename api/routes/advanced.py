@@ -9,18 +9,22 @@ from core.messaging.support import support
 router = APIRouter(prefix="/api/v1", tags=["Advanced"])
 
 # ========== Payouts ==========
-# ========== Payouts ==========
 @router.post("/payouts/request")
 async def request_payout(data: dict, current_user: dict = Depends(get_current_user)):
     """Request a payout"""
-    payout = await payout_engine.request_payout(
-        current_user["user_id"],
-        data.get("amount", 0),
-        data.get("currency", "INR"),
-        data.get("method", "upi"),
-        data.get("upi_id") or data.get("bank_account", "")
-    )
-    return {"success": True, "payout": payout}
+    try:
+        payout = await payout_engine.request_payout(
+            current_user["user_id"],
+            data.get("amount", 0),
+            data.get("currency", "INR"),
+            data.get("method", "upi"),
+            data.get("upi_id") or data.get("bank_account", "")
+        )
+        if isinstance(payout, dict) and "error" in payout:
+            return {"success": False, "detail": payout["error"]}
+        return {"success": True, "payout": payout}
+    except Exception as e:
+        return {"success": False, "detail": str(e)}
 
 @router.get("/payouts")
 async def get_payouts(current_user: dict = Depends(get_current_user)):
