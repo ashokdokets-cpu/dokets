@@ -206,7 +206,7 @@ async def forgot_password(request: Request, data: dict):
     if users is not None:
         from bson import ObjectId
         await users.update_one(
-            {"_id": user["_id"]},
+            {"_id": ObjectId(user["_id"])} if isinstance(user["_id"], str) else {"_id": user["_id"]},
             {"$set": {
                 "reset_code": reset_code,
                 "reset_code_expiry": str(datetime.utcnow() + timedelta(minutes=15))
@@ -259,13 +259,12 @@ async def reset_password(request: Request, data: dict):
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
     
     users = await get_users_collection()
-    if users is not None:
-        user = await users.find_one({"email": email, "reset_code": code})
-        if not user:
+        if users is not None:
+        user = await users.find_one({"email": email})
+        if not user or user.get("reset_code") != code:
             raise HTTPException(status_code=400, detail="Invalid reset code")
         
         # Check expiry
-        from datetime import timedelta
         expiry = user.get("reset_code_expiry")
         if expiry and datetime.utcnow() > datetime.fromisoformat(expiry):
             raise HTTPException(status_code=400, detail="Reset code expired")
@@ -273,7 +272,7 @@ async def reset_password(request: Request, data: dict):
         # Update password
         from bson import ObjectId
         await users.update_one(
-            {"_id": user["_id"]},
+            {"_id": ObjectId(user["_id"])} if isinstance(user["_id"], str) else {"_id": user["_id"]},
             {"$set": {
                 "hashed_password": hash_password(new_password),
                 "reset_code": None,
