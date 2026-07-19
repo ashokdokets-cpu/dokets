@@ -96,7 +96,7 @@ class PayoutValidator:
         return result
 
 class PayoutEngine:
-        def __init__(self):
+    def __init__(self):
         self.platform_fee = 0.01  # 1%
 
     async def request_payout(self, user_id: str, amount: float, currency: str = "INR", method: str = "upi", detail: str = ""):
