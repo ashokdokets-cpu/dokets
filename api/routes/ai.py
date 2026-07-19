@@ -14,7 +14,6 @@ router = APIRouter(prefix="/api/v1/ai", tags=["AI"])
 @router.post("/extract-contract")
 async def extract_contract(data: dict, current_user: dict = Depends(get_current_user)):
     """Extract contract details from text using AI"""
-    
     text = data.get("text", "")
     language = data.get("language", "en")
     
@@ -23,11 +22,31 @@ async def extract_contract(data: dict, current_user: dict = Depends(get_current_
     
     result = await ai_engine.extract_contract_from_text(text, language)
     
-    return {
-        "success": True,
-        "message": "Contract extracted successfully",
-        "data": result
+    # Fix currency based on text keywords and user location
+    currency_keywords = {
+        "rupees": "INR", "rs": "INR", "₹": "INR", "inr": "INR",
+        "dollars": "USD", "$": "USD", "usd": "USD",
+        "euros": "EUR", "€": "EUR", "eur": "EUR",
+        "pounds": "GBP", "£": "GBP", "gbp": "GBP",
+        "reais": "BRL", "r$": "BRL", "brl": "BRL",
+        "dirhams": "AED", "aed": "AED",
+        "riyals": "SAR", "sar": "SAR",
     }
+    
+    text_lower = text.lower()
+    detected_currency = None
+    for keyword, currency in currency_keywords.items():
+        if keyword in text_lower:
+            detected_currency = currency
+            break
+    
+    # Use detected currency or user's currency
+    if detected_currency:
+        result["currency"] = detected_currency
+    elif userData and userData.get("currency"):
+        result["currency"] = userData["currency"]
+    
+    return {"success": True, "message": "Contract extracted successfully", "data": result}
 
 @router.post("/verify-work")
 async def verify_work(data: dict, current_user: dict = Depends(get_current_user)):
