@@ -8,12 +8,106 @@ import logging
 
 logger = logging.getLogger("dokets.payouts")
 
+class PayoutValidator:
+    """Global payout detail validator"""
+    
+    @staticmethod
+    def validate_upi(upi_id: str) -> bool:
+        """Validate Indian UPI ID format"""
+        import re
+        return bool(re.match(r'^[\w.-]+@[\w]+$', upi_id))
+    
+    @staticmethod
+    def validate_iban(iban: str) -> bool:
+        """Validate IBAN (Europe, Middle East, etc.)"""
+        import re
+        return bool(re.match(r'^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$', iban.replace(' ', '')))
+    
+    @staticmethod
+    def validate_us_account(routing: str, account: str) -> bool:
+        """Validate US bank details"""
+        import re
+        return bool(re.match(r'^\d{9}$', routing)) and bool(re.match(r'^\d{8,17}$', account))
+    
+    @staticmethod
+    def validate_uk_account(sort_code: str, account: str) -> bool:
+        """Validate UK bank details"""
+        import re
+        return bool(re.match(r'^\d{6}$', sort_code)) and bool(re.match(r'^\d{8}$', account))
+    
+    @staticmethod
+    def validate_global(detail: str, method: str, currency: str) -> dict:
+        """Validate payout details based on method and currency"""
+        import re
+        
+        result = {"valid": True, "message": "", "normalized": detail}
+        
+        if method == "upi":
+            if not PayoutValidator.validate_upi(detail):
+                result = {"valid": False, "message": "Invalid UPI ID format (e.g., name@upi)"}
+        
+        elif method == "bank":
+            # Detect format by currency/country patterns
+            cleaned = detail.replace(' ', '').replace('-', '')
+            
+            if currency == "INR":
+                # Indian: IFSC + Account (e.g., SBIN0001234|12345678901)
+                parts = detail.split('|')
+                if len(parts) == 2:
+                    ifsc, acct = parts[0].strip(), parts[1].strip()
+                    if not re.match(r'^[A-Z]{4}0[A-Z0-9]{6}$', ifsc):
+                        result = {"valid": False, "message": "Invalid IFSC code"}
+                    elif not re.match(r'^\d{9,18}$', acct):
+                        result = {"valid": False, "message": "Invalid account number"}
+                    else:
+                        result["normalized"] = f"{ifsc}|{acct}"
+                else:
+                    result = {"valid": False, "message": "Format: IFSC|Account (e.g., SBIN0001234|12345678901)"}
+            
+            elif currency in ["USD", "CAD"]:
+                parts = detail.split('|')
+                if len(parts) == 2:
+                    routing, acct = parts[0].strip(), parts[1].strip()
+                    if not PayoutValidator.validate_us_account(routing, acct):
+                        result = {"valid": False, "message": "Invalid routing (9 digits) or account (8-17 digits)"}
+                    else:
+                        result["normalized"] = f"{routing}|{acct}"
+                else:
+                    result = {"valid": False, "message": "Format: Routing|Account (e.g., 123456789|12345678901)"}
+            
+            elif currency in ["EUR", "GBP", "AED", "SAR"]:
+                # IBAN format
+                if not PayoutValidator.validate_iban(cleaned):
+                    result = {"valid": False, "message": "Invalid IBAN format"}
+                else:
+                    result["normalized"] = cleaned
+            
+            elif currency in ["GBP"]:
+                parts = detail.split('|')
+                if len(parts) == 2:
+                    sort, acct = parts[0].strip(), parts[1].strip()
+                    if not PayoutValidator.validate_uk_account(sort, acct):
+                        result = {"valid": False, "message": "Invalid sort code (6 digits) or account (8 digits)"}
+                    else:
+                        result["normalized"] = f"{sort}|{acct}"
+                else:
+                    result = {"valid": False, "message": "Format: SortCode|Account (e.g., 123456|12345678)"}
+        
+        return result
+
 class PayoutEngine:
-    def __init__(self):
+        def __init__(self):
         self.platform_fee = 0.01  # 1%
 
     async def request_payout(self, user_id: str, amount: float, currency: str = "INR", method: str = "upi", detail: str = ""):
         """Request a payout - saved to MongoDB"""
+        # Validate payout details
+        validator = PayoutValidator()
+        validation = validator.validate_global(detail, method, currency)
+        if not validation["valid"]:
+            return {"success": False, "error": validation["message"]}
+        detail = validation["normalized"]
+        
         db = mongodb.get_db()
         
         payout = {
