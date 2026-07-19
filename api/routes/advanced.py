@@ -121,13 +121,14 @@ async def get_recurring(current_user: dict = Depends(get_current_user)):
 async def get_invoice(contract_id: str):
     from api.routes.contracts import _contracts
     from core.payments.invoice import generate_invoice, get_invoice_html
-    
-    contract = next((c for c in _contracts if c["id"] == contract_id), None)
-    if not contract:
-        raise HTTPException(status_code=404)
-    
-    invoice = generate_invoice(contract)
-    return {"invoice": invoice, "html": get_invoice_html(invoice)}
+    try:
+        contract = next((c for c in _contracts if c["id"] == contract_id), None)
+        if not contract:
+            return {"invoice": None, "html": "<p>Contract not found</p>"}
+        invoice = generate_invoice(contract)
+        return {"invoice": invoice, "html": get_invoice_html(invoice)}
+    except Exception as e:
+        return {"invoice": None, "html": f"<p>Invoice error: {str(e)}</p>"}
 
 # ========== Chatbot ==========
 @router.post("/chatbot/ask")
