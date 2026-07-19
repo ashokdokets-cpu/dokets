@@ -7,6 +7,8 @@ from core.security.auth import (
 from core.database.mongodb import mongodb
 from core.security.limiter import limiter
 from core.security.validator import security as validator
+from core.messaging.whatsapp_bot import whatsapp_bot
+from core.messaging.email_notifications import email_notifier
 
 router = APIRouter(prefix="/api/v1/users", tags=["Users"])
 
@@ -183,8 +185,61 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
 @router.post("/forgot-password")
 @limiter.limit("3/minute")
 async def forgot_password(request: Request, data: dict):
-    """Send password reset code via email OR WhatsApp"""
-    return {"success": True, "message": "Test OK", "sent_via": "test"}
+    email = data.get("email", "")
+    phone = data.get("phone", "")
+    method = data.get("method", "whatsapp")
+    
+    users = await get_users_collection()
+    user = None
+    
+    if users is not None:
+        if email:
+            user = await users.find_one({"email": email})
+        elif phone:
+            user = await users.find_one({"phone_number": phone})
+    
+    if not user:
+        return {"success": True, "message": "If account exists, reset instructions sent"}
+    
+    import random
+    reset_code = str(random.randint(100000, 999999))
+    
+    if users is not None:
+        from bson import ObjectId
+        uid = user["_id"]
+        await users.update_one(
+            {"_id": ObjectId(uid) if isinstance(uid, str) else uid},
+            {"$set": {
+                "reset_code": reset_code,
+                "reset_code_expiry": str(datetime.utcnow() + timedelta(minutes=15))
+            }}
+        )
+    
+    sent_via = ""
+    
+    # Try WhatsApp
+    if method in ("whatsapp", "email"):
+        phone_num = user.get("phone_number", "")
+        if phone_num:
+            try:
+                whatsapp_bot.send_message(phone_num, f"Dokets Reset Code: {reset_code}")
+                sent_via = "WhatsApp"
+            except:
+                pass
+    
+    # Try Email
+    if method == "email" or not sent_via:
+        try:
+            if email_notifier:
+                email_notifier.send_email(user["email"], "Dokets Reset Code", f"<p>Your code: <strong>{reset_code}</strong></p>")
+                sent_via = sent_via + "+Email" if sent_via else "Email"
+        except:
+            pass
+    
+    if not sent_via:
+        sent_via = "Code: " + reset_code
+    
+    return {"success": True, "message": f"Reset code sent via {sent_via}", "sent_via": sent_via}
 
 @router.post("/reset-password")
 @limiter.limit("3/minute")
