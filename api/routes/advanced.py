@@ -121,12 +121,27 @@ async def get_recurring(current_user: dict = Depends(get_current_user)):
 async def get_invoice(contract_id: str):
     from api.routes.contracts import _contracts
     from core.payments.invoice import generate_invoice, get_invoice_html
+    from core.database.mongodb import mongodb
+    
+    contract = next((c for c in _contracts if c["id"] == contract_id), None)
+    
+    # If not in memory, check MongoDB
+    if not contract:
+        db = mongodb.get_db()
+        if db is not None:
+            contract = await db.contracts.find_one({"id": contract_id})
+    
+    if not contract:
+        return {"invoice": None, "html": "<p>Contract not found</p>"}
+    
     try:
-        contract = next((c for c in _contracts if c["id"] == contract_id), None)
-        if not contract:
-            return {"invoice": None, "html": "<p>Contract not found</p>"}
+        # Convert ObjectId if needed
+        if "_id" in contract:
+            contract["_id"] = str(contract["_id"])
+        
         invoice = generate_invoice(contract)
-        return {"invoice": invoice, "html": get_invoice_html(invoice)}
+        html = get_invoice_html(invoice)
+        return {"invoice": invoice, "html": html}
     except Exception as e:
         return {"invoice": None, "html": f"<p>Invoice error: {str(e)}</p>"}
 
