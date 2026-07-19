@@ -479,6 +479,14 @@ async def gdpr():
     <p>Email us at contact@dokets.com to exercise any of your GDPR rights.</p>
     <p><a href="/">← Back to Home</a></p></body></html>"""
 
+@app.get("/signup", response_class=HTMLResponse)
+async def signup_page(request: Request):
+    """Landing page for referred users"""
+    ref_code = request.query_params.get("ref", "")
+    with open("frontend/signup.html", "r", encoding="utf-8") as f:
+        html = f.read()
+    html = html.replace("{{REF_CODE}}", ref_code)
+    return html
 
 @app.get("/health")
 async def health():
