@@ -360,6 +360,7 @@ function renderHome(){
             <div class="feature-card" onclick="navigateToTab('contracts')"><div class="card-label">Jobs</div><div class="card-title">Available Work</div><div class="card-desc">Accept contracts waiting for you</div></div>
             <div class="feature-card" onclick="openProviderProfile()"><div class="card-label">Profile</div><div class="card-title">Service Profile</div><div class="card-desc">Add skills, rates, portfolio</div></div>
             <div class="feature-card" onclick="viewMyProfile()"><div class="card-label">View</div><div class="card-title">My Public Profile</div><div class="card-desc">See how customers view you</div></div>
+            <div class="feature-card" onclick="viewPayoutHistory()"><div class="card-label">History</div><div class="card-title">Payout History</div><div class="card-desc">Track your withdrawals</div></div>
             <div class="feature-card" onclick="openPayoutRequest()"><div class="card-label">Earn</div><div class="card-title">Request Payout</div><div class="card-desc">Withdraw via UPI or Bank</div></div>
             `}
             <div class="feature-card" onclick="openAIVerify()"><div class="card-label" style="color:var(--ai)">AI</div><div class="card-title">Work Verification</div><div class="card-desc">AI analyzes proof of work</div></div>
@@ -561,6 +562,39 @@ async function viewMyProfile(){
     } else {
         showToast('Profile not found. Create one first!');
     }
+}
+
+async function viewPayoutHistory(){
+    const r = await fetch(BASE+'/api/v1/payouts', {headers:{'Authorization':'Bearer '+token}});
+    const d = await r.json();
+    const payouts = d.payouts || [];
+    const stats = d.stats || {};
+    
+    let html = `<h3>Payout History</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:1rem;text-align:center">
+            <div style="background:var(--bg);padding:0.5rem;border-radius:var(--radius-sm)"><strong>${stats.total_requested||0}</strong><br><span style="font-size:0.7rem;color:var(--muted)">Requested</span></div>
+            <div style="background:var(--bg);padding:0.5rem;border-radius:var(--radius-sm)"><strong>${stats.total_paid||0}</strong><br><span style="font-size:0.7rem;color:var(--muted)">Paid</span></div>
+            <div style="background:var(--bg);padding:0.5rem;border-radius:var(--radius-sm)"><strong>${stats.pending||0}</strong><br><span style="font-size:0.7rem;color:var(--muted)">Pending</span></div>
+        </div>`;
+    
+    if(payouts.length === 0) {
+        html += '<p style="text-align:center;color:var(--muted)">No payouts yet</p>';
+    } else {
+        html += '<div style="display:flex;flex-direction:column;gap:0.4rem;max-height:300px;overflow-y:auto">';
+        payouts.forEach(p => {
+            const statusColor = p.status==='completed'?'#22c55e':p.status==='approved'?'#60a5fa':'#f59e0b';
+            html += `<div style="background:var(--bg);padding:0.75rem;border-radius:var(--radius-sm);border-left:3px solid ${statusColor}">
+                <div style="display:flex;justify-content:space-between"><strong>${p.id}</strong><span style="color:${statusColor};font-size:0.75rem">${p.status.toUpperCase()}</span></div>
+                <div style="font-size:0.8rem;color:var(--muted)">${p.currency} ${p.net_amount||p.amount} via ${p.method} | Fee: ${p.fee||0}</div>
+                <div style="font-size:0.65rem;color:var(--muted)">${new Date(p.requested_at).toLocaleDateString()}</div>
+            </div>`;
+        });
+        html += '</div>';
+    }
+    
+    html += '<button class="btn btn-outline" style="margin-top:0.75rem;width:100%" onclick="closeModal()">Close</button>';
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('show');
 }
 
 // ==================== START ====================

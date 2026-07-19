@@ -9,22 +9,43 @@ from core.messaging.support import support
 router = APIRouter(prefix="/api/v1", tags=["Advanced"])
 
 # ========== Payouts ==========
+# ========== Payouts ==========
 @router.post("/payouts/request")
 async def request_payout(data: dict, current_user: dict = Depends(get_current_user)):
-    payout = payout_engine.request_payout(
+    """Request a payout"""
+    payout = await payout_engine.request_payout(
         current_user["user_id"],
-        data["amount"],
+        data.get("amount", 0),
         data.get("currency", "INR"),
         data.get("method", "upi"),
-        data.get("upi_id"),
-        data.get("bank_account")
+        data.get("upi_id") or data.get("bank_account", "")
     )
     return {"success": True, "payout": payout}
 
 @router.get("/payouts")
 async def get_payouts(current_user: dict = Depends(get_current_user)):
-    return payout_engine.get_user_payouts(current_user["user_id"])
+    """Get my payout history"""
+    payouts = await payout_engine.get_user_payouts(current_user["user_id"])
+    stats = await payout_engine.get_payout_stats(current_user["user_id"])
+    return {"success": True, "payouts": payouts, "stats": stats}
 
+@router.get("/payouts/pending")
+async def get_pending_payouts(current_user: dict = Depends(get_current_user)):
+    """Admin: Get pending payouts"""
+    payouts = await payout_engine.get_pending_payouts()
+    return {"success": True, "payouts": payouts}
+
+@router.put("/payouts/{payout_id}/approve")
+async def approve_payout(payout_id: str, current_user: dict = Depends(get_current_user)):
+    """Admin: Approve a payout"""
+    result = await payout_engine.approve_payout(payout_id, current_user["user_id"])
+    return result
+
+@router.put("/payouts/{payout_id}/complete")
+async def complete_payout(payout_id: str, data: dict, current_user: dict = Depends(get_current_user)):
+    """Admin: Mark payout as completed"""
+    result = await payout_engine.complete_payout(payout_id, data.get("transaction_id", ""))
+    return result
 # ========== Video Calls ==========
 @router.post("/video/create")
 async def create_meeting(data: dict, current_user: dict = Depends(get_current_user)):
