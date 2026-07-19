@@ -243,3 +243,14 @@ async def get_provider_packages(user_id: str):
         if profile and profile.get("packages"):
             return {"success": True, "packages": profile["packages"]}
     return {"success": False, "packages": None}
+
+@router.get("/my-profile")
+async def my_provider_profile(current_user: dict = Depends(get_current_user)):
+    """Get my own provider profile"""
+    db = mongodb.get_db()
+    if db is not None:
+        profile = await db.provider_profiles.find_one({"user_id": current_user["user_id"]})
+        if profile:
+            profile["_id"] = str(profile["_id"])
+            return {"success": True, "profile": profile}
+    return {"success": False, "message": "Profile not found"}
