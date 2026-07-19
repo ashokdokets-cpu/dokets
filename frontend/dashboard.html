@@ -496,7 +496,6 @@ async function updateUILanguage(lang){
     try {
         const r = await fetch(BASE+'/api/v1/translations/'+lang);
         window._translations = await r.json();
-        // Re-render current tab with translations
         if (activeTab === 'home') renderHome();
         else if (activeTab === 'contracts') renderContractsTab();
         else if (activeTab === 'marketplace') renderMarketplace();
