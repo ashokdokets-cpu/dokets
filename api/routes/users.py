@@ -227,7 +227,7 @@ async def forgot_password(request: Request, data: dict):
             sent_via = "WhatsApp"
     
     # Send via Email (safe)
-    if method == "email" or (method == "whatsapp" and not sent_via):
+        if method == "email" or (method == "whatsapp" and not sent_via):
         try:
             from core.messaging.email_notifications import email_notifier
             if email_notifier:
@@ -239,8 +239,8 @@ async def forgot_password(request: Request, data: dict):
                 sent_via = "Email" if not sent_via else sent_via + " + Email"
             else:
                 sent_via = "WhatsApp (email not configured)"
-        except Exception:
-            pass
+        except Exception as e:
+            sent_via = "Email error: " + str(e)[:100]
     
     if not sent_via:
         sent_via = "No delivery method available. Code: " + reset_code
