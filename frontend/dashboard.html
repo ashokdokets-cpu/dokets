@@ -490,6 +490,7 @@ function showToast(msg,type='success'){const t=document.createElement('div');t.c
 function switchLanguage(lang){
     localStorage.setItem('dokets_lang', lang);
     updateUILanguage(lang);
+    showToast('Language changed to ' + lang.toUpperCase());
 }
 
 async function updateUILanguage(lang){
