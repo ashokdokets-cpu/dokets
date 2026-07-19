@@ -259,20 +259,19 @@ async def reset_password(request: Request, data: dict):
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
     
     users = await get_users_collection()
-        if users is not None:
+    if users is not None:
         user = await users.find_one({"email": email})
         if not user or user.get("reset_code") != code:
             raise HTTPException(status_code=400, detail="Invalid reset code")
         
-        # Check expiry
         expiry = user.get("reset_code_expiry")
         if expiry and datetime.utcnow() > datetime.fromisoformat(expiry):
             raise HTTPException(status_code=400, detail="Reset code expired")
         
-        # Update password
         from bson import ObjectId
+        uid = user["_id"]
         await users.update_one(
-            {"_id": ObjectId(user["_id"])} if isinstance(user["_id"], str) else {"_id": user["_id"]},
+            {"_id": ObjectId(uid) if isinstance(uid, str) else uid},
             {"$set": {
                 "hashed_password": hash_password(new_password),
                 "reset_code": None,
