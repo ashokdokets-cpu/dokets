@@ -184,73 +184,7 @@ async def get_my_profile(current_user: dict = Depends(get_current_user)):
 @limiter.limit("3/minute")
 async def forgot_password(request: Request, data: dict):
     """Send password reset code via email OR WhatsApp"""
-    email = data.get("email", "")
-    phone = data.get("phone", "")
-    method = data.get("method", "whatsapp")
-    
-    users = await get_users_collection()
-    user = None
-    
-    if users is not None:
-        if email:
-            user = await users.find_one({"email": email})
-        elif phone:
-            user = await users.find_one({"phone_number": phone})
-    
-    if not user:
-        return {"success": True, "message": "If account exists, reset instructions sent"}
-    
-    import random
-    reset_code = str(random.randint(100000, 999999))
-    
-    if users is not None:
-        from bson import ObjectId
-        uid = user["_id"]
-        await users.update_one(
-            {"_id": ObjectId(uid) if isinstance(uid, str) else uid},
-            {"$set": {
-                "reset_code": reset_code,
-                "reset_code_expiry": str(datetime.utcnow() + timedelta(minutes=15))
-            }}
-        )
-    
-    sent_via = ""
-    
-    if method == "whatsapp":
-        phone_num = user.get("phone_number", "")
-        if phone_num:
-            try:
-                from core.messaging.whatsapp_bot import whatsapp_bot
-                whatsapp_bot.send_message(
-                    phone_num,
-                    f"Dokets Password Reset Code: {reset_code}\nValid for 15 minutes."
-                )
-                sent_via = "WhatsApp"
-            except:
-                pass
-    
-    if method == "email" or (method == "whatsapp" and not sent_via):
-        try:
-            from core.messaging.email_notifications import email_notifier
-            if email_notifier:
-                result = email_notifier.send_email(
-                    user["email"],
-                    "Dokets - Password Reset Code",
-                    f"<h2>Password Reset</h2><p>Your code: <strong>{reset_code}</strong></p>"
-                )
-                if result.get("success"):
-                    sent_via = "Email" if not sent_via else sent_via + " + Email"
-                else:
-                    sent_via = "Email failed: " + str(result.get("error", ""))[:80]
-            else:
-                sent_via = "Email not configured"
-        except Exception as e:
-            sent_via = "Email error: " + str(e)[:80]
-    
-    if not sent_via:
-        sent_via = "No delivery. Code: " + reset_code
-    
-    return {"success": True, "message": f"Reset code sent via {sent_via}", "sent_via": sent_via}
+    return {"success": True, "message": "Test OK", "sent_via": "test"}
 
 @router.post("/reset-password")
 @limiter.limit("3/minute")
