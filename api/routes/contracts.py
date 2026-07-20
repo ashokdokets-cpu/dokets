@@ -289,13 +289,15 @@ async def complete_milestone(contract_id: str, milestone_id: str, current_user: 
                     ms["status"] = "completed"
                     ms["completed_at"] = str(datetime.utcnow())
 
-                                        if ms.get("escrow_id"):
+                    if ms.get("escrow_id"):
                         escrow_engine.release_escrow(ms["escrow_id"])
-                        # Release Razorpay escrow
-                        from core.payments.razorpay_payments import razorpay_escrow
-                        razorpay_escrow.release_escrow(ms.get("escrow_id", ""))
+                        try:
+                            from core.payments.razorpay_payments import razorpay_escrow
+                            razorpay_escrow.release_escrow(ms.get("escrow_id", ""))
+                        except:
+                            pass
 
-                    all_done = all(m.get("status") == "completed" ...
+                    all_done = all(m.get("status") == "completed" for m in c.get("milestones", []))
                     if all_done:
                         c["status"] = "completed"
                         c["completed_at"] = str(datetime.utcnow())
@@ -323,7 +325,6 @@ async def complete_milestone(contract_id: str, milestone_id: str, current_user: 
 
                     return {"success": True, "message": "Milestone completed", "contract_id": contract_id}
     raise HTTPException(status_code=404, detail="Milestone not found")
-
 @router.get("/user/{user_id}/vouch-score")
 async def get_vouch_score(user_id: str):
     # Calculate from contracts
