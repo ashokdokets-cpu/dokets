@@ -251,6 +251,7 @@
             <select id="langSwitcher" onchange="switchLanguage(this.value)" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.2rem 0.3rem;border-radius:4px;font-size:0.65rem">
     <option value="en">EN</option><option value="hi">HI</option><option value="es">ES</option><option value="pt">PT</option><option value="fr">FR</option><option value="ar">AR</option><option value="id">ID</option><option value="bn">BN</option><option value="zh">ZH</option><option value="de">DE</option><option value="ja">JA</option><option value="ko">KO</option>
 </select>
+            <button class="btn btn-outline btn-xs" onclick="openPhoneUpdate()" title="Update Phone" style="font-size:0.7rem">📱</button>
             <button class="btn btn-outline btn-xs" onclick="logout()" style="font-size:0.7rem">Log out</button>
         </div>
     </div>
@@ -722,6 +723,50 @@ async function viewJobDetails(jid){
     html += '<button class="btn btn-outline" style="margin-top:0.75rem;width:100%" onclick="closeModal()">Close</button>';
     document.getElementById('modalContent').innerHTML = html;
     document.getElementById('modalOverlay').classList.add('show');
+}
+
+function openPhoneUpdate(){
+    document.getElementById('modalContent').innerHTML = `
+        <h3>Update Phone Number</h3>
+        <p style="color:var(--muted);font-size:0.8rem;margin-bottom:0.75rem">Enter your new phone with country code</p>
+        <div class="form-group"><label>New Phone</label><input id="newPhone" placeholder="+919100014859"></div>
+        <button class="btn btn-primary" onclick="sendPhoneOTP()">Send Verification Code</button>
+        <button class="btn btn-outline" style="margin-top:0.4rem;width:100%" onclick="closeModal()">Cancel</button>
+        <div id="phoneOtpResult" style="margin-top:0.75rem"></div>
+    `;
+    document.getElementById('modalOverlay').classList.add('show');
+}
+
+async function sendPhoneOTP(){
+    const phone = document.getElementById('newPhone').value;
+    if(!phone.startsWith('+')){
+        showToast('Must include country code (+91, +1, etc.)','error');return;
+    }
+    const r = await fetch(BASE+'/api/v1/users/verify-phone/send-otp', {
+        method:'POST', headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+        body:JSON.stringify({phone})
+    });
+    const d = await r.json();
+    document.getElementById('phoneOtpResult').innerHTML = `
+        <p style="color:#22c55e;margin-bottom:0.5rem">OTP sent via ${d.sent_via}</p>
+        <div class="form-group"><input type="text" id="phoneOtp" placeholder="Enter 6-digit OTP"></div>
+        <button class="btn btn-primary" onclick="confirmPhoneOTP()">Verify & Update</button>
+    `;
+}
+
+async function confirmPhoneOTP(){
+    const otp = document.getElementById('phoneOtp').value;
+    const r = await fetch(BASE+'/api/v1/users/verify-phone/confirm', {
+        method:'PUT', headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+        body:JSON.stringify({otp})
+    });
+    const d = await r.json();
+    if(d.success){
+        closeModal();
+        showToast('Phone updated & verified!');
+    } else {
+        showToast(d.detail||'Invalid OTP','error');
+    }
 }
 
 // ==================== START ====================
