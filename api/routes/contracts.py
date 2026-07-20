@@ -289,10 +289,13 @@ async def complete_milestone(contract_id: str, milestone_id: str, current_user: 
                     ms["status"] = "completed"
                     ms["completed_at"] = str(datetime.utcnow())
 
-                    if ms.get("escrow_id"):
+                                        if ms.get("escrow_id"):
                         escrow_engine.release_escrow(ms["escrow_id"])
+                        # Release Razorpay escrow
+                        from core.payments.razorpay_payments import razorpay_escrow
+                        razorpay_escrow.release_escrow(ms.get("escrow_id", ""))
 
-                    all_done = all(m.get("status") == "completed" for m in c.get("milestones", []))
+                    all_done = all(m.get("status") == "completed" ...
                     if all_done:
                         c["status"] = "completed"
                         c["completed_at"] = str(datetime.utcnow())

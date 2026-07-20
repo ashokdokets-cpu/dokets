@@ -4,7 +4,7 @@ Dokets VouchAI - Payment & WhatsApp Routes
 
 from fastapi import APIRouter, HTTPException, Depends, Request
 from core.security.auth import get_current_user
-from core.payments.razorpay_payments import razorpay_payments
+from core.payments.razorpay_payments import razorpay_escrow
 from core.messaging.whatsapp_bot import whatsapp_bot
 from core.messaging.notifications import notifications
 from config.settings import settings
@@ -15,19 +15,23 @@ router = APIRouter(prefix="/api/v1", tags=["Payments & WhatsApp"])
 
 @router.post("/payments/create-order")
 async def create_payment_order(data: dict, current_user: dict = Depends(get_current_user)):
-    """Create a Razorpay payment order"""
+    """Create a Razorpay escrow order"""
     amount = data.get("amount", 0)
     currency = data.get("currency", "INR")
-    contract_id = data.get("contract_id", "TEST")
-    milestone_id = data.get("milestone_id", "TEST")
+    contract_id = data.get("contract_id", "PENDING")
+    milestone_id = data.get("milestone_id", "PENDING")
+    provider_id = data.get("provider_id", "")
     
-    order = razorpay_payments.create_escrow_order(contract_id, milestone_id, amount)
-    
-    notifications.send_payment_received(
-        current_user["user_id"], amount, currency
+    order = razorpay_escrow.create_escrow_order(
+        customer_id=current_user["user_id"],
+        provider_id=provider_id,
+        amount=amount,
+        currency=currency,
+        contract_id=contract_id,
+        milestone_id=milestone_id
     )
     
-       # Build payment links based on currency
+    # Build payment links based on currency
         
     if currency == "INR":
         payment_links = {
@@ -85,7 +89,7 @@ async def verify_payment(data: dict, current_user: dict = Depends(get_current_us
     order_id = data.get("order_id")
     signature = data.get("signature")
     
-    verified = razorpay_payments.verify_payment(payment_id, order_id, signature)
+    verified = razorpay_escrow.verify_payment(payment_id, order_id, signature)
     
     return {"success": verified, "message": "Payment verified" if verified else "Verification failed"}
 
