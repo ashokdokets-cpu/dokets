@@ -488,6 +488,27 @@ async def signup_page(request: Request):
     html = html.replace("{{REF_CODE}}", ref_code)
     return html
 
+@app.get("/escrow-platform", response_class=HTMLResponse)
+async def seo_escrow():
+    return """<html><head><title>AI Escrow Platform - Dokets VouchAI | 1% Fee</title>
+    <meta name="description" content="Secure AI-powered escrow platform. Hold payments until work verified. 1% fee. Global.">
+    </head><body><h1>AI Escrow Platform</h1><p>Dokets VouchAI provides secure escrow services...</p>
+    <a href="/dashboard">Get Started</a></body></html>"""
+
+@app.get("/freelancer-payments", response_class=HTMLResponse)
+async def seo_freelancer():
+    return """<html><head><title>Freelancer Payment Protection - Dokets VouchAI</title>
+    <meta name="description" content="Protect your freelancer payments with AI escrow. Only 1% fee.">
+    </head><body><h1>Freelancer Payments</h1><p>Secure milestone-based payments...</p>
+    <a href="/dashboard">Get Started</a></body></html>"""
+
+@app.get("/ai-contracts", response_class=HTMLResponse)
+async def seo_ai():
+    return """<html><head><title>AI Smart Contracts - Dokets VouchAI</title>
+    <meta name="description" content="Create contracts with AI. Just describe your work, AI builds the contract.">
+    </head><body><h1>AI Smart Contracts</h1><p>Describe work naturally...</p>
+    <a href="/dashboard">Get Started</a></body></html>"""
+
 @app.get("/health")
 async def health():
     db_status = "connected" if mongodb.db is not None else "disconnected"
