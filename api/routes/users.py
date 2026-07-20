@@ -266,4 +266,84 @@ async def reset_password(request: Request, data: dict):
     
     return {"success": True, "message": "Password reset successful! You can now login."}
 
+@router.post("/verify-phone/send-otp")
+async def send_phone_otp(data: dict, current_user: dict = Depends(get_current_user)):
+    """Send OTP to verify phone number before updating"""
+    new_phone = data.get("phone", "")
+    
+    if not new_phone.startswith("+"):
+        raise HTTPException(status_code=400, detail="Phone must include country code (e.g., +91)")
+    
+    import random
+    otp = str(random.randint(100000, 999999))
+    
+    users = await get_users_collection()
+    if users is not None:
+        from bson import ObjectId
+        await users.update_one(
+            {"_id": ObjectId(current_user["user_id"])},
+            {"$set": {
+                "pending_phone": new_phone,
+                "phone_otp": otp,
+                "phone_otp_expiry": str(datetime.utcnow() + timedelta(minutes=10))
+            }}
+        )
+    
+    try:
+        from core.messaging.whatsapp_bot import whatsapp_bot
+        whatsapp_bot.send_message(new_phone, f"Dokets Phone Verification Code: {otp}\nValid for 10 minutes.")
+        sent_via = "WhatsApp"
+    except:
+        sent_via = "SMS (simulation)"
+    
+    return {"success": True, "message": f"OTP sent via {sent_via}", "sent_via": sent_via}
+
+
+@router.put("/verify-phone/confirm")
+async def confirm_phone_otp(data: dict, current_user: dict = Depends(get_current_user)):
+    """Verify OTP and update phone number"""
+    otp = data.get("otp", "")
+    
+    users = await get_users_collection()
+    if users is not None:
+        from bson import ObjectId
+        user = await users.find_one({"_id": ObjectId(current_user["user_id"])})
+        
+        if not user or user.get("phone_otp") != otp:
+            raise HTTPException(status_code=400, detail="Invalid OTP")
+        
+        expiry = user.get("phone_otp_expiry")
+        if expiry and datetime.utcnow() > datetime.fromisoformat(expiry):
+            raise HTTPException(status_code=400, detail="OTP expired")
+        
+        new_phone = user.get("pending_phone")
+        await users.update_one(
+            {"_id": ObjectId(current_user["user_id"])},
+            {"$set": {
+                "phone_number": new_phone,
+                "phone_verified": True,
+                "pending_phone": None,
+                "phone_otp": None,
+                "phone_otp_expiry": None
+            }}
+        )
+        
+        return {"success": True, "message": "Phone verified and updated!", "phone": new_phone}
+    
+    raise HTTPException(status_code=400, detail="User not found")
+
+
+@router.get("/phone-status")
+async def phone_verification_status(current_user: dict = Depends(get_current_user)):
+    """Check if phone is verified"""
+    users = await get_users_collection()
+    if users is not None:
+        from bson import ObjectId
+        user = await users.find_one({"_id": ObjectId(current_user["user_id"])})
+        if user:
+            return {
+                "phone": user.get("phone_number", ""),
+                "verified": user.get("phone_verified", False)
+            }
+    return {"phone": "", "verified": False}
 _fallback_users = []
