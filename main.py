@@ -514,6 +514,10 @@ async def health():
     db_status = "connected" if mongodb.db is not None else "disconnected"
     return {"status":"healthy","database":db_status,"version":"1.0.0"}
 
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    return HTMLResponse("<html><body><h1>Page Not Found</h1><p><a href='/'>Go to Dokets</a></p></body></html>", status_code=404)
+
 if __name__ == "__main__":
     import uvicorn
     print("\n" + "="*40)
